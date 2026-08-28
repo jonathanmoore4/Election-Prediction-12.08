@@ -1,0 +1,629 @@
+constituency_name,country/region,election,majority_proportion,winner,constituency_id,boundary_set,election_type,con_share,lib_share,lab_share,natSW_share,previous_election
+Aberavon,Wales,2001_notional,0.631,lab,565,2005,notional,0.076,0.097,0.631,0.098,1997
+Aberdeen North,Scotland,2001_notional,0.455,lab,S14000001,2005,notional,0.142,0.172,0.455,0.204,1997
+Aberdeen South,Scotland,2001_notional,0.398,lab,S14000002,2005,notional,0.192,0.279,0.398,0.116,1997
+Airdrie and Shotts,Scotland,2001_notional,0.582,lab,S14000003,2005,notional,0.062,0.075,0.582,0.193,1997
+Aldershot,South East,2001_notional,0.422,con,47,2005,notional,0.422,0.276,0.252,,1997
+Aldridge-Brownhills,West Midlands,2001_notional,0.502,con,295,2005,notional,0.502,0.086,0.402,,1997
+Altrincham & Sale West,North West,2001_notional,0.462,con,435,2005,notional,0.462,0.144,0.394,,1997
+Alyn & Deeside,Wales,2001_notional,0.523,lab,530,2005,notional,0.263,0.129,0.523,0.033,1997
+Amber Valley,East Midlands,2001_notional,0.519,lab,324,2005,notional,0.357,0.124,0.519,,1997
+Angus,Scotland,2001_notional,0.353,natSW,S14000004,2005,notional,0.25,0.143,0.234,0.353,1997
+Argyll and Bute,Scotland,2001_notional,0.299,lib,S14000005,2005,notional,0.208,0.299,0.245,0.208,1997
+Arundel & South Downs,South East,2001_notional,0.522,con,110,2005,notional,0.522,0.224,0.207,,1997
+Ashfield,East Midlands,2001_notional,0.581,lab,357,2005,notional,0.244,0.113,0.581,,1997
+Ashford,South East,2001_notional,0.474,con,76,2005,notional,0.474,0.151,0.321,,1997
+Ashton Under Lyne,North West,2001_notional,0.625,lab,436,2005,notional,0.191,0.118,0.625,,1997
+Aylesbury,South East,2001_notional,0.473,con,15,2005,notional,0.473,0.269,0.232,,1997
+Central Ayrshire,Scotland,2001_notional,0.436,lab,S14000010,2005,notional,0.37,0.054,0.436,0.12,1997
+Banbury,South East,2001_notional,0.452,con,93,2005,notional,0.452,0.159,0.35,,1997
+Banff and Buchan,Scotland,2001_notional,0.542,natSW,S14000007,2005,notional,0.201,0.09,0.142,0.542,1997
+Barking,London,2001_notional,0.609,lab,140,2005,notional,0.23,0.098,0.609,,1997
+Barnsley Central,Yorkshire and the Humber,2001_notional,0.696,lab,386,2005,notional,0.131,0.147,0.696,,1997
+Barnsley East & Mexborough,Yorkshire and the Humber,2001_notional,0.675,lab,387,2005,notional,0.124,0.159,0.675,,1997
+Barnsley West & Penistone,Yorkshire and the Humber,2001_notional,0.586,lab,388,2005,notional,0.228,0.186,0.586,,1997
+Barrow & Furness,North West,2001_notional,0.557,lab,494,2005,notional,0.303,0.122,0.557,,1997
+Basildon,Eastern,2001_notional,0.527,lab,30,2005,notional,0.338,0.09,0.527,,1997
+Basingstoke,South East,2001_notional,0.427,con,48,2005,notional,0.427,0.139,0.409,,1997
+Bassetlaw,East Midlands,2001_notional,0.553,lab,358,2005,notional,0.302,0.127,0.553,,1997
+Bath,South West,2001_notional,0.505,lib,214,2005,notional,0.291,0.505,0.157,,1997
+Batley & Spen,Yorkshire and the Humber,2001_notional,0.499,lab,401,2005,notional,0.367,0.103,0.499,,1997
+Battersea,London,2001_notional,0.503,lab,141,2005,notional,0.365,0.121,0.503,,1997
+Beaconsfield,South East,2001_notional,0.528,con,16,2005,notional,0.528,0.216,0.218,,1997
+Beckenham,London,2001_notional,0.453,con,142,2005,notional,0.453,0.16,0.344,,1997
+Bedford,Eastern,2001_notional,0.479,lab,1,2005,notional,0.328,0.158,0.479,,1997
+Berwick-Upon-Tweed,North East,2001_notional,0.514,lib,513,2005,notional,0.281,0.514,0.177,,1997
+Bethnal Green & Bow,London,2001_notional,0.505,lab,143,2005,notional,0.243,0.155,0.505,,1997
+Beverley & Holderness,Yorkshire and the Humber,2001_notional,0.413,con,368,2005,notional,0.413,0.159,0.396,,1997
+Bexhill & Battle,South East,2001_notional,0.481,con,22,2005,notional,0.481,0.247,0.194,,1997
+Bexleyheath & Crayford,London,2001_notional,0.436,lab,144,2005,notional,0.399,0.111,0.436,,1997
+Billericay,Eastern,2001_notional,0.474,con,31,2005,notional,0.474,0.139,0.364,,1997
+Birkenhead,North West,2001_notional,0.705,lab,478,2005,notional,0.167,0.128,0.705,,1997
+Birmingham Edgbaston,West Midlands,2001_notional,0.491,lab,296,2005,notional,0.366,0.12,0.491,,1997
+Birmingham Erdington,West Midlands,2001_notional,0.568,lab,297,2005,notional,0.242,0.118,0.568,,1997
+Birmingham Hall Green,West Midlands,2001_notional,0.546,lab,298,2005,notional,0.345,0.088,0.546,,1997
+Birmingham Hodge Hill,West Midlands,2001_notional,0.639,lab,299,2005,notional,0.2,0.081,0.639,,1997
+Birmingham Ladywood,West Midlands,2001_notional,0.689,lab,300,2005,notional,0.113,0.082,0.689,,1997
+Birmingham Northfield,West Midlands,2001_notional,0.56,lab,301,2005,notional,0.296,0.112,0.56,,1997
+Birmingham Perry Barr,West Midlands,2001_notional,0.465,lab,302,2005,notional,0.231,0.229,0.465,,1997
+Birmingham Selly Oak,West Midlands,2001_notional,0.524,lab,303,2005,notional,0.266,0.163,0.524,,1997
+Birmingham Sparkbrook & Small Heath,West Midlands,2001_notional,0.575,lab,304,2005,notional,0.108,0.132,0.575,,1997
+Birmingham Yardley,West Midlands,2001_notional,0.469,lab,305,2005,notional,0.131,0.383,0.469,,1997
+Bishop Auckland,North East,2001_notional,0.588,lab,506,2005,notional,0.227,0.157,0.588,,1997
+Blaby,East Midlands,2001_notional,0.464,con,334,2005,notional,0.464,0.174,0.334,,1997
+Blackburn,North West,2001_notional,0.541,lab,463,2005,notional,0.312,0.081,0.541,,1997
+Blackpool North & Fleetwood,North West,2001_notional,0.508,lab,464,2005,notional,0.373,0.097,0.508,,1997
+Blackpool South,North West,2001_notional,0.543,lab,465,2005,notional,0.33,0.106,0.543,,1997
+Blaenau Gwent,Wales,2001_notional,0.72,lab,541,2005,notional,0.075,0.093,0.72,0.112,1997
+Blaydon,North East,2001_notional,0.548,lab,517,2005,notional,0.114,0.338,0.548,,1997
+Blyth Valley,North East,2001_notional,0.597,lab,514,2005,notional,0.159,0.244,0.597,,1997
+Bognor Regis & Littlehampton,South East,2001_notional,0.452,con,111,2005,notional,0.452,0.176,0.307,,1997
+Bolsover,East Midlands,2001_notional,0.686,lab,325,2005,notional,0.195,0.119,0.686,,1997
+Bolton North East,North West,2001_notional,0.543,lab,437,2005,notional,0.327,0.103,0.543,,1997
+Bolton South East,North West,2001_notional,0.619,lab,438,2005,notional,0.242,0.115,0.619,,1997
+Bolton West,North West,2001_notional,0.47,lab,439,2005,notional,0.336,0.184,0.47,,1997
+Bootle,North West,2001_notional,0.776,lab,479,2005,notional,0.08,0.085,0.776,,1997
+Boston & Skegness,East Midlands,2001_notional,0.429,con,344,2005,notional,0.429,0.124,0.416,,1997
+Bosworth,East Midlands,2001_notional,0.444,con,335,2005,notional,0.444,0.162,0.394,,1997
+Bournemouth East,South West,2001_notional,0.433,con,240,2005,notional,0.433,0.337,0.199,,1997
+Bournemouth West,South West,2001_notional,0.428,con,241,2005,notional,0.428,0.252,0.288,,1997
+Bracknell,South East,2001_notional,0.466,con,7,2005,notional,0.466,0.171,0.33,,1997
+Bradford North,Yorkshire and the Humber,2001_notional,0.497,lab,402,2005,notional,0.241,0.198,0.497,,1997
+Bradford South,Yorkshire and the Humber,2001_notional,0.558,lab,403,2005,notional,0.283,0.106,0.558,,1997
+Bradford West,Yorkshire and the Humber,2001_notional,0.48,lab,404,2005,notional,0.371,0.064,0.48,,1997
+Braintree,Eastern,2001_notional,0.42,lab,32,2005,notional,0.413,0.113,0.42,,1997
+Brecon & Radnorshire,Wales,2001_notional,0.368,lib,558,2005,notional,0.348,0.368,0.214,0.035,1997
+Brent East,London,2001_notional,0.632,lab,145,2005,notional,0.182,0.106,0.632,,1997
+Brent North,London,2001_notional,0.594,lab,146,2005,notional,0.293,0.113,0.594,,1997
+Brent South,London,2001_notional,0.733,lab,147,2005,notional,0.126,0.108,0.733,,1997
+Brentford & Isleworth,London,2001_notional,0.523,lab,148,2005,notional,0.291,0.135,0.523,,1997
+Brentwood & Ongar,Eastern,2001_notional,0.38,con,33,2005,notional,0.38,0.156,0.126,,1997
+Bridgend,Wales,2001_notional,0.525,lab,551,2005,notional,0.253,0.144,0.525,0.072,1997
+Bridgwater,South West,2001_notional,0.404,con,254,2005,notional,0.404,0.3,0.268,,1997
+Brigg & Goole,Yorkshire and the Humber,2001_notional,0.489,lab,369,2005,notional,0.392,0.092,0.489,,1997
+Brighton Kemptown,South East,2001_notional,0.478,lab,23,2005,notional,0.353,0.104,0.478,,1997
+Brighton Pavilion,South East,2001_notional,0.487,lab,24,2005,notional,0.251,0.131,0.487,,1997
+Bristol East,South West,2001_notional,0.55,lab,215,2005,notional,0.218,0.171,0.55,,1997
+Bristol North West,South West,2001_notional,0.521,lab,216,2005,notional,0.287,0.159,0.521,,1997
+Bristol South,South West,2001_notional,0.569,lab,217,2005,notional,0.223,0.148,0.569,,1997
+Bristol West,South West,2001_notional,0.368,lab,218,2005,notional,0.288,0.289,0.368,,1997
+Bromley & Chislehurst,London,2001_notional,0.495,con,149,2005,notional,0.495,0.189,0.286,,1997
+Bromsgrove,West Midlands,2001_notional,0.517,con,265,2005,notional,0.517,0.119,0.339,,1997
+Broxbourne,Eastern,2001_notional,0.541,con,64,2005,notional,0.541,0.11,0.304,,1997
+Broxtowe,East Midlands,2001_notional,0.486,lab,359,2005,notional,0.367,0.147,0.486,,1997
+Buckingham,South East,2001_notional,0.537,con,17,2005,notional,0.537,0.2,0.242,,1997
+Burnley,North West,2001_notional,0.493,lab,466,2005,notional,0.209,0.162,0.493,,1997
+Burton,West Midlands,2001_notional,0.49,lab,278,2005,notional,0.386,0.096,0.49,,1997
+Bury North,North West,2001_notional,0.512,lab,440,2005,notional,0.366,0.121,0.512,,1997
+Bury South,North West,2001_notional,0.592,lab,441,2005,notional,0.269,0.139,0.592,,1997
+Bury St Edmunds,Eastern,2001_notional,0.435,con,133,2005,notional,0.435,0.139,0.385,,1997
+Caernarfon,Wales,2001_notional,0.444,natSW,547,2005,notional,0.152,0.063,0.323,0.444,1997
+Caerphilly,Wales,2001_notional,0.582,lab,552,2005,notional,0.114,0.094,0.582,0.21,1997
+Caithness Sutherland and Easter Ross,Scotland,2001_notional,0.364,lib,S14000009,2005,notional,0.141,0.364,0.253,0.212,1997
+Calder Valley,Yorkshire and the Humber,2001_notional,0.427,lab,405,2005,notional,0.362,0.16,0.427,,1997
+Camberwell & Peckham,London,2001_notional,0.696,lab,150,2005,notional,0.109,0.133,0.696,,1997
+Cambridge,Eastern,2001_notional,0.451,lab,118,2005,notional,0.229,0.251,0.451,,1997
+Cannock Chase,West Midlands,2001_notional,0.561,lab,279,2005,notional,0.301,0.138,0.561,,1997
+Canterbury,South East,2001_notional,0.415,con,77,2005,notional,0.415,0.178,0.369,,1997
+Cardiff Central,Wales,2001_notional,0.386,lab,560,2005,notional,0.159,0.367,0.386,0.048,1997
+Cardiff North,Wales,2001_notional,0.459,lab,561,2005,notional,0.316,0.153,0.459,0.057,1997
+Cardiff South & Penarth,Wales,2001_notional,0.562,lab,562,2005,notional,0.218,0.128,0.562,0.055,1997
+Cardiff West,Wales,2001_notional,0.546,lab,563,2005,notional,0.213,0.131,0.546,0.097,1997
+Carlisle,North West,2001_notional,0.512,lab,495,2005,notional,0.348,0.117,0.512,,1997
+Carmarthen East & Dinefwr,Wales,2001_notional,0.424,natSW,536,2005,notional,0.129,0.074,0.356,0.424,1997
+Carmarthen West & South Pembrokeshire,Wales,2001_notional,0.416,lab,537,2005,notional,0.293,0.088,0.416,0.187,1997
+Ayr Carrick and Cumnock,Scotland,2001_notional,0.553,lab,S14000006,2005,notional,0.182,0.073,0.553,0.156,1997
+Carshalton & Wallington,London,2001_notional,0.45,lib,151,2005,notional,0.338,0.45,0.184,,1997
+Castle Point,Eastern,2001_notional,0.446,con,34,2005,notional,0.446,0.078,0.421,,1997
+Glenrothes,Scotland,2001_notional,0.563,lab,S14000036,2005,notional,0.072,0.085,0.563,0.253,1997
+Central Suffolk & North Ipswich,Eastern,2001_notional,0.444,con,134,2005,notional,0.444,0.161,0.371,,1997
+Ceredigion,Wales,2001_notional,0.383,natSW,538,2005,notional,0.194,0.269,0.154,0.383,1997
+Charnwood,East Midlands,2001_notional,0.482,con,336,2005,notional,0.482,0.162,0.322,,1997
+Chatham & Aylesford,South East,2001_notional,0.483,lab,78,2005,notional,0.373,0.118,0.483,,1997
+Cheadle,North West,2001_notional,0.424,lib,442,2005,notional,0.423,0.424,0.14,,1997
+Cheltenham,South West,2001_notional,0.477,lib,248,2005,notional,0.352,0.477,0.12,,1997
+Chesham & Amersham,South East,2001_notional,0.505,con,18,2005,notional,0.505,0.243,0.188,,1997
+City Of Chester,North West,2001_notional,0.485,lab,424,2005,notional,0.331,0.147,0.485,,1997
+Chesterfield,East Midlands,2001_notional,0.478,lib,326,2005,notional,0.081,0.478,0.42,,1997
+Chichester,South East,2001_notional,0.47,con,112,2005,notional,0.47,0.241,0.214,,1997
+Chingford & Woodford Green,London,2001_notional,0.482,con,152,2005,notional,0.482,0.155,0.334,,1997
+Chipping Barnet,London,2001_notional,0.464,con,153,2005,notional,0.464,0.136,0.4,,1997
+Chorley,North West,2001_notional,0.523,lab,467,2005,notional,0.347,0.112,0.523,,1997
+Christchurch,South West,2001_notional,0.551,con,242,2005,notional,0.551,0.278,0.151,,1997
+Cities Of London And Westminster,London,2001_notional,0.463,con,154,2005,notional,0.463,0.154,0.331,,1997
+Cleethorpes,Yorkshire and the Humber,2001_notional,0.496,lab,370,2005,notional,0.363,0.12,0.496,,1997
+Clwyd South,Wales,2001_notional,0.514,lab,531,2005,notional,0.248,0.102,0.514,0.119,1997
+Clwyd West,Wales,2001_notional,0.388,lab,532,2005,notional,0.356,0.114,0.388,0.129,1997
+West Dunbartonshire,Scotland,2001_notional,0.531,lab,S14000059,2005,notional,0.108,0.12,0.531,0.201,1997
+Lanark and Hamilton East,Scotland,2001_notional,0.466,lab,S14000042,2005,notional,0.132,0.108,0.466,0.262,1997
+"Coatbridge, Chryston and Bellshill",Scotland,2001_notional,0.653,lab,S14000011,2005,notional,0.072,0.076,0.653,0.148,1997
+Colchester,Eastern,2001_notional,0.426,lib,35,2005,notional,0.299,0.426,0.25,,1997
+Colne Valley,Yorkshire and the Humber,2001_notional,0.404,lab,406,2005,notional,0.305,0.249,0.404,,1997
+Congleton,North West,2001_notional,0.463,con,425,2005,notional,0.463,0.216,0.305,,1997
+Conwy,Wales,2001_notional,0.418,lab,548,2005,notional,0.237,0.169,0.418,0.165,1997
+Copeland,North West,2001_notional,0.518,lab,496,2005,notional,0.375,0.107,0.518,,1997
+Corby,East Midlands,2001_notional,0.493,lab,351,2005,notional,0.372,0.101,0.493,,1997
+Cotswold,South West,2001_notional,0.503,con,249,2005,notional,0.503,0.242,0.226,,1997
+Coventry North East,West Midlands,2001_notional,0.61,lab,306,2005,notional,0.188,0.112,0.61,,1997
+Coventry North West,West Midlands,2001_notional,0.514,lab,307,2005,notional,0.259,0.137,0.514,,1997
+Coventry South,West Midlands,2001_notional,0.502,lab,308,2005,notional,0.295,0.141,0.502,,1997
+Crawley,South East,2001_notional,0.493,lab,113,2005,notional,0.322,0.127,0.493,,1997
+Crewe & Nantwich,North West,2001_notional,0.543,lab,426,2005,notional,0.304,0.135,0.543,,1997
+Crosby,North West,2001_notional,0.551,lab,480,2005,notional,0.325,0.111,0.551,,1997
+Croydon Central,London,2001_notional,0.472,lab,155,2005,notional,0.385,0.112,0.472,,1997
+Croydon North,London,2001_notional,0.635,lab,156,2005,notional,0.233,0.104,0.635,,1997
+Croydon South,London,2001_notional,0.492,con,157,2005,notional,0.492,0.183,0.299,,1997
+"Cumbernauld, Kilsyth and Kirkintilloch East",Scotland,2001_notional,0.544,lab,S14000012,2005,notional,0.049,0.065,0.544,0.29,1997
+North Ayrshire and Arran,Scotland,2001_notional,0.46,lab,S14000048,2005,notional,0.197,0.09,0.46,0.212,1997
+Cynon Valley,Wales,2001_notional,0.656,lab,553,2005,notional,0.076,0.094,0.656,0.174,1997
+Dagenham,London,2001_notional,0.572,lab,158,2005,notional,0.257,0.102,0.572,,1997
+Darlington,North East,2001_notional,0.563,lab,507,2005,notional,0.303,0.109,0.563,,1997
+Dartford,South East,2001_notional,0.48,lab,79,2005,notional,0.406,0.085,0.48,,1997
+Daventry,East Midlands,2001_notional,0.492,con,352,2005,notional,0.492,0.161,0.322,,1997
+Delyn,Wales,2001_notional,0.515,lab,533,2005,notional,0.266,0.154,0.515,0.065,1997
+Denton & Reddish,North West,2001_notional,0.652,lab,443,2005,notional,0.196,0.124,0.652,,1997
+Derby North,East Midlands,2001_notional,0.509,lab,327,2005,notional,0.35,0.141,0.509,,1997
+Derby South,East Midlands,2001_notional,0.564,lab,328,2005,notional,0.243,0.193,0.564,,1997
+Devizes,South West,2001_notional,0.472,con,259,2005,notional,0.472,0.221,0.249,,1997
+Dewsbury,Yorkshire and the Humber,2001_notional,0.505,lab,407,2005,notional,0.302,0.12,0.505,,1997
+Don Valley,Yorkshire and the Humber,2001_notional,0.546,lab,389,2005,notional,0.286,0.112,0.546,,1997
+Doncaster Central,Yorkshire and the Humber,2001_notional,0.591,lab,390,2005,notional,0.237,0.129,0.591,,1997
+Doncaster North,Yorkshire and the Humber,2001_notional,0.631,lab,391,2005,notional,0.147,0.106,0.631,,1997
+Dover,South East,2001_notional,0.488,lab,80,2005,notional,0.372,0.114,0.488,,1997
+Dudley North,West Midlands,2001_notional,0.521,lab,309,2005,notional,0.345,0.087,0.521,,1997
+Dudley South,West Midlands,2001_notional,0.498,lab,310,2005,notional,0.311,0.149,0.498,,1997
+Dulwich & West Norwood,London,2001_notional,0.549,lab,159,2005,notional,0.227,0.152,0.549,,1997
+"Dumfriesshire, Clydesdale and Tweeddale",Scotland,2001_notional,0.489,lab,S14000014,2005,notional,0.282,0.116,0.489,0.096,1997
+Dundee East,Scotland,2001_notional,0.452,lab,S14000015,2005,notional,0.12,0.086,0.452,0.314,1997
+Dundee West,Scotland,2001_notional,0.506,lab,S14000016,2005,notional,0.091,0.09,0.506,0.273,1997
+Dunfermline and West Fife,Scotland,2001_notional,0.528,lab,S14000017,2005,notional,0.102,0.156,0.528,0.174,1997
+Durham City Of,North East,2001_notional,0.561,lab,508,2005,notional,0.173,0.237,0.561,,1997
+Ealing Acton & Shepherd'S Bush,London,2001_notional,0.541,lab,160,2005,notional,0.251,0.166,0.541,,1997
+Ealing North,London,2001_notional,0.557,lab,161,2005,notional,0.293,0.112,0.557,,1997
+Ealing Southall,London,2001_notional,0.475,lab,162,2005,notional,0.183,0.1,0.475,,1997
+Easington,North East,2001_notional,0.768,lab,509,2005,notional,0.103,0.103,0.768,,1997
+East Devon,South West,2001_notional,0.474,con,229,2005,notional,0.474,0.303,0.167,,1997
+East Ham,London,2001_notional,0.731,lab,163,2005,notional,0.167,0.07,0.731,,1997
+East Hampshire,South East,2001_notional,0.476,con,49,2005,notional,0.476,0.299,0.196,,1997
+"East Kilbride, Strathaven and Lesmahagow",Scotland,2001_notional,0.533,lab,S14000019,2005,notional,0.102,0.103,0.533,0.227,1997
+East Lothian,Scotland,2001_notional,0.472,lab,S14000020,2005,notional,0.178,0.176,0.472,0.146,1997
+East Surrey,South East,2001_notional,0.525,con,99,2005,notional,0.525,0.244,0.191,,1997
+East Worthing & Shoreham,South East,2001_notional,0.432,con,114,2005,notional,0.432,0.229,0.29,,1997
+East Yorkshire,Yorkshire and the Humber,2001_notional,0.459,con,371,2005,notional,0.459,0.145,0.35,,1997
+Eastbourne,South East,2001_notional,0.441,con,25,2005,notional,0.441,0.393,0.133,,1997
+Eastleigh,South East,2001_notional,0.407,lib,50,2005,notional,0.343,0.407,0.219,,1997
+East Renfrewshire,Scotland,2001_notional,0.476,lab,S14000021,2005,notional,0.287,0.129,0.476,0.086,1997
+Eccles,North West,2001_notional,0.645,lab,444,2005,notional,0.207,0.148,0.645,,1997
+Eddisbury,North West,2001_notional,0.463,con,427,2005,notional,0.463,0.157,0.36,,1997
+Edinburgh East,Scotland,2001_notional,0.526,lab,S14000022,2005,notional,0.113,0.145,0.526,0.173,1997
+Edinburgh North and Leith,Scotland,2001_notional,0.459,lab,S14000023,2005,notional,0.139,0.194,0.459,0.159,1997
+Edinburgh South West,Scotland,2001_notional,0.406,lab,S14000025,2005,notional,0.361,0.108,0.406,0.108,1997
+Edinburgh South,Scotland,2001_notional,0.422,lab,S14000024,2005,notional,0.166,0.274,0.422,0.099,1997
+Edinburgh West,Scotland,2001_notional,0.424,lib,S14000026,2005,notional,0.225,0.424,0.231,0.103,1997
+Edmonton,London,2001_notional,0.589,lab,164,2005,notional,0.308,0.07,0.589,,1997
+Ellesmere Port & Neston,North West,2001_notional,0.553,lab,428,2005,notional,0.291,0.116,0.553,,1997
+Elmet,Yorkshire and the Humber,2001_notional,0.48,lab,408,2005,notional,0.389,0.109,0.48,,1997
+Eltham,London,2001_notional,0.528,lab,165,2005,notional,0.321,0.122,0.528,,1997
+Enfield North,London,2001_notional,0.467,lab,166,2005,notional,0.407,0.088,0.467,,1997
+Enfield Southgate,London,2001_notional,0.518,lab,167,2005,notional,0.386,0.07,0.518,,1997
+Epping Forest,Eastern,2001_notional,0.491,con,36,2005,notional,0.491,0.186,0.293,,1997
+Epsom & Ewell,South East,2001_notional,0.481,con,100,2005,notional,0.481,0.221,0.265,,1997
+Erewash,East Midlands,2001_notional,0.492,lab,329,2005,notional,0.349,0.115,0.492,,1997
+Erith & Thamesmead,London,2001_notional,0.593,lab,168,2005,notional,0.258,0.114,0.593,,1997
+Esher & Walton,South East,2001_notional,0.49,con,101,2005,notional,0.49,0.225,0.236,,1997
+Exeter,South West,2001_notional,0.498,lab,230,2005,notional,0.274,0.124,0.498,,1997
+Linlithgow and East Falkirk,Scotland,2001_notional,0.55,lab,S14000043,2005,notional,0.096,0.089,0.55,0.232,1997
+Falkirk,Scotland,2001_notional,0.519,lab,S14000028,2005,notional,0.075,0.071,0.519,0.242,1997
+Falmouth & Camborne,South West,2001_notional,0.396,lab,224,2005,notional,0.299,0.245,0.396,,1997
+Fareham,South East,2001_notional,0.471,con,51,2005,notional,0.471,0.187,0.316,,1997
+Faversham & Mid Kent,South East,2001_notional,0.456,con,81,2005,notional,0.456,0.135,0.355,,1997
+Feltham & Heston,London,2001_notional,0.592,lab,169,2005,notional,0.242,0.138,0.592,,1997
+Finchley & Golders Green,London,2001_notional,0.463,lab,170,2005,notional,0.378,0.121,0.463,,1997
+Folkestone & Hythe,South East,2001_notional,0.45,con,82,2005,notional,0.45,0.321,0.202,,1997
+Forest Of Dean,South West,2001_notional,0.434,lab,250,2005,notional,0.388,0.129,0.434,,1997
+Fylde,North West,2001_notional,0.523,con,468,2005,notional,0.523,0.148,0.308,,1997
+Gainsborough,East Midlands,2001_notional,0.462,con,345,2005,notional,0.462,0.267,0.271,,1997
+Dumfries and Galloway,Scotland,2001_notional,0.34,con,S14000013,2005,notional,0.34,0.103,0.202,0.338,1997
+Gateshead East & Washington West,North East,2001_notional,0.681,lab,518,2005,notional,0.148,0.149,0.681,,1997
+Gedling,East Midlands,2001_notional,0.511,lab,360,2005,notional,0.383,0.106,0.511,,1997
+Gillingham,South East,2001_notional,0.445,lab,83,2005,notional,0.391,0.136,0.445,,1997
+Glasgow North West,Scotland,2001_notional,0.565,lab,S14000033,2005,notional,0.099,0.121,0.565,0.151,1997
+Glasgow East,Scotland,2001_notional,0.61,lab,S14000030,2005,notional,0.068,0.067,0.61,0.187,1997
+Glasgow South,Scotland,2001_notional,0.544,lab,S14000034,2005,notional,0.134,0.11,0.544,0.149,1997
+Glasgow North,Scotland,2001_notional,0.604,lab,S14000031,2005,notional,0.052,0.107,0.604,0.159,1997
+Glasgow South West,Scotland,2001_notional,0.613,lab,S14000035,2005,notional,0.056,0.064,0.613,0.167,1997
+Rutherglen and Hamilton West,Scotland,2001_notional,0.574,lab,S14000056,2005,notional,0.113,0.126,0.574,0.142,1997
+Glasgow Central,Scotland,2001_notional,0.647,lab,S14000029,2005,notional,0.053,0.054,0.647,0.167,1997
+Glasgow North East,Scotland,2001_notional,0.806,oth,S14000032,2005,notional,,,,0.194,1997
+Gloucester,South West,2001_notional,0.458,lab,251,2005,notional,0.377,0.143,0.458,,1997
+Gordon,Scotland,2001_notional,0.455,lib,S14000037,2005,notional,0.23,0.455,0.135,0.165,1997
+Gosport,South East,2001_notional,0.436,con,52,2005,notional,0.436,0.151,0.371,,1997
+Gower,Wales,2001_notional,0.473,lab,566,2005,notional,0.275,0.121,0.473,0.103,1997
+Grantham & Stamford,East Midlands,2001_notional,0.461,con,346,2005,notional,0.461,0.144,0.363,,1997
+Gravesham,South East,2001_notional,0.499,lab,84,2005,notional,0.388,0.092,0.499,,1997
+Great Grimsby,Yorkshire and the Humber,2001_notional,0.579,lab,372,2005,notional,0.231,0.19,0.579,,1997
+Great Yarmouth,Eastern,2001_notional,0.504,lab,125,2005,notional,0.391,0.084,0.504,,1997
+Inverclyde,Scotland,2001_notional,0.525,lab,S14000038,2005,notional,0.106,0.177,0.525,0.149,1997
+Greenwich & Woolwich,London,2001_notional,0.605,lab,171,2005,notional,0.192,0.156,0.605,,1997
+Guildford,South East,2001_notional,0.426,lib,102,2005,notional,0.414,0.426,0.137,,1997
+Hackney North & Stoke Newington,London,2001_notional,0.61,lab,172,2005,notional,0.15,0.141,0.61,,1997
+Hackney South & Shoreditch,London,2001_notional,0.642,lab,173,2005,notional,0.138,0.146,0.642,,1997
+Halesowen & Rowley Regis,West Midlands,2001_notional,0.53,lab,311,2005,notional,0.342,0.104,0.53,,1997
+Halifax,Yorkshire and the Humber,2001_notional,0.49,lab,409,2005,notional,0.338,0.146,0.49,,1997
+Haltemprice & Howden,Yorkshire and the Humber,2001_notional,0.432,con,373,2005,notional,0.432,0.389,0.157,,1997
+Halton,North West,2001_notional,0.692,lab,429,2005,notional,0.186,0.122,0.692,,1997
+Hammersmith & Fulham,London,2001_notional,0.443,lab,174,2005,notional,0.398,0.118,0.443,,1997
+Hampstead & Highgate,London,2001_notional,0.469,lab,175,2005,notional,0.246,0.205,0.469,,1997
+Harborough,East Midlands,2001_notional,0.447,con,337,2005,notional,0.447,0.334,0.2,,1997
+Harlow,Eastern,2001_notional,0.478,lab,37,2005,notional,0.348,0.134,0.478,,1997
+Harrogate & Knaresborough,Yorkshire and the Humber,2001_notional,0.556,lib,378,2005,notional,0.346,0.556,0.074,,1997
+Harrow East,London,2001_notional,0.553,lab,176,2005,notional,0.322,0.125,0.553,,1997
+Harrow West,London,2001_notional,0.496,lab,177,2005,notional,0.364,0.129,0.496,,1997
+Hartlepool,North East,2001_notional,0.591,lab,500,2005,notional,0.209,0.15,0.591,,1997
+Harwich,Eastern,2001_notional,0.456,lab,38,2005,notional,0.402,0.085,0.456,,1997
+Hastings & Rye,South East,2001_notional,0.471,lab,26,2005,notional,0.366,0.103,0.471,,1997
+Havant,South East,2001_notional,0.439,con,53,2005,notional,0.439,0.186,0.335,,1997
+Hayes & Harlington,London,2001_notional,0.657,lab,178,2005,notional,0.241,0.06,0.657,,1997
+Hazel Grove,North West,2001_notional,0.52,lib,445,2005,notional,0.301,0.52,0.162,,1997
+Hemel Hempstead,Eastern,2001_notional,0.466,lab,65,2005,notional,0.385,0.128,0.466,,1997
+Hemsworth,Yorkshire and the Humber,2001_notional,0.654,lab,410,2005,notional,0.21,0.113,0.654,,1997
+Hendon,London,2001_notional,0.525,lab,179,2005,notional,0.343,0.116,0.525,,1997
+Henley,South East,2001_notional,0.461,con,94,2005,notional,0.461,0.27,0.211,,1997
+Hereford,West Midlands,2001_notional,0.409,lib,266,2005,notional,0.387,0.409,0.151,,1997
+Hertford & Stortford,Eastern,2001_notional,0.447,con,66,2005,notional,0.447,0.199,0.328,,1997
+Hertsmere,Eastern,2001_notional,0.478,con,67,2005,notional,0.478,0.152,0.36,,1997
+Hexham,North East,2001_notional,0.446,con,515,2005,notional,0.446,0.15,0.386,,1997
+Heywood & Middleton,North West,2001_notional,0.577,lab,446,2005,notional,0.276,0.112,0.577,,1997
+High Peak,East Midlands,2001_notional,0.466,lab,330,2005,notional,0.373,0.161,0.466,,1997
+Hitchin & Harpenden,Eastern,2001_notional,0.473,con,68,2005,notional,0.473,0.18,0.325,,1997
+Holborn & St Pancras,London,2001_notional,0.539,lab,180,2005,notional,0.169,0.18,0.539,,1997
+Hornchurch,London,2001_notional,0.464,lab,181,2005,notional,0.423,0.082,0.464,,1997
+Hornsey & Wood Green,London,2001_notional,0.499,lab,182,2005,notional,0.157,0.258,0.499,,1997
+Horsham,South East,2001_notional,0.515,con,115,2005,notional,0.515,0.246,0.202,,1997
+Houghton & Washington East,North East,2001_notional,0.732,lab,519,2005,notional,0.143,0.125,0.732,,1997
+Hove,South East,2001_notional,0.459,lab,27,2005,notional,0.383,0.091,0.459,,1997
+Huddersfield,Yorkshire and the Humber,2001_notional,0.532,lab,411,2005,notional,0.249,0.15,0.532,,1997
+Huntingdon,Eastern,2001_notional,0.499,con,119,2005,notional,0.499,0.239,0.228,,1997
+Hyndburn,North West,2001_notional,0.547,lab,469,2005,notional,0.332,0.096,0.547,,1997
+Ilford North,London,2001_notional,0.458,lab,183,2005,notional,0.405,0.117,0.458,,1997
+Ilford South,London,2001_notional,0.596,lab,184,2005,notional,0.257,0.113,0.596,,1997
+Inverness Nairn Badenoch and Strathspey,Scotland,2001_notional,0.368,lab,S14000039,2005,notional,0.133,0.222,0.368,0.256,1997
+Ipswich,Eastern,2001_notional,0.513,lab,135,2005,notional,0.305,0.152,0.513,,1997
+Isle Of Wight,South East,2001_notional,0.397,con,75,2005,notional,0.397,0.353,0.152,,1997
+Islington North,London,2001_notional,0.619,lab,185,2005,notional,0.108,0.19,0.619,,1997
+Islington South & Finsbury,London,2001_notional,0.539,lab,186,2005,notional,0.137,0.281,0.539,,1997
+Islwyn,Wales,2001_notional,0.615,lab,542,2005,notional,0.08,0.132,0.615,0.119,1997
+Jarrow,North East,2001_notional,0.661,lab,520,2005,notional,0.147,0.15,0.661,,1997
+Keighley,Yorkshire and the Humber,2001_notional,0.482,lab,412,2005,notional,0.39,0.109,0.482,,1997
+Kensington & Chelsea,London,2001_notional,0.545,con,187,2005,notional,0.545,0.158,0.232,,1997
+Kettering,East Midlands,2001_notional,0.447,lab,353,2005,notional,0.435,0.102,0.447,,1997
+Kilmarnock and Loudoun,Scotland,2001_notional,0.529,lab,S14000040,2005,notional,0.105,0.084,0.529,0.255,1997
+Kingston & Surbiton,London,2001_notional,0.602,lib,188,2005,notional,0.282,0.602,0.088,,1997
+Kingston Upon Hull East,Yorkshire and the Humber,2001_notional,0.646,lab,374,2005,notional,0.138,0.149,0.646,,1997
+Kingston Upon Hull North,Yorkshire and the Humber,2001_notional,0.572,lab,375,2005,notional,0.171,0.197,0.572,,1997
+Kingston Upon Hull West & Hessle,Yorkshire and the Humber,2001_notional,0.584,lab,376,2005,notional,0.205,0.151,0.584,,1997
+Kingswood,South West,2001_notional,0.549,lab,219,2005,notional,0.284,0.147,0.549,,1997
+Kirkcaldy and Cowdenbeath,Scotland,2001_notional,0.541,lab,S14000041,2005,notional,0.107,0.101,0.541,0.222,1997
+Knowsley North & Sefton East,North West,2001_notional,0.667,lab,481,2005,notional,0.163,0.138,0.667,,1997
+Knowsley South,North West,2001_notional,0.713,lab,482,2005,notional,0.116,0.13,0.713,,1997
+Lancaster & Wyre,North West,2001_notional,0.431,lab,470,2005,notional,0.422,0.103,0.431,,1997
+Leeds Central,Yorkshire and the Humber,2001_notional,0.669,lab,413,2005,notional,0.143,0.132,0.669,,1997
+Leeds East,Yorkshire and the Humber,2001_notional,0.629,lab,414,2005,notional,0.194,0.135,0.629,,1997
+Leeds North East,Yorkshire and the Humber,2001_notional,0.491,lab,415,2005,notional,0.313,0.159,0.491,,1997
+Leeds North West,Yorkshire and the Humber,2001_notional,0.419,lab,416,2005,notional,0.296,0.269,0.419,,1997
+Leeds West,Yorkshire and the Humber,2001_notional,0.621,lab,417,2005,notional,0.156,0.104,0.621,,1997
+Leicester East,East Midlands,2001_notional,0.576,lab,338,2005,notional,0.245,0.123,0.576,,1997
+Leicester South,East Midlands,2001_notional,0.545,lab,339,2005,notional,0.231,0.172,0.545,,1997
+Leicester West,East Midlands,2001_notional,0.542,lab,340,2005,notional,0.252,0.153,0.542,,1997
+Leigh,North West,2001_notional,0.645,lab,447,2005,notional,0.182,0.128,0.645,,1997
+Leominster,West Midlands,2001_notional,0.49,con,267,2005,notional,0.49,0.268,0.168,,1997
+Lewes,South East,2001_notional,0.563,lib,28,2005,notional,0.349,0.563,0.073,,1997
+Lewisham Deptford,London,2001_notional,0.65,lab,189,2005,notional,0.124,0.117,0.65,,1997
+Lewisham East,London,2001_notional,0.537,lab,190,2005,notional,0.238,0.164,0.537,,1997
+Lewisham West,London,2001_notional,0.611,lab,191,2005,notional,0.224,0.135,0.611,,1997
+Leyton & Wanstead,London,2001_notional,0.58,lab,192,2005,notional,0.197,0.16,0.58,,1997
+Lichfield,West Midlands,2001_notional,0.491,con,280,2005,notional,0.491,0.107,0.385,,1997
+Lincoln,East Midlands,2001_notional,0.539,lab,347,2005,notional,0.312,0.127,0.539,,1997
+Liverpool Garston,North West,2001_notional,0.614,lab,483,2005,notional,0.155,0.231,0.614,,1997
+Liverpool Riverside,North West,2001_notional,0.714,lab,484,2005,notional,0.084,0.167,0.714,,1997
+Liverpool Walton,North West,2001_notional,0.778,lab,485,2005,notional,0.061,0.146,0.778,,1997
+Liverpool Wavertree,North West,2001_notional,0.627,lab,486,2005,notional,0.096,0.244,0.627,,1997
+Liverpool West Derby,North West,2001_notional,0.662,lab,487,2005,notional,0.08,0.109,0.662,,1997
+Livingston,Scotland,2001_notional,0.53,lab,S14000044,2005,notional,0.083,0.11,0.53,0.236,1997
+Llanelli,Wales,2001_notional,0.486,lab,539,2005,notional,0.095,0.085,0.486,0.309,1997
+Loughborough,East Midlands,2001_notional,0.497,lab,341,2005,notional,0.353,0.128,0.497,,1997
+Louth & Horncastle,East Midlands,2001_notional,0.485,con,348,2005,notional,0.485,0.201,0.315,,1997
+Ludlow,West Midlands,2001_notional,0.432,lib,273,2005,notional,0.394,0.432,0.134,,1997
+Luton North,Eastern,2001_notional,0.567,lab,2,2005,notional,0.312,0.097,0.567,,1997
+Luton South,Eastern,2001_notional,0.552,lab,3,2005,notional,0.294,0.109,0.552,,1997
+Macclesfield,North West,2001_notional,0.489,con,430,2005,notional,0.489,0.18,0.331,,1997
+Maidenhead,South East,2001_notional,0.45,con,8,2005,notional,0.45,0.374,0.152,,1997
+Maidstone & The Weald,South East,2001_notional,0.496,con,85,2005,notional,0.496,0.199,0.27,,1997
+Makerfield,North West,2001_notional,0.685,lab,448,2005,notional,0.176,0.114,0.685,,1997
+Maldon & East Chelmsford,Eastern,2001_notional,0.492,con,39,2005,notional,0.492,0.159,0.301,,1997
+Manchester Blackley,North West,2001_notional,0.689,lab,449,2005,notional,0.144,0.114,0.689,,1997
+Manchester Central,North West,2001_notional,0.687,lab,450,2005,notional,0.09,0.157,0.687,,1997
+Manchester Gorton,North West,2001_notional,0.628,lab,451,2005,notional,0.099,0.213,0.628,,1997
+Manchester Withington,North West,2001_notional,0.549,lab,452,2005,notional,0.153,0.22,0.549,,1997
+Mansfield,East Midlands,2001_notional,0.571,lab,361,2005,notional,0.272,0.157,0.571,,1997
+Medway,South East,2001_notional,0.49,lab,86,2005,notional,0.392,0.093,0.49,,1997
+Meirionnydd Nant Conwy,Wales,2001_notional,0.496,natSW,549,2005,notional,0.188,0.089,0.227,0.496,1997
+Meriden,West Midlands,2001_notional,0.477,con,312,2005,notional,0.477,0.111,0.392,,1997
+Merthyr Tydfil & Rhymney,Wales,2001_notional,0.618,lab,554,2005,notional,0.072,0.075,0.618,0.147,1997
+Mid Bedfordshire,Eastern,2001_notional,0.474,con,4,2005,notional,0.474,0.197,0.301,,1997
+Mid Dorset & North Poole,South West,2001_notional,0.42,lib,243,2005,notional,0.411,0.42,0.155,,1997
+Mid Norfolk,Eastern,2001_notional,0.448,con,126,2005,notional,0.448,0.145,0.361,,1997
+Mid Sussex,South East,2001_notional,0.462,con,116,2005,notional,0.462,0.311,0.19,,1997
+Mid Worcestershire,West Midlands,2001_notional,0.511,con,268,2005,notional,0.511,0.188,0.274,,1997
+Middlesbrough,North East,2001_notional,0.676,lab,501,2005,notional,0.191,0.104,0.676,,1997
+Middlesbrough South & East Cleveland,North East,2001_notional,0.553,lab,502,2005,notional,0.34,0.107,0.553,,1997
+Midlothian,Scotland,2001_notional,0.527,lab,S14000045,2005,notional,0.096,0.128,0.527,0.213,1997
+Milton Keynes South West,South East,2001_notional,0.495,lab,19,2005,notional,0.342,0.106,0.495,,1997
+Mitcham & Morden,London,2001_notional,0.604,lab,193,2005,notional,0.241,0.101,0.604,,1997
+Mole Valley,South East,2001_notional,0.505,con,103,2005,notional,0.505,0.29,0.166,,1997
+Monmouth,Wales,2001_notional,0.428,lab,543,2005,notional,0.419,0.114,0.428,0.024,1997
+Montgomeryshire,Wales,2001_notional,0.494,lib,559,2005,notional,0.279,0.494,0.119,0.068,1997
+Moray,Scotland,2001_notional,0.303,natSW,S14000046,2005,notional,0.231,0.157,0.251,0.303,1997
+Morecambe And Lunesdale,North West,2001_notional,0.496,lab,471,2005,notional,0.373,0.092,0.496,,1997
+Morley & Rothwell,Yorkshire and the Humber,2001_notional,0.57,lab,418,2005,notional,0.256,0.142,0.57,,1997
+Motherwell and Wishaw,Scotland,2001_notional,0.562,lab,S14000047,2005,notional,0.106,0.094,0.562,0.193,1997
+Neath,Wales,2001_notional,0.607,lab,567,2005,notional,0.095,0.095,0.607,0.184,1997
+New Forest East,South East,2001_notional,0.424,con,54,2005,notional,0.424,0.334,0.217,,1997
+New Forest West,South East,2001_notional,0.557,con,55,2005,notional,0.557,0.258,0.147,,1997
+Newark,East Midlands,2001_notional,0.465,con,362,2005,notional,0.465,0.132,0.375,,1997
+Newbury,South East,2001_notional,0.482,lib,9,2005,notional,0.435,0.482,0.069,,1997
+Newcastle Upon Tyne Central,North East,2001_notional,0.55,lab,521,2005,notional,0.213,0.217,0.55,,1997
+Newcastle Upon Tyne East & Wallsend,North East,2001_notional,0.631,lab,523,2005,notional,0.118,0.196,0.631,,1997
+Newcastle Upon Tyne North,North East,2001_notional,0.601,lab,522,2005,notional,0.204,0.194,0.601,,1997
+Newcastle-Under-Lyme,West Midlands,2001_notional,0.534,lab,281,2005,notional,0.276,0.155,0.534,,1997
+Newport East,Wales,2001_notional,0.547,lab,544,2005,notional,0.232,0.14,0.547,0.049,1997
+Newport West,Wales,2001_notional,0.527,lab,545,2005,notional,0.262,0.117,0.527,0.072,1997
+Normanton,Yorkshire and the Humber,2001_notional,0.561,lab,419,2005,notional,0.27,0.146,0.561,,1997
+North Cornwall,South West,2001_notional,0.52,lib,225,2005,notional,0.338,0.52,0.097,,1997
+North Devon,South West,2001_notional,0.442,lib,231,2005,notional,0.382,0.442,0.101,,1997
+North Dorset,South West,2001_notional,0.467,con,244,2005,notional,0.467,0.387,0.112,,1997
+North Durham,North East,2001_notional,0.672,lab,510,2005,notional,0.188,0.14,0.672,,1997
+North East Bedfordshire,Eastern,2001_notional,0.499,con,5,2005,notional,0.499,0.164,0.31,,1997
+North East Cambridgeshire,Eastern,2001_notional,0.481,con,120,2005,notional,0.481,0.14,0.349,,1997
+North East Derbyshire,East Midlands,2001_notional,0.556,lab,331,2005,notional,0.265,0.178,0.556,,1997
+North East Fife,Scotland,2001_notional,0.517,lib,S14000049,2005,notional,0.236,0.517,0.114,0.104,1997
+North East Hampshire,South East,2001_notional,0.532,con,56,2005,notional,0.532,0.23,0.199,,1997
+North East Hertfordshire,Eastern,2001_notional,0.441,con,69,2005,notional,0.441,0.172,0.364,,1997
+North East Milton Keynes,South East,2001_notional,0.42,lab,20,2005,notional,0.381,0.178,0.42,,1997
+North Essex,Eastern,2001_notional,0.474,con,40,2005,notional,0.474,0.175,0.315,,1997
+North Norfolk,Eastern,2001_notional,0.427,lib,127,2005,notional,0.418,0.427,0.133,,1997
+North Shropshire,West Midlands,2001_notional,0.486,con,274,2005,notional,0.486,0.128,0.352,,1997
+North Southwark & Bermondsey,London,2001_notional,0.569,lib,194,2005,notional,0.076,0.569,0.308,,1997
+North Swindon,South West,2001_notional,0.529,lab,260,2005,notional,0.337,0.116,0.529,,1997
+North Thanet,South East,2001_notional,0.503,con,87,2005,notional,0.503,0.11,0.344,,1997
+North Tyneside,North East,2001_notional,0.695,lab,524,2005,notional,0.146,0.124,0.695,,1997
+North Warwickshire,West Midlands,2001_notional,0.541,lab,290,2005,notional,0.324,0.114,0.541,,1997
+North West Cambridgeshire,Eastern,2001_notional,0.498,con,121,2005,notional,0.498,0.158,0.314,,1997
+North West Durham,North East,2001_notional,0.625,lab,511,2005,notional,0.209,0.149,0.625,,1997
+North West Hampshire,South East,2001_notional,0.501,con,57,2005,notional,0.501,0.212,0.254,,1997
+North West Leicestershire,East Midlands,2001_notional,0.521,lab,342,2005,notional,0.339,0.103,0.521,,1997
+North West Norfolk,Eastern,2001_notional,0.485,con,128,2005,notional,0.485,0.084,0.417,,1997
+North Wiltshire,South West,2001_notional,0.455,con,261,2005,notional,0.455,0.382,0.143,,1997
+Northampton North,East Midlands,2001_notional,0.494,lab,354,2005,notional,0.304,0.177,0.494,,1997
+Northampton South,East Midlands,2001_notional,0.429,lab,355,2005,notional,0.411,0.125,0.429,,1997
+Northavon,South West,2001_notional,0.524,lib,220,2005,notional,0.347,0.524,0.116,,1997
+Norwich North,Eastern,2001_notional,0.474,lab,129,2005,notional,0.346,0.148,0.474,,1997
+Norwich South,Eastern,2001_notional,0.455,lab,130,2005,notional,0.248,0.226,0.455,,1997
+Nottingham East,East Midlands,2001_notional,0.59,lab,363,2005,notional,0.243,0.13,0.59,,1997
+Nottingham North,East Midlands,2001_notional,0.645,lab,364,2005,notional,0.238,0.106,0.645,,1997
+Nottingham South,East Midlands,2001_notional,0.545,lab,365,2005,notional,0.272,0.166,0.545,,1997
+Nuneaton,West Midlands,2001_notional,0.521,lab,291,2005,notional,0.347,0.111,0.521,,1997
+Ochil and South Perthshire,Scotland,2001_notional,0.453,lab,S14000050,2005,notional,0.12,0.092,0.453,0.302,1997
+Ogmore,Wales,2001_notional,0.62,lab,555,2005,notional,0.111,0.128,0.62,0.14,1997
+Old Bexley & Sidcup,London,2001_notional,0.454,con,195,2005,notional,0.454,0.137,0.375,,1997
+Oldham East & Saddleworth,North West,2001_notional,0.386,lab,453,2005,notional,0.161,0.326,0.386,,1997
+Oldham West & Royton,North West,2001_notional,0.512,lab,454,2005,notional,0.177,0.124,0.512,,1997
+Orkney and Shetland,Scotland,2001_notional,0.413,lib,S14000051,2005,notional,0.187,0.413,0.206,0.148,1997
+Orpington,London,2001_notional,0.439,con,196,2005,notional,0.439,0.433,0.108,,1997
+Oxford East,South East,2001_notional,0.494,lab,95,2005,notional,0.187,0.234,0.494,,1997
+Oxford West & Abingdon,South East,2001_notional,0.478,lib,96,2005,notional,0.3,0.478,0.177,,1997
+Paisley and Renfrewshire North,Scotland,2001_notional,0.555,lab,S14000052,2005,notional,0.089,0.1,0.555,0.211,1997
+Paisley and Renfrewshire South,Scotland,2001_notional,0.584,lab,S14000053,2005,notional,0.075,0.104,0.584,0.194,1997
+Pendle,North West,2001_notional,0.446,lab,472,2005,notional,0.339,0.138,0.446,,1997
+Penrith & The Border,North West,2001_notional,0.549,con,497,2005,notional,0.549,0.218,0.185,,1997
+Perth and North Perthshire,Scotland,2001_notional,0.297,natSW,S14000054,2005,notional,0.296,0.128,0.255,0.297,1997
+Peterborough,Eastern,2001_notional,0.451,lab,122,2005,notional,0.38,0.145,0.451,,1997
+Plymouth Devonport,South West,2001_notional,0.583,lab,232,2005,notional,0.271,0.108,0.583,,1997
+Plymouth Sutton,South West,2001_notional,0.507,lab,233,2005,notional,0.315,0.143,0.507,,1997
+Pontefract & Castleford,Yorkshire and the Humber,2001_notional,0.697,lab,420,2005,notional,0.176,0.074,0.697,,1997
+Pontypridd,Wales,2001_notional,0.599,lab,556,2005,notional,0.133,0.108,0.599,0.138,1997
+Poole,South West,2001_notional,0.451,con,245,2005,notional,0.451,0.255,0.269,,1997
+Poplar & Canning Town,London,2001_notional,0.612,lab,197,2005,notional,0.198,0.111,0.612,,1997
+Portsmouth North,South East,2001_notional,0.507,lab,58,2005,notional,0.367,0.103,0.507,,1997
+Portsmouth South,South East,2001_notional,0.446,lib,59,2005,notional,0.291,0.446,0.239,,1997
+Preseli Pembrokeshire,Wales,2001_notional,0.413,lab,540,2005,notional,0.333,0.106,0.413,0.127,1997
+Preston,North West,2001_notional,0.57,lab,473,2005,notional,0.23,0.132,0.57,,1997
+Pudsey,Yorkshire and the Humber,2001_notional,0.481,lab,421,2005,notional,0.356,0.142,0.481,,1997
+Putney,London,2001_notional,0.465,lab,198,2005,notional,0.384,0.136,0.465,,1997
+Rayleigh,Eastern,2001_notional,0.501,con,41,2005,notional,0.501,0.155,0.307,,1997
+Reading East,South East,2001_notional,0.448,lab,10,2005,notional,0.32,0.185,0.448,,1997
+Reading West,South East,2001_notional,0.531,lab,11,2005,notional,0.32,0.128,0.531,,1997
+Redcar,North East,2001_notional,0.603,lab,503,2005,notional,0.251,0.126,0.603,,1997
+Redditch,West Midlands,2001_notional,0.456,lab,269,2005,notional,0.389,0.103,0.456,,1997
+Regent'S Park & Kensington North,London,2001_notional,0.546,lab,199,2005,notional,0.269,0.126,0.546,,1997
+Reigate,South East,2001_notional,0.478,con,104,2005,notional,0.478,0.211,0.275,,1997
+Rhondda,Wales,2001_notional,0.683,lab,557,2005,notional,0.046,0.045,0.683,0.211,1997
+Ribble Valley,North West,2001_notional,0.515,con,474,2005,notional,0.515,0.286,0.199,,1997
+Richmond,Yorkshire and the Humber,2001_notional,0.589,con,379,2005,notional,0.589,0.179,0.219,,1997
+Richmond Park,London,2001_notional,0.477,lib,200,2005,notional,0.376,0.477,0.113,,1997
+Rochdale,North West,2001_notional,0.492,lab,455,2005,notional,0.134,0.349,0.492,,1997
+Rochford & Southend East,Eastern,2001_notional,0.536,con,42,2005,notional,0.536,0.074,0.348,,1997
+Romford,London,2001_notional,0.53,con,201,2005,notional,0.53,0.08,0.363,,1997
+Romsey,South East,2001_notional,0.47,lib,60,2005,notional,0.421,0.47,0.082,,1997
+Ross Skye and Lochaber,Scotland,2001_notional,0.541,lib,S14000055,2005,notional,0.089,0.541,0.169,0.141,1997
+Rossendale & Darwen,North West,2001_notional,0.487,lab,475,2005,notional,0.367,0.146,0.487,,1997
+Rother Valley,Yorkshire and the Humber,2001_notional,0.621,lab,392,2005,notional,0.217,0.125,0.621,,1997
+Rotherham,Yorkshire and the Humber,2001_notional,0.639,lab,393,2005,notional,0.194,0.106,0.639,,1997
+"Berwickshire, Roxburgh and Selkirk",Scotland,2001_notional,0.488,lib,S14000008,2005,notional,0.227,0.488,0.156,0.097,1997
+Rugby & Kenilworth,West Midlands,2001_notional,0.45,lab,292,2005,notional,0.397,0.138,0.45,,1997
+Ruislip Northwood,London,2001_notional,0.488,con,202,2005,notional,0.488,0.193,0.285,,1997
+Runnymede & Weybridge,South East,2001_notional,0.487,con,105,2005,notional,0.487,0.163,0.29,,1997
+Rushcliffe,East Midlands,2001_notional,0.475,con,366,2005,notional,0.475,0.136,0.34,,1997
+Rutland & Melton,East Midlands,2001_notional,0.481,con,343,2005,notional,0.481,0.178,0.298,,1997
+Ryedale,Yorkshire and the Humber,2001_notional,0.472,con,380,2005,notional,0.472,0.361,0.147,,1997
+Saffron Walden,Eastern,2001_notional,0.489,con,43,2005,notional,0.489,0.249,0.226,,1997
+Salford,North West,2001_notional,0.651,lab,456,2005,notional,0.153,0.162,0.651,,1997
+Salisbury,South West,2001_notional,0.466,con,262,2005,notional,0.466,0.301,0.175,,1997
+Scarborough And Whitby,Yorkshire and the Humber,2001_notional,0.472,lab,381,2005,notional,0.396,0.084,0.472,,1997
+Scunthorpe,Yorkshire and the Humber,2001_notional,0.598,lab,377,2005,notional,0.289,0.094,0.598,,1997
+Sedgefield,North East,2001_notional,0.649,lab,512,2005,notional,0.209,0.09,0.649,,1997
+Selby,Yorkshire and the Humber,2001_notional,0.451,lab,382,2005,notional,0.408,0.111,0.451,,1997
+Sevenoaks,South East,2001_notional,0.494,con,88,2005,notional,0.494,0.216,0.256,,1997
+Sheffield Attercliffe,Yorkshire and the Humber,2001_notional,0.678,lab,394,2005,notional,0.152,0.142,0.678,,1997
+Sheffield Brightside,Yorkshire and the Humber,2001_notional,0.769,lab,395,2005,notional,0.102,0.088,0.769,,1997
+Sheffield Central,Yorkshire and the Humber,2001_notional,0.614,lab,396,2005,notional,0.109,0.197,0.614,,1997
+Sheffield Hallam,Yorkshire and the Humber,2001_notional,0.554,lib,397,2005,notional,0.31,0.554,0.124,,1997
+Sheffield Heeley,Yorkshire and the Humber,2001_notional,0.57,lab,398,2005,notional,0.142,0.227,0.57,,1997
+Sheffield Hillsborough,Yorkshire and the Humber,2001_notional,0.568,lab,399,2005,notional,0.183,0.226,0.568,,1997
+Sherwood,East Midlands,2001_notional,0.542,lab,367,2005,notional,0.338,0.119,0.542,,1997
+Shipley,Yorkshire and the Humber,2001_notional,0.44,lab,422,2005,notional,0.409,0.109,0.44,,1997
+Shrewsbury & Atcham,West Midlands,2001_notional,0.446,lab,275,2005,notional,0.374,0.124,0.446,,1997
+Sittingbourne & Sheppey,South East,2001_notional,0.458,lab,89,2005,notional,0.365,0.141,0.458,,1997
+Skipton & Ripon,Yorkshire and the Humber,2001_notional,0.524,con,383,2005,notional,0.524,0.261,0.174,,1997
+Sleaford & North Hykeham,East Midlands,2001_notional,0.497,con,349,2005,notional,0.497,0.162,0.32,,1997
+Slough,South East,2001_notional,0.583,lab,12,2005,notional,0.262,0.105,0.583,,1997
+Solihull,West Midlands,2001_notional,0.454,con,313,2005,notional,0.454,0.26,0.256,,1997
+Somerton & Frome,South West,2001_notional,0.436,lib,255,2005,notional,0.424,0.436,0.116,,1997
+South Cambridgeshire,Eastern,2001_notional,0.442,con,123,2005,notional,0.442,0.269,0.243,,1997
+South Derbyshire,East Midlands,2001_notional,0.507,lab,332,2005,notional,0.356,0.101,0.507,,1997
+South Dorset,South West,2001_notional,0.42,lab,246,2005,notional,0.416,0.144,0.42,,1997
+South East Cambridgeshire,Eastern,2001_notional,0.442,con,124,2005,notional,0.442,0.269,0.264,,1997
+South East Cornwall,South West,2001_notional,0.459,lib,226,2005,notional,0.355,0.459,0.124,,1997
+South Holland & The Deepings,East Midlands,2001_notional,0.554,con,350,2005,notional,0.554,0.103,0.314,,1997
+South Norfolk,Eastern,2001_notional,0.422,con,131,2005,notional,0.422,0.299,0.245,,1997
+South Ribble,North West,2001_notional,0.464,lab,476,2005,notional,0.381,0.155,0.464,,1997
+South Shields,North East,2001_notional,0.632,lab,525,2005,notional,0.169,0.168,0.632,,1997
+South Staffordshire,West Midlands,2001_notional,0.505,con,282,2005,notional,0.505,0.116,0.342,,1997
+South Suffolk,Eastern,2001_notional,0.414,con,136,2005,notional,0.414,0.249,0.302,,1997
+South Swindon,South West,2001_notional,0.513,lab,263,2005,notional,0.344,0.119,0.513,,1997
+South Thanet,South East,2001_notional,0.457,lab,90,2005,notional,0.411,0.094,0.457,,1997
+South West Bedfordshire,Eastern,2001_notional,0.421,con,6,2005,notional,0.421,0.148,0.404,,1997
+South West Devon,South West,2001_notional,0.468,con,234,2005,notional,0.468,0.184,0.316,,1997
+South West Hertfordshire,Eastern,2001_notional,0.443,con,70,2005,notional,0.443,0.263,0.27,,1997
+South West Norfolk,Eastern,2001_notional,0.522,con,132,2005,notional,0.522,0.107,0.345,,1997
+South West Surrey,South East,2001_notional,0.453,con,106,2005,notional,0.453,0.436,0.087,,1997
+Southampton Itchen,South East,2001_notional,0.545,lab,61,2005,notional,0.274,0.15,0.545,,1997
+Southampton Test,South East,2001_notional,0.525,lab,62,2005,notional,0.255,0.181,0.525,,1997
+Southend West,Eastern,2001_notional,0.463,con,44,2005,notional,0.463,0.249,0.251,,1997
+Southport,North West,2001_notional,0.438,lib,488,2005,notional,0.365,0.438,0.166,,1997
+Spelthorne,South East,2001_notional,0.451,con,107,2005,notional,0.451,0.147,0.373,,1997
+St Albans,Eastern,2001_notional,0.454,lab,71,2005,notional,0.352,0.179,0.454,,1997
+St Helens North,North West,2001_notional,0.611,lab,489,2005,notional,0.188,0.176,0.611,,1997
+St Helens South,North West,2001_notional,0.497,lab,490,2005,notional,0.138,0.231,0.497,,1997
+St Ives,South West,2001_notional,0.516,lib,227,2005,notional,0.312,0.516,0.133,,1997
+Stafford,West Midlands,2001_notional,0.48,lab,283,2005,notional,0.366,0.095,0.48,,1997
+Staffordshire Moorlands,West Midlands,2001_notional,0.49,lab,284,2005,notional,0.353,0.139,0.49,,1997
+Stalybridge And Hyde,North West,2001_notional,0.555,lab,457,2005,notional,0.278,0.135,0.555,,1997
+Stevenage,Eastern,2001_notional,0.519,lab,72,2005,notional,0.317,0.142,0.519,,1997
+Stirling,Scotland,2001_notional,0.422,lab,S14000057,2005,notional,0.248,0.117,0.422,0.164,1997
+Stockport,North West,2001_notional,0.586,lab,458,2005,notional,0.259,0.155,0.586,,1997
+Stockton North,North East,2001_notional,0.634,lab,504,2005,notional,0.221,0.119,0.634,,1997
+Stockton South,North East,2001_notional,0.53,lab,505,2005,notional,0.324,0.136,0.53,,1997
+Stoke-On-Trent Central,West Midlands,2001_notional,0.606,lab,285,2005,notional,0.189,0.146,0.606,,1997
+Stoke-On-Trent North,West Midlands,2001_notional,0.58,lab,286,2005,notional,0.188,0.119,0.58,,1997
+Stoke-On-Trent South,West Midlands,2001_notional,0.538,lab,287,2005,notional,0.246,0.131,0.538,,1997
+Stone,West Midlands,2001_notional,0.491,con,288,2005,notional,0.491,0.151,0.358,,1997
+Stourbridge,West Midlands,2001_notional,0.471,lab,314,2005,notional,0.376,0.121,0.471,,1997
+Stratford-On-Avon,West Midlands,2001_notional,0.503,con,293,2005,notional,0.503,0.288,0.167,,1997
+East Dunbartonshire,Scotland,2001_notional,0.464,lab,S14000018,2005,notional,0.16,0.182,0.464,0.161,1997
+Streatham,London,2001_notional,0.573,lab,203,2005,notional,0.178,0.181,0.573,,1997
+Stretford & Urmston,North West,2001_notional,0.611,lab,459,2005,notional,0.271,0.1,0.611,,1997
+Stroud,South West,2001_notional,0.466,lab,252,2005,notional,0.374,0.109,0.466,,1997
+Suffolk Coastal,Eastern,2001_notional,0.433,con,137,2005,notional,0.433,0.182,0.348,,1997
+Sunderland North,North East,2001_notional,0.627,lab,526,2005,notional,0.179,0.121,0.627,,1997
+Sunderland South,North East,2001_notional,0.639,lab,527,2005,notional,0.201,0.118,0.639,,1997
+Surrey Heath,South East,2001_notional,0.497,con,108,2005,notional,0.497,0.257,0.214,,1997
+Sutton And Cheam,London,2001_notional,0.488,lib,204,2005,notional,0.38,0.488,0.132,,1997
+Sutton Coldfield,West Midlands,2001_notional,0.504,con,315,2005,notional,0.504,0.19,0.272,,1997
+Swansea East,Wales,2001_notional,0.652,lab,568,2005,notional,0.101,0.102,0.652,0.115,1997
+Swansea West,Wales,2001_notional,0.487,lab,569,2005,notional,0.19,0.166,0.487,0.106,1997
+Tamworth,West Midlands,2001_notional,0.49,lab,289,2005,notional,0.376,0.117,0.49,,1997
+Tatton,North West,2001_notional,0.481,con,431,2005,notional,0.481,0.186,0.273,,1997
+Taunton,South West,2001_notional,0.417,con,256,2005,notional,0.417,0.413,0.149,,1997
+Teignbridge,South West,2001_notional,0.444,lib,235,2005,notional,0.393,0.444,0.124,,1997
+Telford,West Midlands,2001_notional,0.546,lab,276,2005,notional,0.274,0.129,0.546,,1997
+Tewkesbury,South West,2001_notional,0.461,con,253,2005,notional,0.461,0.262,0.269,,1997
+Thurrock,Eastern,2001_notional,0.565,lab,45,2005,notional,0.298,0.103,0.565,,1997
+Tiverton & Honiton,South West,2001_notional,0.471,con,236,2005,notional,0.471,0.358,0.119,,1997
+Tonbridge & Malling,South East,2001_notional,0.494,con,91,2005,notional,0.494,0.179,0.299,,1997
+Tooting,London,2001_notional,0.541,lab,205,2005,notional,0.264,0.149,0.541,,1997
+Torbay,South West,2001_notional,0.505,lib,237,2005,notional,0.364,0.505,0.094,,1997
+Torfaen,Wales,2001_notional,0.621,lab,546,2005,notional,0.159,0.112,0.621,0.077,1997
+Torridge & West Devon,South West,2001_notional,0.422,lib,238,2005,notional,0.4,0.422,0.107,,1997
+Totnes,South West,2001_notional,0.445,con,239,2005,notional,0.445,0.372,0.122,,1997
+Tottenham,London,2001_notional,0.675,lab,206,2005,notional,0.139,0.095,0.675,,1997
+Truro & St Austell,South West,2001_notional,0.483,lib,228,2005,notional,0.323,0.483,0.137,,1997
+Tunbridge Wells,South East,2001_notional,0.489,con,92,2005,notional,0.489,0.247,0.232,,1997
+Twickenham,London,2001_notional,0.487,lib,207,2005,notional,0.334,0.487,0.138,,1997
+Tyne Bridge,North East,2001_notional,0.705,lab,528,2005,notional,0.133,0.123,0.705,,1997
+Tynemouth,North East,2001_notional,0.532,lab,529,2005,notional,0.335,0.116,0.532,,1997
+Upminster,London,2001_notional,0.455,con,208,2005,notional,0.455,0.094,0.419,,1997
+Uxbridge,London,2001_notional,0.471,con,209,2005,notional,0.471,0.103,0.409,,1997
+Vale Of Clwyd,Wales,2001_notional,0.5,lab,534,2005,notional,0.322,0.095,0.5,0.071,1997
+Vale Of Glamorgan,Wales,2001_notional,0.454,lab,564,2005,notional,0.35,0.122,0.454,0.063,1997
+Vale Of York,Yorkshire and the Humber,2001_notional,0.516,con,384,2005,notional,0.516,0.202,0.258,,1997
+Vauxhall,London,2001_notional,0.591,lab,210,2005,notional,0.134,0.201,0.591,,1997
+Wakefield,Yorkshire and the Humber,2001_notional,0.499,lab,423,2005,notional,0.306,0.124,0.499,,1997
+Wallasey,North West,2001_notional,0.608,lab,491,2005,notional,0.28,0.112,0.608,,1997
+Walsall North,West Midlands,2001_notional,0.581,lab,316,2005,notional,0.291,0.09,0.581,,1997
+Walsall South,West Midlands,2001_notional,0.59,lab,317,2005,notional,0.305,0.068,0.59,,1997
+Walthamstow,London,2001_notional,0.622,lab,211,2005,notional,0.181,0.146,0.622,,1997
+Wansbeck,North East,2001_notional,0.578,lab,516,2005,notional,0.128,0.228,0.578,,1997
+Wansdyke,South West,2001_notional,0.468,lab,221,2005,notional,0.355,0.144,0.468,,1997
+Wantage,South East,2001_notional,0.396,con,97,2005,notional,0.396,0.28,0.282,,1997
+Warley,West Midlands,2001_notional,0.605,lab,318,2005,notional,0.228,0.106,0.605,,1997
+Warrington North,North West,2001_notional,0.617,lab,432,2005,notional,0.228,0.134,0.617,,1997
+Warrington South,North West,2001_notional,0.493,lab,433,2005,notional,0.33,0.163,0.493,,1997
+Warwick And Leamington,West Midlands,2001_notional,0.488,lab,294,2005,notional,0.376,0.111,0.488,,1997
+Watford,Eastern,2001_notional,0.453,lab,73,2005,notional,0.333,0.174,0.453,,1997
+Waveney,Eastern,2001_notional,0.507,lab,138,2005,notional,0.326,0.114,0.507,,1997
+Wealden,South East,2001_notional,0.498,con,29,2005,notional,0.498,0.237,0.203,,1997
+Weaver Vale,North West,2001_notional,0.525,lab,434,2005,notional,0.279,0.144,0.525,,1997
+Wellingborough,East Midlands,2001_notional,0.468,lab,356,2005,notional,0.422,0.093,0.468,,1997
+Wells,South West,2001_notional,0.438,con,257,2005,notional,0.438,0.383,0.154,,1997
+Welwyn Hatfield,Eastern,2001_notional,0.432,lab,74,2005,notional,0.404,0.141,0.432,,1997
+Wentworth,Yorkshire and the Humber,2001_notional,0.675,lab,400,2005,notional,0.188,0.108,0.675,,1997
+West Aberdeenshire and Kincardine,Scotland,2001_notional,0.435,lib,S14000058,2005,notional,0.308,0.435,0.123,0.122,1997
+West Bromwich East,West Midlands,2001_notional,0.559,lab,319,2005,notional,0.26,0.138,0.559,,1997
+West Bromwich West,West Midlands,2001_notional,0.608,lab,320,2005,notional,0.251,0.068,0.608,,1997
+West Chelmsford,Eastern,2001_notional,0.425,con,46,2005,notional,0.425,0.233,0.295,,1997
+West Derbyshire,East Midlands,2001_notional,0.48,con,333,2005,notional,0.48,0.157,0.334,,1997
+West Dorset,South West,2001_notional,0.446,con,247,2005,notional,0.446,0.418,0.136,,1997
+West Ham,London,2001_notional,0.699,lab,212,2005,notional,0.164,0.074,0.699,,1997
+West Lancashire,North West,2001_notional,0.545,lab,477,2005,notional,0.32,0.116,0.545,,1997
+West Suffolk,Eastern,2001_notional,0.476,con,139,2005,notional,0.476,0.118,0.375,,1997
+West Worcestershire,West Midlands,2001_notional,0.46,con,270,2005,notional,0.46,0.34,0.14,,1997
+Westbury,South West,2001_notional,0.421,con,264,2005,notional,0.421,0.316,0.214,,1997
+Na h-Eileanan An Iar (Western Isles),Scotland,2001_notional,0.45,lab,S14000027,2005,notional,0.095,0.065,0.45,0.369,1997
+Westmorland & Lonsdale,North West,2001_notional,0.469,con,498,2005,notional,0.469,0.404,0.109,,1997
+Weston Super Mare,South West,2001_notional,0.395,lib,222,2005,notional,0.387,0.395,0.198,,1997
+Wigan,North West,2001_notional,0.617,lab,460,2005,notional,0.208,0.148,0.617,,1997
+Wimbledon,London,2001_notional,0.457,lab,213,2005,notional,0.366,0.13,0.457,,1997
+Winchester,South East,2001_notional,0.546,lib,63,2005,notional,0.383,0.546,0.059,,1997
+Windsor,South East,2001_notional,0.473,con,13,2005,notional,0.473,0.261,0.241,,1997
+Wirral South,North West,2001_notional,0.474,lab,492,2005,notional,0.348,0.178,0.474,,1997
+Wirral West,North West,2001_notional,0.472,lab,493,2005,notional,0.372,0.156,0.472,,1997
+Witney,South East,2001_notional,0.45,con,98,2005,notional,0.45,0.203,0.288,,1997
+Woking,South East,2001_notional,0.46,con,109,2005,notional,0.46,0.303,0.203,,1997
+Wokingham,South East,2001_notional,0.461,con,14,2005,notional,0.461,0.324,0.174,,1997
+Wolverhampton North East,West Midlands,2001_notional,0.603,lab,321,2005,notional,0.286,0.079,0.603,,1997
+Wolverhampton South East,West Midlands,2001_notional,0.674,lab,322,2005,notional,0.218,0.088,0.674,,1997
+Wolverhampton South West,West Midlands,2001_notional,0.483,lab,323,2005,notional,0.397,0.084,0.483,,1997
+Woodspring,South West,2001_notional,0.437,con,223,2005,notional,0.437,0.242,0.256,,1997
+Worcester,West Midlands,2001_notional,0.486,lab,271,2005,notional,0.355,0.126,0.486,,1997
+Workington,North West,2001_notional,0.555,lab,499,2005,notional,0.296,0.125,0.555,,1997
+Worsley,North West,2001_notional,0.571,lab,461,2005,notional,0.238,0.175,0.571,,1997
+Worthing West,South East,2001_notional,0.475,con,117,2005,notional,0.475,0.265,0.215,,1997
+Wrekin The,West Midlands,2001_notional,0.471,lab,277,2005,notional,0.384,0.114,0.471,,1997
+Wrexham,Wales,2001_notional,0.53,lab,535,2005,notional,0.225,0.171,0.53,0.059,1997
+Wycombe,South East,2001_notional,0.424,con,21,2005,notional,0.424,0.17,0.353,,1997
+Wyre Forest,West Midlands,2001_notional,0.588,oth,272,2005,notional,0.191,,0.221,,1997
+Wythenshawe & Sale East,North West,2001_notional,0.6,lab,462,2005,notional,0.24,0.123,0.6,,1997
+Yeovil,South West,2001_notional,0.442,lib,258,2005,notional,0.36,0.442,0.147,,1997
+Ynys-Mon,Wales,2001_notional,0.35,lab,550,2005,notional,0.225,0.081,0.35,0.326,1997
+York City Of,Yorkshire and the Humber,2001_notional,0.523,lab,385,2005,notional,0.235,0.178,0.523,,1997

@@ -1,0 +1,632 @@
+constituency_name,country/region,election,majority_proportion,winner,constituency_id,boundary_set,election_type,con_share,lib_share,lab_share,natSW_share,previous_election
+Aldershot,South East,2019_notional,0.56828356,con,E14001063,2023-current,notional,0.56828356,0.17496334,0.22127035,,2017
+Aldridge-Brownhills,West Midlands,2019_notional,0.696118,con,E14001064,2023-current,notional,0.696118,0.056085035,0.21518987,,2017
+Altrincham and Sale West,North West,2019_notional,0.48045212,con,E14001065,2023-current,notional,0.48045212,0.1102204,0.3683509,,2017
+Amber Valley,East Midlands,2019_notional,0.6384266,con,E14001066,2023-current,notional,0.6384266,0.0630358,0.26808307,,2017
+Arundel and South Downs,South East,2019_notional,0.60437137,con,E14001067,2023-current,notional,0.60437137,0.18951897,0.15675071,,2017
+Ashfield,East Midlands,2019_notional,0.3920464,con,E14001068,2023-current,notional,0.3920464,0.020722251,0.25579175,,2017
+Ashford,South East,2019_notional,0.5920048,con,E14001069,2023-current,notional,0.5920048,0.10654809,0.23771589,,2017
+Ashton-under-Lyne,North West,2019_notional,0.47531238,lab,E14001070,2023-current,notional,0.36198854,0.04287406,0.47531238,,2017
+Aylesbury,South East,2019_notional,0.51692927,con,E14001071,2023-current,notional,0.51692927,0.21887092,0.22947761,,2017
+Banbury,South East,2019_notional,0.51952374,con,E14001072,2023-current,notional,0.51952374,0.20340484,0.24794331,,2017
+Barking,London,2019_notional,0.60937613,lab,E14001073,2023-current,notional,0.26824155,0.03305785,0.60937613,,2017
+Barnsley North,Yorkshire and The Humber,2019_notional,0.3853642,lab,E14001074,2023-current,notional,0.23972572,0.03570144,0.3853642,,2017
+Barnsley South,Yorkshire and The Humber,2019_notional,0.41815078,lab,E14001075,2023-current,notional,0.22653835,0.034952544,0.41815078,,2017
+Barrow and Furness,North West,2019_notional,0.53052133,con,E14001076,2023-current,notional,0.53052133,0.045077626,0.38194096,,2017
+Basildon and Billericay,East of England,2019_notional,0.6588052,con,E14001077,2023-current,notional,0.6588052,0.0842422,0.21595202,,2017
+Basingstoke,South East,2019_notional,0.5268752,con,E14001078,2023-current,notional,0.5268752,0.13280319,0.2865321,,2017
+Bassetlaw,East Midlands,2019_notional,0.54409885,con,E14001079,2023-current,notional,0.54409885,0.06732806,0.28007215,,2017
+Bath,South West,2019_notional,0.5340741,lib,E14001080,2023-current,notional,0.32089105,0.5340741,0.12518461,,2017
+Battersea,London,2019_notional,0.46354565,lab,E14001081,2023-current,notional,0.35381842,0.15142576,0.46354565,,2017
+Beaconsfield,South East,2019_notional,0.554994,con,E14001082,2023-current,notional,0.554994,,0.099006325,,2017
+Beckenham and Penge,London,2019_notional,0.4010176,lab,E14001083,2023-current,notional,0.39052576,0.16056998,0.4010176,,2017
+Bedford,East of England,2019_notional,0.44338349,lab,E14001084,2023-current,notional,0.4195009,0.100251056,0.44338349,,2017
+Bermondsey and Old Southwark,London,2019_notional,0.49637136,lab,E14001085,2023-current,notional,0.16802877,0.31079873,0.49637136,,2017
+Bethnal Green and Stepney,London,2019_notional,0.7351204,lab,E14001086,2023-current,notional,0.10139937,0.09277092,0.7351204,,2017
+Beverley and Holderness,Yorkshire and The Humber,2019_notional,0.6098862,con,E14001087,2023-current,notional,0.6098862,0.09253683,0.24660994,,2017
+Bexhill and Battle,South East,2019_notional,0.61756843,con,E14001088,2023-current,notional,0.61756843,0.13386412,0.20773268,,2017
+Bexleyheath and Crayford,London,2019_notional,0.6078224,con,E14001089,2023-current,notional,0.6078224,0.05987315,0.28989428,,2017
+Bicester and Woodstock,South East,2019_notional,0.53913176,con,E14001090,2023-current,notional,0.53913176,0.2659114,0.16852917,,2017
+Birkenhead,North West,2019_notional,0.59997684,lab,E14001091,2023-current,notional,0.15577064,0.039836172,0.59997684,,2017
+Birmingham Edgbaston,West Midlands,2019_notional,0.5232132,lab,E14001092,2023-current,notional,0.35454726,0.07250159,0.5232132,,2017
+Birmingham Erdington,West Midlands,2019_notional,0.49442154,lab,E14001093,2023-current,notional,0.4147811,0.03250681,0.49442154,,2017
+Birmingham Hall Green and Moseley,West Midlands,2019_notional,0.662537,lab,E14001094,2023-current,notional,0.1502155,0.07157077,0.662537,,2017
+Birmingham Hodge Hill and Solihull North,West Midlands,2019_notional,0.5992154,lab,E14001095,2023-current,notional,0.2855863,0.04329927,0.5992154,,2017
+Birmingham Ladywood,West Midlands,2019_notional,0.82999885,lab,E14001096,2023-current,notional,0.098372065,0.02768609,0.82999885,,2017
+Birmingham Northfield,West Midlands,2019_notional,0.4608395,con,E14001097,2023-current,notional,0.4608395,0.04607251,0.42701182,,2017
+Birmingham Perry Barr,West Midlands,2019_notional,0.6801023,lab,E14001098,2023-current,notional,0.20424171,0.065266974,0.6801023,,2017
+Birmingham Selly Oak,West Midlands,2019_notional,0.55713904,lab,E14001099,2023-current,notional,0.31627607,0.06242373,0.55713904,,2017
+Birmingham Yardley,West Midlands,2019_notional,0.58103853,lab,E14001100,2023-current,notional,0.26745573,0.08931895,0.58103853,,2017
+Bishop Auckland,North East,2019_notional,0.529963,con,E14001101,2023-current,notional,0.529963,0.035992,0.36610046,,2017
+Blackburn,North West,2019_notional,0.6598236,lab,E14001102,2023-current,notional,0.23329133,0.024241036,0.6598236,,2017
+Blackley and Middleton South,North West,2019_notional,0.590098,lab,E14001103,2023-current,notional,0.2822787,0.030094812,0.590098,,2017
+Blackpool North and Fleetwood,North West,2019_notional,0.55838394,con,E14001104,2023-current,notional,0.55838394,0.04036125,0.35619804,,2017
+Blackpool South,North West,2019_notional,0.48840004,con,E14001105,2023-current,notional,0.48840004,0.03529495,0.4011647,,2017
+Blaydon and Consett,North East,2019_notional,0.4398169,lab,E14001106,2023-current,notional,0.34857872,0.045693602,0.4398169,,2017
+Blyth and Ashington,North East,2019_notional,0.47685507,lab,E14001107,2023-current,notional,0.33454293,0.064224236,0.47685507,,2017
+Bognor Regis and Littlehampton,South East,2019_notional,0.6216911,con,E14001108,2023-current,notional,0.6216911,0.13288897,0.1897353,,2017
+Bolsover,East Midlands,2019_notional,0.47709957,con,E14001109,2023-current,notional,0.47709957,0.0381163,0.361656,,2017
+Bolton North East,North West,2019_notional,0.45012438,con,E14001110,2023-current,notional,0.45012438,0.04389696,0.4244844,,2017
+Bolton South and Walkden,North West,2019_notional,0.5658876,lab,E14001111,2023-current,notional,0.3174109,0.038536742,0.5658876,,2017
+Bolton West,North West,2019_notional,0.5654327,con,E14001112,2023-current,notional,0.5654327,0.056449026,0.35249057,,2017
+Bootle,North West,2019_notional,0.7944442,lab,E14001113,2023-current,notional,0.091715135,0.037052102,0.7944442,,2017
+Boston and Skegness,East Midlands,2019_notional,0.7642721,con,E14001114,2023-current,notional,0.7642721,0.048425075,0.1555822,,2017
+Bournemouth East,South West,2019_notional,0.50593984,con,E14001115,2023-current,notional,0.50593984,0.1098362,0.32719752,,2017
+Bournemouth West,South West,2019_notional,0.535758,con,E14001116,2023-current,notional,0.535758,0.100607626,0.31847787,,2017
+Bracknell,South East,2019_notional,0.55498207,con,E14001117,2023-current,notional,0.55498207,0.13980123,0.253647,,2017
+Bradford East,Yorkshire and The Humber,2019_notional,0.62982154,lab,E14001118,2023-current,notional,0.21712054,0.07672646,0.62982154,,2017
+Bradford South,Yorkshire and The Humber,2019_notional,0.46736285,lab,E14001119,2023-current,notional,0.4006212,0.037149355,0.46736285,,2017
+Bradford West,Yorkshire and The Humber,2019_notional,0.762206,lab,E14001120,2023-current,notional,0.15175888,0.030478299,0.762206,,2017
+Braintree,East of England,2019_notional,0.67465895,con,E14001121,2023-current,notional,0.67465895,0.09701016,0.1818481,,2017
+Brent East,London,2019_notional,0.6383897,lab,E14001122,2023-current,notional,0.23500012,0.09023786,0.6383897,,2017
+Brent West,London,2019_notional,0.5328155,lab,E14001123,2023-current,notional,0.33798832,0.09106121,0.5328155,,2017
+Brentford and Isleworth,London,2019_notional,0.5033033,lab,E14001124,2023-current,notional,0.28303787,0.16322774,0.5033033,,2017
+Brentwood and Ongar,East of England,2019_notional,0.68543625,con,E14001125,2023-current,notional,0.68543625,0.13592473,0.13685247,,2017
+Bridgwater,South West,2019_notional,0.5790152,con,E14001126,2023-current,notional,0.5790152,0.176251,0.20740378,,2017
+Bridlington and The Wolds,Yorkshire and The Humber,2019_notional,0.6657192,con,E14001127,2023-current,notional,0.6657192,0.07491387,0.19877261,,2017
+Brigg and Immingham,Yorkshire and The Humber,2019_notional,0.71942,con,E14001128,2023-current,notional,0.71942,0.043750662,0.20203196,,2017
+Brighton Kemptown and Peacehaven,South East,2019_notional,0.5118147,lab,E14001129,2023-current,notional,0.34430507,0.059963584,0.5118147,,2017
+Brighton Pavilion,South East,2019_notional,0.22670355,lab,E14001130,2023-current,notional,0.17738743,,0.22670355,,2017
+Bristol Central,South West,2019_notional,0.5848484,lab,E14001131,2023-current,notional,0.14342661,,0.5848484,,2017
+Bristol East,South West,2019_notional,0.583873,lab,E14001132,2023-current,notional,0.23309699,0.069457,0.583873,,2017
+Bristol North East,South West,2019_notional,0.50297517,lab,E14001133,2023-current,notional,0.39124835,0.05099683,0.50297517,,2017
+Bristol North West,South West,2019_notional,0.48877665,lab,E14001134,2023-current,notional,0.36490026,0.081071824,0.48877665,,2017
+Bristol South,South West,2019_notional,0.51622194,lab,E14001135,2023-current,notional,0.32816774,0.062401593,0.51622194,,2017
+Broadland and Fakenham,East of England,2019_notional,0.59149086,con,E14001136,2023-current,notional,0.59149086,0.16056348,0.21611694,,2017
+Bromley and Biggin Hill,London,2019_notional,0.54445755,con,E14001137,2023-current,notional,0.54445755,0.15977007,0.25133514,,2017
+Bromsgrove,West Midlands,2019_notional,0.6339917,con,E14001138,2023-current,notional,0.6339917,0.12490787,0.20824735,,2017
+Broxbourne,East of England,2019_notional,0.6424122,con,E14001139,2023-current,notional,0.6424122,0.09002622,0.23985317,,2017
+Broxtowe,East Midlands,2019_notional,0.4516607,con,E14001140,2023-current,notional,0.4516607,0.005063671,0.38003787,,2017
+Buckingham and Bletchley,South East,2019_notional,0.5305556,con,E14001141,2023-current,notional,0.5305556,0.1543082,0.2768918,,2017
+Burnley,North West,2019_notional,0.40456882,con,E14001142,2023-current,notional,0.40456882,0.0767271,0.40187255,,2017
+Burton and Uttoxeter,West Midlands,2019_notional,0.60650826,con,E14001143,2023-current,notional,0.60650826,0.05500841,0.3090812,,2017
+Bury North,North West,2019_notional,0.472882,con,E14001144,2023-current,notional,0.472882,0.030652702,0.44890592,,2017
+Bury South,North West,2019_notional,0.43466172,con,E14001145,2023-current,notional,0.43466172,0.06163114,0.41582382,,2017
+Bury St Edmunds and Stowmarket,East of England,2019_notional,0.62923723,con,E14001146,2023-current,notional,0.62923723,0.010765801,0.20841828,,2017
+Calder Valley,Yorkshire and The Humber,2019_notional,0.5135331,con,E14001147,2023-current,notional,0.5135331,0.050625287,0.4230701,,2017
+Camborne and Redruth,South West,2019_notional,0.53257984,con,E14001148,2023-current,notional,0.53257984,0.08472112,0.3416568,,2017
+Cambridge,East of England,2019_notional,0.47446722,lab,E14001149,2023-current,notional,0.14764777,0.31164053,0.47446722,,2017
+Cannock Chase,West Midlands,2019_notional,0.68309116,con,E14001150,2023-current,notional,0.68309116,,0.2538596,,2017
+Canterbury,South East,2019_notional,0.48598817,lab,E14001151,2023-current,notional,0.44820347,0.056974426,0.48598817,,2017
+Carlisle,North West,2019_notional,0.5651639,con,E14001152,2023-current,notional,0.5651639,0.049960967,0.34482825,,2017
+Carshalton and Wallington,London,2019_notional,0.4240906,con,E14001153,2023-current,notional,0.4240906,0.41127947,0.12385433,,2017
+Castle Point,East of England,2019_notional,0.7654422,con,E14001154,2023-current,notional,0.7654422,0.06643519,0.1681226,,2017
+Central Devon,South West,2019_notional,0.5529582,con,E14001155,2023-current,notional,0.5529582,0.14990127,0.24797264,,2017
+Central Suffolk and North Ipswich,East of England,2019_notional,0.61933666,con,E14001156,2023-current,notional,0.61933666,0.10642307,0.21838054,,2017
+Chatham and Aylesford,South East,2019_notional,0.658888,con,E14001157,2023-current,notional,0.658888,0.067344844,0.24429697,,2017
+Cheadle,North West,2019_notional,0.45961756,con,E14001158,2023-current,notional,0.45961756,0.41783088,0.12255156,,2017
+Chelmsford,East of England,2019_notional,0.5470776,con,E14001159,2023-current,notional,0.5470776,0.26067328,0.18147364,,2017
+Chelsea and Fulham,London,2019_notional,0.45470145,con,E14001160,2023-current,notional,0.45470145,0.23827605,0.2905387,,2017
+Cheltenham,South West,2019_notional,0.48455602,con,E14001161,2023-current,notional,0.48455602,0.4595749,0.04804599,,2017
+Chesham and Amersham,South East,2019_notional,0.56346,con,E14001162,2023-current,notional,0.56346,0.22431159,0.13913351,,2017
+Chester North and Neston,North West,2019_notional,0.5032453,lab,E14001163,2023-current,notional,0.38472664,0.06188339,0.5032453,,2017
+Chester South and Eddisbury,North West,2019_notional,0.59234905,con,E14001164,2023-current,notional,0.59234905,0.15298231,0.21512797,,2017
+Chesterfield,East Midlands,2019_notional,0.40213782,lab,E14001165,2023-current,notional,0.3700261,0.08819103,0.40213782,,2017
+Chichester,South East,2019_notional,0.5876093,con,E14001166,2023-current,notional,0.5876093,0.20303006,0.1538552,,2017
+Chingford and Woodford Green,London,2019_notional,0.48203495,con,E14001167,2023-current,notional,0.48203495,0.058473427,0.4526609,,2017
+Chippenham,South West,2019_notional,0.56384724,con,E14001168,2023-current,notional,0.56384724,0.30255944,0.11670856,,2017
+Chipping Barnet,London,2019_notional,0.47545445,con,E14001169,2023-current,notional,0.47545445,0.09833624,0.40340966,,2017
+Christchurch,South West,2019_notional,0.65594524,con,E14001171,2023-current,notional,0.65594524,0.17350164,0.12865677,,2017
+Cities of London and Westminster,London,2019_notional,0.40333104,con,E14001172,2023-current,notional,0.40333104,0.28231254,0.28866374,,2017
+City of Durham,North East,2019_notional,0.40938604,lab,E14001173,2023-current,notional,0.31858683,0.16935405,0.40938604,,2017
+Clacton,East of England,2019_notional,0.7187589,con,E14001174,2023-current,notional,0.7187589,0.06194574,0.15564169,,2017
+Clapham and Brixton Hill,London,2019_notional,0.55362725,lab,E14001175,2023-current,notional,0.19495393,0.19807945,0.55362725,,2017
+Colchester,East of England,2019_notional,0.523375,con,E14001176,2023-current,notional,0.523375,0.14684972,0.30052352,,2017
+Colne Valley,Yorkshire and The Humber,2019_notional,0.51225734,con,E14001177,2023-current,notional,0.51225734,0.070124604,0.36232975,,2017
+Congleton,North West,2019_notional,0.60640794,con,E14001178,2023-current,notional,0.60640794,0.110834524,0.24098127,,2017
+Corby and East Northamptonshire,East Midlands,2019_notional,0.5463537,con,E14001179,2023-current,notional,0.5463537,0.06828725,0.38535908,,2017
+Coventry East,West Midlands,2019_notional,0.52099144,lab,E14001180,2023-current,notional,0.35024834,0.054048356,0.52099144,,2017
+Coventry North West,West Midlands,2019_notional,0.43812835,lab,E14001181,2023-current,notional,0.4337718,0.056907672,0.43812835,,2017
+Coventry South,West Midlands,2019_notional,0.44268775,lab,E14001182,2023-current,notional,0.42542464,0.067343235,0.44268775,,2017
+Cramlington and Killingworth,North East,2019_notional,0.44373024,lab,E14001183,2023-current,notional,0.39886004,0.05242137,0.44373024,,2017
+Crawley,South East,2019_notional,0.5418946,con,E14001184,2023-current,notional,0.5418946,0.054670434,0.3743562,,2017
+Crewe and Nantwich,North West,2019_notional,0.50822777,con,E14001185,2023-current,notional,0.50822777,0.051259063,0.39236194,,2017
+Croydon East,London,2019_notional,0.48081863,lab,E14001186,2023-current,notional,0.41339734,0.06599897,0.48081863,,2017
+Croydon South,London,2019_notional,0.5447597,con,E14001187,2023-current,notional,0.5447597,0.13528118,0.28131017,,2017
+Croydon West,London,2019_notional,0.66707915,lab,E14001188,2023-current,notional,0.21510045,0.069675356,0.66707915,,2017
+Dagenham and Rainham,London,2019_notional,0.44726315,lab,E14001189,2023-current,notional,0.43121478,0.03041462,0.44726315,,2017
+Darlington,North East,2019_notional,0.49661994,con,E14001190,2023-current,notional,0.49661994,0.046197705,0.38932204,,2017
+Dartford,South East,2019_notional,0.61118996,con,E14001191,2023-current,notional,0.61118996,0.06993203,0.2948933,,2017
+Daventry,East Midlands,2019_notional,0.64497155,con,E14001192,2023-current,notional,0.64497155,0.1312241,0.17773369,,2017
+Derby North,East Midlands,2019_notional,0.4521556,con,E14001193,2023-current,notional,0.4521556,0.07337771,0.3981326,,2017
+Derby South,East Midlands,2019_notional,0.51080966,lab,E14001194,2023-current,notional,0.36905938,0.061725777,0.51080966,,2017
+Derbyshire Dales,East Midlands,2019_notional,0.5900241,con,E14001195,2023-current,notional,0.5900241,0.12757277,0.2414797,,2017
+Dewsbury and Batley,Yorkshire and The Humber,2019_notional,0.5908982,lab,E14001196,2023-current,notional,0.28702196,0.025075378,0.5908982,,2017
+Didcot and Wantage,South East,2019_notional,0.49764472,con,E14001197,2023-current,notional,0.49764472,0.31321532,0.16023259,,2017
+Doncaster Central,Yorkshire and The Humber,2019_notional,0.39363205,lab,E14001198,2023-current,notional,0.3660274,0.040918272,0.39363205,,2017
+Doncaster East and the Isle of Axholme,Yorkshire and The Humber,2019_notional,0.52130723,con,E14001199,2023-current,notional,0.52130723,0.044378422,0.2872296,,2017
+Doncaster North,Yorkshire and The Humber,2019_notional,0.38322935,lab,E14001200,2023-current,notional,0.33156976,0.03608685,0.38322935,,2017
+Dorking and Horley,South East,2019_notional,0.51166165,con,E14001201,2023-current,notional,0.51166165,0.32116708,0.09936691,,2017
+Dover and Deal,South East,2019_notional,0.56872475,con,E14001202,2023-current,notional,0.56872475,0.05717132,0.32611287,,2017
+Droitwich and Evesham,West Midlands,2019_notional,0.6569493,con,E14001203,2023-current,notional,0.6569493,0.120328724,0.170491,,2017
+Dudley,West Midlands,2019_notional,0.6315839,con,E14001204,2023-current,notional,0.6315839,0.037893143,0.30927908,,2017
+Dulwich and West Norwood,London,2019_notional,0.644691,lab,E14001205,2023-current,notional,0.1664176,0.009637123,0.644691,,2017
+Dunstable and Leighton Buzzard,East of England,2019_notional,0.58713484,con,E14001206,2023-current,notional,0.58713484,0.107934535,0.26838616,,2017
+Ealing Central and Acton,London,2019_notional,0.52292156,lab,E14001207,2023-current,notional,0.2561857,0.1734642,0.52292156,,2017
+Ealing North,London,2019_notional,0.5631819,lab,E14001208,2023-current,notional,0.3189853,0.08840538,0.5631819,,2017
+Ealing Southall,London,2019_notional,0.5974548,lab,E14001209,2023-current,notional,0.23928389,0.09794502,0.5974548,,2017
+Earley and Woodley,South East,2019_notional,0.48761496,con,E14001210,2023-current,notional,0.48761496,0.21809822,0.26666015,,2017
+Easington,North East,2019_notional,0.467627,lab,E14001211,2023-current,notional,0.2705782,0.041407347,0.467627,,2017
+East Grinstead and Uckfield,South East,2019_notional,0.5846831,con,E14001212,2023-current,notional,0.5846831,0.23013751,0.13573064,,2017
+East Ham,London,2019_notional,0.7777848,lab,E14001213,2023-current,notional,0.14572354,0.03566364,0.7777848,,2017
+East Hampshire,South East,2019_notional,0.5900323,con,E14001214,2023-current,notional,0.5900323,0.21716659,0.12297185,,2017
+East Surrey,South East,2019_notional,0.603458,con,E14001215,2023-current,notional,0.603458,0.20394365,0.1318504,,2017
+East Thanet,South East,2019_notional,0.534513,con,E14001216,2023-current,notional,0.534513,0.0518738,0.37624153,,2017
+East Wiltshire,South West,2019_notional,0.65936553,con,E14001217,2023-current,notional,0.65936553,0.14493345,0.15877357,,2017
+East Worthing and Shoreham,South East,2019_notional,0.5102206,con,E14001218,2023-current,notional,0.5102206,0.07768032,0.3695415,,2017
+Eastbourne,South East,2019_notional,0.47088316,con,E14001219,2023-current,notional,0.47088316,0.42858815,0.06945122,,2017
+Eastleigh,South East,2019_notional,0.5186597,con,E14001220,2023-current,notional,0.5186597,0.34434763,0.11655773,,2017
+Edmonton and Winchmore Hill,London,2019_notional,0.5819015,lab,E14001221,2023-current,notional,0.31106597,0.06734098,0.5819015,,2017
+Ellesmere Port and Bromborough,North West,2019_notional,0.5929538,lab,E14001222,2023-current,notional,0.27056795,0.0741994,0.5929538,,2017
+Eltham and Chislehurst,London,2019_notional,0.46853408,con,E14001223,2023-current,notional,0.46853408,0.07489185,0.40111965,,2017
+Ely and East Cambridgeshire,East of England,2019_notional,0.5395208,con,E14001224,2023-current,notional,0.5395208,0.29259157,0.14367025,,2017
+Enfield North,London,2019_notional,0.53343964,lab,E14001225,2023-current,notional,0.3591954,0.06532436,0.53343964,,2017
+Epping Forest,East of England,2019_notional,0.64382905,con,E14001226,2023-current,notional,0.64382905,0.10716559,0.20273335,,2017
+Epsom and Ewell,South East,2019_notional,0.53577715,con,E14001227,2023-current,notional,0.53577715,0.24210325,0.16817953,,2017
+Erewash,East Midlands,2019_notional,0.5645921,con,E14001228,2023-current,notional,0.5645921,0.050948497,0.34731838,,2017
+Erith and Thamesmead,London,2019_notional,0.58352095,lab,E14001229,2023-current,notional,0.28207034,0.04918185,0.58352095,,2017
+Esher and Walton,South East,2019_notional,0.49519384,con,E14001230,2023-current,notional,0.49519384,0.44152516,0.048025917,,2017
+Exeter,South West,2019_notional,0.5479962,lab,E14001231,2023-current,notional,0.32077423,0.00016543281,0.5479962,,2017
+Exmouth and Exeter East,South West,2019_notional,0.49842384,con,E14001232,2023-current,notional,0.49842384,0.03028729,0.10528012,,2017
+Fareham and Waterlooville,South East,2019_notional,0.61175513,con,E14001233,2023-current,notional,0.61175513,0.18942793,0.15782683,,2017
+Farnham and Bordon,South East,2019_notional,0.5939657,con,E14001234,2023-current,notional,0.5939657,0.328484,0.06818404,,2017
+Faversham and Mid Kent,South East,2019_notional,0.6260915,con,E14001235,2023-current,notional,0.6260915,0.124670744,0.19846521,,2017
+Feltham and Heston,London,2019_notional,0.51723903,lab,E14001236,2023-current,notional,0.35788345,0.066244334,0.51723903,,2017
+Filton and Bradley Stoke,South West,2019_notional,0.51001066,con,E14001237,2023-current,notional,0.51001066,0.100067966,0.35772404,,2017
+Finchley and Golders Green,London,2019_notional,0.43793762,con,E14001238,2023-current,notional,0.43793762,0.3183065,0.24362954,,2017
+Folkestone and Hythe,South East,2019_notional,0.56316555,con,E14001239,2023-current,notional,0.56316555,0.100033484,0.26761916,,2017
+Forest of Dean,South West,2019_notional,0.5960175,con,E14001240,2023-current,notional,0.5960175,,0.28773192,,2017
+Frome and East Somerset,South West,2019_notional,0.4929331,con,E14001241,2023-current,notional,0.4929331,0.23454243,0.21171565,,2017
+Fylde,North West,2019_notional,0.62234586,con,E14001242,2023-current,notional,0.62234586,0.07345949,0.25169885,,2017
+Gainsborough,East Midlands,2019_notional,0.6630023,con,E14001243,2023-current,notional,0.6630023,0.10357884,0.21163633,,2017
+Gateshead Central and Whickham,North East,2019_notional,0.4708836,lab,E14001244,2023-current,notional,0.33021584,0.1222722,0.4708836,,2017
+Gedling,East Midlands,2019_notional,0.47203326,con,E14001245,2023-current,notional,0.47203326,0.044898335,0.42754158,,2017
+Gillingham and Rainham,South East,2019_notional,0.61301625,con,E14001246,2023-current,notional,0.61301625,0.054462772,0.28404194,,2017
+Glastonbury and Somerton,South West,2019_notional,0.57536566,con,E14001247,2023-current,notional,0.57536566,0.3087378,0.09578148,,2017
+Gloucester,South West,2019_notional,0.5458086,con,E14001248,2023-current,notional,0.5458086,0.07672284,0.35243577,,2017
+Godalming and Ash,South East,2019_notional,0.5339656,con,E14001249,2023-current,notional,0.5339656,0.3414161,0.08916191,,2017
+Goole and Pocklington,Yorkshire and The Humber,2019_notional,0.65112925,con,E14001250,2023-current,notional,0.65112925,0.07779403,0.20420432,,2017
+Gorton and Denton,North West,2019_notional,0.67238367,lab,E14001251,2023-current,notional,0.18850921,0.058283146,0.67238367,,2017
+Gosport,South East,2019_notional,0.66509813,con,E14001252,2023-current,notional,0.66509813,0.112954825,0.1846738,,2017
+Grantham and Bourne,East Midlands,2019_notional,0.65815115,con,E14001253,2023-current,notional,0.65815115,0.09021125,0.19976664,,2017
+Gravesham,South East,2019_notional,0.6219512,con,E14001254,2023-current,notional,0.6219512,0.05433137,0.29434398,,2017
+Great Grimsby and Cleethorpes,Yorkshire and The Humber,2019_notional,0.55616075,con,E14001255,2023-current,notional,0.55616075,0.049238153,0.3219916,,2017
+Great Yarmouth,East of England,2019_notional,0.6578851,con,E14001256,2023-current,notional,0.6578851,0.038217295,0.25148407,,2017
+Greenwich and Woolwich,London,2019_notional,0.55012673,lab,E14001257,2023-current,notional,0.22729193,0.14579637,0.55012673,,2017
+Guildford,South East,2019_notional,0.45085958,con,E14001258,2023-current,notional,0.45085958,0.391583,0.083884835,,2017
+Hackney North and Stoke Newington,London,2019_notional,0.6981852,lab,E14001259,2023-current,notional,0.13034505,0.07736194,0.6981852,,2017
+Hackney South and Shoreditch,London,2019_notional,0.7342368,lab,E14001260,2023-current,notional,0.103896104,0.081560954,0.7342368,,2017
+Halesowen,West Midlands,2019_notional,0.60243803,con,E14001261,2023-current,notional,0.60243803,0.03487787,0.3261138,,2017
+Halifax,Yorkshire and The Humber,2019_notional,0.45649308,lab,E14001262,2023-current,notional,0.4166998,0.048162017,0.45649308,,2017
+Hamble Valley,South East,2019_notional,0.62230676,con,E14001263,2023-current,notional,0.62230676,0.21053277,0.13567434,,2017
+Hammersmith and Chiswick,London,2019_notional,0.5077425,lab,E14001264,2023-current,notional,0.30459672,0.13870901,0.5077425,,2017
+Hampstead and Highgate,London,2019_notional,0.47637966,lab,E14001265,2023-current,notional,0.23169011,0.2428773,0.47637966,,2017
+"Harborough, Oadby and Wigston",East Midlands,2019_notional,0.5445659,con,E14001266,2023-current,notional,0.5445659,0.16945897,0.24775127,,2017
+Harlow,East of England,2019_notional,0.64554477,con,E14001267,2023-current,notional,0.64554477,0.05876267,0.2930532,,2017
+Harpenden and Berkhamsted,East of England,2019_notional,0.52273136,con,E14001268,2023-current,notional,0.52273136,0.2528257,0.10599591,,2017
+Harrogate and Knaresborough,Yorkshire and The Humber,2019_notional,0.5198315,con,E14001269,2023-current,notional,0.5198315,0.36162972,0.09630376,,2017
+Harrow East,London,2019_notional,0.54612046,con,E14001270,2023-current,notional,0.54612046,0.07516208,0.37424216,,2017
+Harrow West,London,2019_notional,0.5309381,lab,E14001271,2023-current,notional,0.34822163,0.08248147,0.5309381,,2017
+Hartlepool,North East,2019_notional,0.37683067,lab,E14001272,2023-current,notional,0.2892268,0.041328557,0.37683067,,2017
+Harwich and North Essex,East of England,2019_notional,0.5855336,con,E14001273,2023-current,notional,0.5855336,0.10725908,0.25917092,,2017
+Hastings and Rye,South East,2019_notional,0.49088764,con,E14001274,2023-current,notional,0.49088764,0.07404026,0.42369592,,2017
+Havant,South East,2019_notional,0.6538654,con,E14001275,2023-current,notional,0.6538654,0.124197654,0.17970365,,2017
+Hayes and Harlington,London,2019_notional,0.557917,lab,E14001276,2023-current,notional,0.347411,0.044256035,0.557917,,2017
+Hazel Grove,North West,2019_notional,0.45585933,con,E14001277,2023-current,notional,0.45585933,0.37221706,0.16272476,,2017
+Hemel Hempstead,East of England,2019_notional,0.54953635,con,E14001278,2023-current,notional,0.54953635,0.113502495,0.2813003,,2017
+Hendon,London,2019_notional,0.48908824,con,E14001279,2023-current,notional,0.48908824,0.08573685,0.40879083,,2017
+Henley and Thame,South East,2019_notional,0.5447977,con,E14001280,2023-current,notional,0.5447977,0.32376212,0.08931689,,2017
+Hereford and South Herefordshire,West Midlands,2019_notional,0.6168461,con,E14001281,2023-current,notional,0.6168461,0.13301344,0.19923918,,2017
+Herne Bay and Sandwich,South East,2019_notional,0.6437542,con,E14001282,2023-current,notional,0.6437542,0.07454574,0.24400534,,2017
+Hertford and Stortford,East of England,2019_notional,0.55682576,con,E14001283,2023-current,notional,0.55682576,0.14212276,0.23677541,,2017
+Hertsmere,East of England,2019_notional,0.64903927,con,E14001284,2023-current,notional,0.64903927,0.10879211,0.21143337,,2017
+Hexham,North East,2019_notional,0.54338676,con,E14001285,2023-current,notional,0.54338676,0.094132915,0.31749004,,2017
+Heywood and Middleton North,North West,2019_notional,0.4306884,lab,E14001286,2023-current,notional,0.41466805,0.042100552,0.4306884,,2017
+High Peak,East Midlands,2019_notional,0.45860484,con,E14001287,2023-current,notional,0.45860484,0.050763294,0.4477138,,2017
+Hinckley and Bosworth,East Midlands,2019_notional,0.6464466,con,E14001288,2023-current,notional,0.6464466,0.18191983,0.14223857,,2017
+Hitchin,East of England,2019_notional,0.4701911,con,E14001289,2023-current,notional,0.4701911,0.23673259,0.26183385,,2017
+Holborn and St Pancras,London,2019_notional,0.662532,lab,E14001290,2023-current,notional,0.15187743,0.12276255,0.662532,,2017
+Honiton and Sidmouth,South West,2019_notional,0.6039008,con,E14001291,2023-current,notional,0.6039008,0.09561865,0.14219578,,2017
+Hornchurch and Upminster,London,2019_notional,0.65430045,con,E14001292,2023-current,notional,0.65430045,0.07118093,0.2285664,,2017
+Hornsey and Friern Barnet,London,2019_notional,0.5725136,lab,E14001293,2023-current,notional,0.11801656,0.2564005,0.5725136,,2017
+Horsham,South East,2019_notional,0.5578335,con,E14001294,2023-current,notional,0.5578335,0.24712624,0.15641898,,2017
+Houghton and Sunderland South,North East,2019_notional,0.4040367,lab,E14001295,2023-current,notional,0.32935295,0.059409104,0.4040367,,2017
+Hove and Portslade,South East,2019_notional,0.58300084,lab,E14001296,2023-current,notional,0.28075403,0.06616304,0.58300084,,2017
+Huddersfield,Yorkshire and The Humber,2019_notional,0.5143031,lab,E14001297,2023-current,notional,0.3635535,0.049615074,0.5143031,,2017
+Huntingdon,East of England,2019_notional,0.59221905,con,E14001298,2023-current,notional,0.59221905,0.14025961,0.20787685,,2017
+Hyndburn,North West,2019_notional,0.48495495,con,E14001299,2023-current,notional,0.48495495,0.028911004,0.41536576,,2017
+Ilford North,London,2019_notional,0.54141146,lab,E14001300,2023-current,notional,0.36695582,0.039721027,0.54141146,,2017
+Ilford South,London,2019_notional,0.65230334,lab,E14001301,2023-current,notional,0.21215062,0.03334196,0.65230334,,2017
+Ipswich,East of England,2019_notional,0.5032776,con,E14001302,2023-current,notional,0.5032776,0.049194217,0.3927671,,2017
+Isle of Wight East,South East,2019_notional,0.574204,con,E14001303,2023-current,notional,0.574204,,0.24070558,,2017
+Isle of Wight West,South East,2019_notional,0.5497992,con,E14001304,2023-current,notional,0.5497992,,0.24488886,,2017
+Islington North,London,2019_notional,0.6431187,lab,E14001305,2023-current,notional,0.101905026,0.1563981,0.6431187,,2017
+Islington South and Finsbury,London,2019_notional,0.57012445,lab,E14001306,2023-current,notional,0.16335845,0.19695836,0.57012445,,2017
+Jarrow and Gateshead East,North East,2019_notional,0.49170494,lab,E14001307,2023-current,notional,0.23700193,0.06539772,0.49170494,,2017
+Keighley and Ilkley,Yorkshire and The Humber,2019_notional,0.48095056,con,E14001308,2023-current,notional,0.48095056,0.04891635,0.43878326,,2017
+Kenilworth and Southam,West Midlands,2019_notional,0.5896484,con,E14001309,2023-current,notional,0.5896484,0.1689704,0.18980262,,2017
+Kensington and Bayswater,London,2019_notional,0.39030886,lab,E14001310,2023-current,notional,0.38319376,0.20155802,0.39030886,,2017
+Kettering,East Midlands,2019_notional,0.60282105,con,E14001311,2023-current,notional,0.60282105,0.06681784,0.26915464,,2017
+Kingston and Surbiton,London,2019_notional,0.5264559,lib,E14001312,2023-current,notional,0.330747,0.5264559,0.102093,,2017
+Kingston upon Hull East,Yorkshire and The Humber,2019_notional,0.41628134,lab,E14001313,2023-current,notional,0.3427974,0.049627427,0.41628134,,2017
+Kingston upon Hull North and Cottingham,Yorkshire and The Humber,2019_notional,0.466367,lab,E14001314,2023-current,notional,0.33459425,0.06486282,0.466367,,2017
+Kingston upon Hull West and Haltemprice,Yorkshire and The Humber,2019_notional,0.42482767,con,E14001315,2023-current,notional,0.42482767,0.09216689,0.3377291,,2017
+Kingswinford and South Staffordshire,West Midlands,2019_notional,0.7432758,con,E14001316,2023-current,notional,0.7432758,0.05318628,0.16821752,,2017
+Knowsley,North West,2019_notional,0.79624724,lab,E14001317,2023-current,notional,0.08746418,0.025097482,0.79624724,,2017
+Lancaster and Wyre,North West,2019_notional,0.4795877,con,E14001318,2023-current,notional,0.4795877,0.03940707,0.41859382,,2017
+Leeds Central and Headingley,Yorkshire and The Humber,2019_notional,0.63432735,lab,E14001319,2023-current,notional,0.1790344,0.111859284,0.63432735,,2017
+Leeds East,Yorkshire and The Humber,2019_notional,0.4697082,lab,E14001320,2023-current,notional,0.40844974,0.036579605,0.4697082,,2017
+Leeds North East,Yorkshire and The Humber,2019_notional,0.57473266,lab,E14001321,2023-current,notional,0.23633663,0.11217822,0.57473266,,2017
+Leeds North West,Yorkshire and The Humber,2019_notional,0.41872036,con,E14001322,2023-current,notional,0.41872036,0.14750683,0.3827777,,2017
+Leeds South,Yorkshire and The Humber,2019_notional,0.5841291,lab,E14001323,2023-current,notional,0.2630581,0.044440333,0.5841291,,2017
+Leeds South West and Morley,Yorkshire and The Humber,2019_notional,0.5313059,con,E14001324,2023-current,notional,0.5313059,0.027682217,0.36814824,,2017
+Leeds West and Pudsey,Yorkshire and The Humber,2019_notional,0.48407272,lab,E14001325,2023-current,notional,0.42230237,0.036420114,0.48407272,,2017
+Leicester East,East Midlands,2019_notional,0.5091832,lab,E14001326,2023-current,notional,0.3848259,0.056301825,0.5091832,,2017
+Leicester South,East Midlands,2019_notional,0.6819062,lab,E14001327,2023-current,notional,0.21834217,0.043234825,0.6819062,,2017
+Leicester West,East Midlands,2019_notional,0.49299133,lab,E14001328,2023-current,notional,0.36649826,0.06715896,0.49299133,,2017
+Leigh and Atherton,North West,2019_notional,0.43831718,con,E14001329,2023-current,notional,0.43831718,0.0458641,0.43170065,,2017
+Lewes,South East,2019_notional,0.48537242,con,E14001330,2023-current,notional,0.48537242,0.4111371,0.070708886,,2017
+Lewisham East,London,2019_notional,0.6265801,lab,E14001331,2023-current,notional,0.19997011,0.10112743,0.6265801,,2017
+Lewisham North,London,2019_notional,0.6943423,lab,E14001332,2023-current,notional,0.122069344,0.11109793,0.6943423,,2017
+Lewisham West and East Dulwich,London,2019_notional,0.66053736,lab,E14001333,2023-current,notional,0.14517803,0.098818846,0.66053736,,2017
+Leyton and Wanstead,London,2019_notional,0.6307787,lab,E14001334,2023-current,notional,0.19854702,0.106599815,0.6307787,,2017
+Lichfield,West Midlands,2019_notional,0.64115125,con,E14001335,2023-current,notional,0.64115125,0.105365485,0.21021633,,2017
+Lincoln,East Midlands,2019_notional,0.47931027,con,E14001336,2023-current,notional,0.47931027,0.047838196,0.4099034,,2017
+Liverpool Garston,North West,2019_notional,0.7018291,lab,E14001337,2023-current,notional,0.11668975,0.09886753,0.7018291,,2017
+Liverpool Riverside,North West,2019_notional,0.8510232,lab,E14001338,2023-current,notional,0.077730104,0.022067145,0.8510232,,2017
+Liverpool Walton,North West,2019_notional,0.82352686,lab,E14001339,2023-current,notional,0.098966725,0.022749243,0.82352686,,2017
+Liverpool Wavertree,North West,2019_notional,0.71604556,lab,E14001340,2023-current,notional,0.095713675,0.08011114,0.71604556,,2017
+Liverpool West Derby,North West,2019_notional,0.77894014,lab,E14001341,2023-current,notional,0.08607014,0.027225176,0.77894014,,2017
+Loughborough,East Midlands,2019_notional,0.50561076,con,E14001342,2023-current,notional,0.50561076,0.07626412,0.3875613,,2017
+Louth and Horncastle,East Midlands,2019_notional,0.72454005,con,E14001343,2023-current,notional,0.72454005,0.077867,0.1770954,,2017
+Lowestoft,East of England,2019_notional,0.6091746,con,E14001344,2023-current,notional,0.6091746,0.051403515,0.28198123,,2017
+Luton North,East of England,2019_notional,0.5385737,lab,E14001345,2023-current,notional,0.3425656,0.04626598,0.5385737,,2017
+Luton South and South Bedfordshire,East of England,2019_notional,0.48651886,lab,E14001346,2023-current,notional,0.35201773,0.0049889134,0.48651886,,2017
+Macclesfield,North West,2019_notional,0.5252195,con,E14001347,2023-current,notional,0.5252195,0.105519146,0.32637793,,2017
+Maidenhead,South East,2019_notional,0.5739679,con,E14001348,2023-current,notional,0.5739679,0.23808776,0.15029265,,2017
+Maidstone and Malling,South East,2019_notional,0.58400637,con,E14001349,2023-current,notional,0.58400637,0.1863537,0.18387961,,2017
+Makerfield,North West,2019_notional,0.4526563,lab,E14001350,2023-current,notional,0.34288183,0.047875404,0.4526563,,2017
+Maldon,East of England,2019_notional,0.7223112,con,E14001351,2023-current,notional,0.7223112,0.11678832,0.12643379,,2017
+Manchester Central,North West,2019_notional,0.6539032,lab,E14001352,2023-current,notional,0.20998023,0.060499012,0.6539032,,2017
+Manchester Rusholme,North West,2019_notional,0.78592247,lab,E14001353,2023-current,notional,0.09098608,0.04015044,0.78592247,,2017
+Manchester Withington,North West,2019_notional,0.6647387,lab,E14001354,2023-current,notional,0.112603925,0.15670563,0.6647387,,2017
+Mansfield,East Midlands,2019_notional,0.6433763,con,E14001355,2023-current,notional,0.6433763,0.03290397,0.30308932,,2017
+Melksham and Devizes,South West,2019_notional,0.57791764,con,E14001356,2023-current,notional,0.57791764,0.27255934,0.11989814,,2017
+Melton and Syston,East Midlands,2019_notional,0.6325745,con,E14001357,2023-current,notional,0.6325745,0.077104956,0.23493472,,2017
+Meriden and Solihull East,West Midlands,2019_notional,0.6240108,con,E14001358,2023-current,notional,0.6240108,0.13557342,0.20845462,,2017
+Mid Bedfordshire,East of England,2019_notional,0.6046566,con,E14001359,2023-current,notional,0.6046566,0.12508523,0.20506576,,2017
+Mid Buckinghamshire,South East,2019_notional,0.6145178,con,E14001360,2023-current,notional,0.6145178,0.1968353,0.15275806,,2017
+Mid Cheshire,North West,2019_notional,0.46948215,con,E14001361,2023-current,notional,0.46948215,0.08386808,0.41631314,,2017
+Mid Derbyshire,East Midlands,2019_notional,0.59563416,con,E14001362,2023-current,notional,0.59563416,0.09615757,0.26962894,,2017
+Mid Dorset and North Poole,South West,2019_notional,0.6003788,con,E14001363,2023-current,notional,0.6003788,0.29859582,0.07252263,,2017
+Mid Leicestershire,East Midlands,2019_notional,0.6222347,con,E14001364,2023-current,notional,0.6222347,0.080028266,0.25646368,,2017
+Mid Norfolk,East of England,2019_notional,0.6442476,con,E14001365,2023-current,notional,0.6442476,0.10439829,0.22909795,,2017
+Mid Sussex,South East,2019_notional,0.5128331,con,E14001366,2023-current,notional,0.5128331,0.25475457,0.17998451,,2017
+Middlesbrough and Thornaby East,North East,2019_notional,0.53978556,lab,E14001367,2023-current,notional,0.24339567,0.026364096,0.53978556,,2017
+Middlesbrough South and East Cleveland,North East,2019_notional,0.57859313,con,E14001368,2023-current,notional,0.57859313,0.040490415,0.3498434,,2017
+Milton Keynes Central,South East,2019_notional,0.4754986,con,E14001369,2023-current,notional,0.4754986,0.104254514,0.3814435,,2017
+Milton Keynes North,South East,2019_notional,0.5163822,con,E14001370,2023-current,notional,0.5163822,0.06722724,0.38534504,,2017
+Mitcham and Morden,London,2019_notional,0.5746519,lab,E14001371,2023-current,notional,0.26711598,0.10830283,0.5746519,,2017
+Morecambe and Lunesdale,North West,2019_notional,0.5360814,con,E14001372,2023-current,notional,0.5360814,0.15613095,0.28113994,,2017
+New Forest East,South East,2019_notional,0.64523685,con,E14001373,2023-current,notional,0.64523685,0.14551254,0.14803292,,2017
+New Forest West,South East,2019_notional,0.6383533,con,E14001374,2023-current,notional,0.6383533,0.15326203,0.13109769,,2017
+Newark,East Midlands,2019_notional,0.6307437,con,E14001375,2023-current,notional,0.6307437,0.09565421,0.23900916,,2017
+Newbury,South East,2019_notional,0.5508034,con,E14001376,2023-current,notional,0.5508034,0.32596967,0.077083044,,2017
+Newcastle upon Tyne Central and West,North East,2019_notional,0.59250027,lab,E14001377,2023-current,notional,0.26569024,0.029708114,0.59250027,,2017
+Newcastle upon Tyne East and Wallsend,North East,2019_notional,0.59263855,lab,E14001378,2023-current,notional,0.23651502,0.08328163,0.59263855,,2017
+Newcastle upon Tyne North,North East,2019_notional,0.44382468,lab,E14001379,2023-current,notional,0.31780654,0.14027667,0.44382468,,2017
+Newcastle-under-Lyme,West Midlands,2019_notional,0.5280071,con,E14001380,2023-current,notional,0.5280071,0.05637312,0.3535038,,2017
+Newton Abbot,South West,2019_notional,0.5555619,con,E14001381,2023-current,notional,0.5555619,0.2224957,0.177199,,2017
+Newton Aycliffe and Spennymoor,North East,2019_notional,0.46144977,con,E14001382,2023-current,notional,0.46144977,0.05395186,0.38287374,,2017
+Normanton and Hemsworth,Yorkshire and The Humber,2019_notional,0.3955081,lab,E14001383,2023-current,notional,0.31434038,0.042221043,0.3955081,,2017
+North Bedfordshire,East of England,2019_notional,0.61136615,con,E14001384,2023-current,notional,0.61136615,0.13172129,0.19090068,,2017
+North Cornwall,South West,2019_notional,0.5906578,con,E14001385,2023-current,notional,0.5906578,0.29879615,0.096177675,,2017
+North Cotswolds,South West,2019_notional,0.59338886,con,E14001386,2023-current,notional,0.59338886,0.18000512,0.16519994,,2017
+North Devon,South West,2019_notional,0.5663626,con,E14001387,2023-current,notional,0.5663626,0.29985067,0.091703996,,2017
+North Dorset,South West,2019_notional,0.6375318,con,E14001388,2023-current,notional,0.6375318,0.20368846,0.11931393,,2017
+North Durham,North East,2019_notional,0.43685928,lab,E14001389,2023-current,notional,0.3443031,0.06364283,0.43685928,,2017
+North East Cambridgeshire,East of England,2019_notional,0.7386955,con,E14001390,2023-current,notional,0.7386955,0.06710928,0.16048358,,2017
+North East Derbyshire,East Midlands,2019_notional,0.58400536,con,E14001391,2023-current,notional,0.58400536,0.061419997,0.32324824,,2017
+North East Hampshire,South East,2019_notional,0.6191433,con,E14001392,2023-current,notional,0.6191433,0.2237088,0.102379695,,2017
+North East Hertfordshire,East of England,2019_notional,0.5656009,con,E14001393,2023-current,notional,0.5656009,0.15477073,0.23684639,,2017
+North East Somerset and Hanham,South West,2019_notional,0.5472953,con,E14001394,2023-current,notional,0.5472953,0.15016453,0.26195657,,2017
+North Herefordshire,West Midlands,2019_notional,0.6250161,con,E14001395,2023-current,notional,0.6250161,0.13469207,0.1523533,,2017
+North Norfolk,East of England,2019_notional,0.584636,con,E14001396,2023-current,notional,0.584636,0.3035763,0.077188626,,2017
+North Northumberland,North East,2019_notional,0.5592909,con,E14001397,2023-current,notional,0.5592909,0.16086462,0.23115283,,2017
+North Shropshire,West Midlands,2019_notional,0.61693865,con,E14001398,2023-current,notional,0.61693865,0.10441736,0.22392914,,2017
+North Somerset,South West,2019_notional,0.5348023,con,E14001399,2023-current,notional,0.5348023,0.16574635,0.25019345,,2017
+North Warwickshire and Bedworth,West Midlands,2019_notional,0.65881866,con,E14001400,2023-current,notional,0.65881866,0.04506251,0.26773968,,2017
+North West Cambridgeshire,East of England,2019_notional,0.599613,con,E14001401,2023-current,notional,0.599613,0.10998894,0.23747662,,2017
+North West Essex,East of England,2019_notional,0.61698353,con,E14001402,2023-current,notional,0.61698353,0.19679071,0.13777882,,2017
+North West Hampshire,South East,2019_notional,0.6007507,con,E14001403,2023-current,notional,0.6007507,0.18464991,0.16890126,,2017
+North West Leicestershire,East Midlands,2019_notional,0.6206665,con,E14001404,2023-current,notional,0.6206665,0.068486385,0.25406176,,2017
+North West Norfolk,East of England,2019_notional,0.6604007,con,E14001405,2023-current,notional,0.6604007,0.07780683,0.22644073,,2017
+Northampton North,East Midlands,2019_notional,0.4977488,con,E14001406,2023-current,notional,0.4977488,0.056886695,0.42077753,,2017
+Northampton South,East Midlands,2019_notional,0.5775681,con,E14001407,2023-current,notional,0.5775681,0.07924125,0.30898243,,2017
+Norwich North,East of England,2019_notional,0.5155782,con,E14001408,2023-current,notional,0.5155782,0.062293,0.38934612,,2017
+Norwich South,East of England,2019_notional,0.5352771,lab,E14001409,2023-current,notional,0.29003274,0.09454666,0.5352771,,2017
+Nottingham East,East Midlands,2019_notional,0.63112086,lab,E14001410,2023-current,notional,0.20836495,0.06302727,0.63112086,,2017
+Nottingham North and Kimberley,East Midlands,2019_notional,0.460046,lab,E14001411,2023-current,notional,0.4021888,0.03752585,0.460046,,2017
+Nottingham South,East Midlands,2019_notional,0.53807116,lab,E14001412,2023-current,notional,0.31556088,0.06718965,0.53807116,,2017
+Nuneaton,West Midlands,2019_notional,0.60610753,con,E14001413,2023-current,notional,0.60610753,0.041203804,0.31524673,,2017
+Old Bexley and Sidcup,London,2019_notional,0.63928896,con,E14001414,2023-current,notional,0.63928896,0.08296219,0.23886093,,2017
+Oldham East and Saddleworth,North West,2019_notional,0.43514428,lab,E14001415,2023-current,notional,0.40267307,0.052486785,0.43514428,,2017
+"Oldham West, Chadderton and Royton",North West,2019_notional,0.5531575,lab,E14001416,2023-current,notional,0.30274114,0.03339785,0.5531575,,2017
+Orpington,London,2019_notional,0.61906123,con,E14001417,2023-current,notional,0.61906123,0.14594142,0.19774093,,2017
+Ossett and Denby Dale,Yorkshire and The Humber,2019_notional,0.53853273,con,E14001418,2023-current,notional,0.53853273,0.049374588,0.3116771,,2017
+Oxford East,South East,2019_notional,0.56445456,lab,E14001419,2023-current,notional,0.21446116,0.14015965,0.56445456,,2017
+Oxford West and Abingdon,South East,2019_notional,0.5218936,lib,E14001420,2023-current,notional,0.34090522,0.5218936,0.11796277,,2017
+Peckham,London,2019_notional,0.7082856,lab,E14001421,2023-current,notional,0.11221856,0.10384538,0.7082856,,2017
+Pendle and Clitheroe,North West,2019_notional,0.56934655,con,E14001422,2023-current,notional,0.56934655,0.07342816,0.33088022,,2017
+Penistone and Stocksbridge,Yorkshire and The Humber,2019_notional,0.4783522,con,E14001423,2023-current,notional,0.4783522,0.102059774,0.33275443,,2017
+Penrith and Solway,North West,2019_notional,0.5481731,con,E14001424,2023-current,notional,0.5481731,0.081680946,0.30148086,,2017
+Peterborough,East of England,2019_notional,0.46483317,con,E14001425,2023-current,notional,0.46483317,0.049034555,0.41543868,,2017
+Plymouth Moor View,South West,2019_notional,0.5983137,con,E14001426,2023-current,notional,0.5983137,0.050465193,0.32289416,,2017
+Plymouth Sutton and Devonport,South West,2019_notional,0.48407528,lab,E14001427,2023-current,notional,0.38010272,0.04904289,0.48407528,,2017
+"Pontefract, Castleford and Knottingley",Yorkshire and The Humber,2019_notional,0.38186973,lab,E14001428,2023-current,notional,0.35565087,0.06782495,0.38186973,,2017
+Poole,South West,2019_notional,0.58800024,con,E14001429,2023-current,notional,0.58800024,0.15348046,0.20669658,,2017
+Poplar and Limehouse,London,2019_notional,0.6034259,lab,E14001430,2023-current,notional,0.17669602,0.1550179,0.6034259,,2017
+Portsmouth North,South East,2019_notional,0.61363536,con,E14001431,2023-current,notional,0.61363536,0.074471794,0.2699194,,2017
+Portsmouth South,South East,2019_notional,0.4864101,lab,E14001432,2023-current,notional,0.3733263,0.114243545,0.4864101,,2017
+Preston,North West,2019_notional,0.5728567,lab,E14001433,2023-current,notional,0.29799128,0.0675682,0.5728567,,2017
+Putney,London,2019_notional,0.44326982,lab,E14001434,2023-current,notional,0.36373952,0.16896589,0.44326982,,2017
+Queen's Park and Maida Vale,London,2019_notional,0.61918795,lab,E14001435,2023-current,notional,0.19788387,0.13906561,0.61918795,,2017
+Rawmarsh and Conisbrough,Yorkshire and The Humber,2019_notional,0.40077448,lab,E14001436,2023-current,notional,0.36977112,0.03699684,0.40077448,,2017
+Rayleigh and Wickford,East of England,2019_notional,0.7293243,con,E14001437,2023-current,notional,0.7293243,0.07700436,0.15668811,,2017
+Reading Central,South East,2019_notional,0.52604306,lab,E14001438,2023-current,notional,0.36398214,0.06380749,0.52604306,,2017
+Reading West and Mid Berkshire,South East,2019_notional,0.5678748,con,E14001439,2023-current,notional,0.5678748,0.16899927,0.22894588,,2017
+Redcar,North East,2019_notional,0.4752907,con,E14001440,2023-current,notional,0.4752907,0.048121646,0.36621198,,2017
+Redditch,West Midlands,2019_notional,0.6467022,con,E14001441,2023-current,notional,0.6467022,0.0639776,0.2588577,,2017
+Reigate,South East,2019_notional,0.5581926,con,E14001442,2023-current,notional,0.5581926,0.19873197,0.16916344,,2017
+Ribble Valley,North West,2019_notional,0.5984112,con,E14001443,2023-current,notional,0.5984112,0.07999617,0.27607197,,2017
+Richmond and Northallerton,Yorkshire and The Humber,2019_notional,0.633404,con,E14001444,2023-current,notional,0.633404,0.124807246,0.1644179,,2017
+Richmond Park,London,2019_notional,0.5364578,lib,E14001445,2023-current,notional,0.40570733,0.5364578,0.052621778,,2017
+Rochdale,North West,2019_notional,0.5083218,lab,E14001446,2023-current,notional,0.31551668,0.07532455,0.5083218,,2017
+Rochester and Strood,South East,2019_notional,0.5846981,con,E14001447,2023-current,notional,0.5846981,0.0710205,0.28105748,,2017
+Romford,London,2019_notional,0.64769745,con,E14001448,2023-current,notional,0.64769745,0.05767282,0.26439753,,2017
+Romsey and Southampton North,South East,2019_notional,0.57851344,con,E14001449,2023-current,notional,0.57851344,0.28144196,0.121197715,,2017
+Rossendale and Darwen,North West,2019_notional,0.5634604,con,E14001450,2023-current,notional,0.5634604,0.041732613,0.3664376,,2017
+Rother Valley,Yorkshire and The Humber,2019_notional,0.46111062,con,E14001451,2023-current,notional,0.46111062,0.048254486,0.32623988,,2017
+Rotherham,Yorkshire and The Humber,2019_notional,0.40667725,lab,E14001452,2023-current,notional,0.3309207,0.062429633,0.40667725,,2017
+Rugby,West Midlands,2019_notional,0.5733289,con,E14001453,2023-current,notional,0.5733289,0.08286547,0.31129324,,2017
+"Ruislip, Northwood and Pinner",London,2019_notional,0.5533527,con,E14001454,2023-current,notional,0.5533527,0.15156154,0.25080374,,2017
+Runcorn and Helsby,North West,2019_notional,0.48777315,lab,E14001455,2023-current,notional,0.3684167,0.067061834,0.48777315,,2017
+Runnymede and Weybridge,South East,2019_notional,0.53215367,con,E14001456,2023-current,notional,0.53215367,0.2270026,0.17746682,,2017
+Rushcliffe,East Midlands,2019_notional,0.4734436,con,E14001457,2023-current,notional,0.4734436,0.15960737,0.34983864,,2017
+Rutland and Stamford,East Midlands,2019_notional,0.63324285,con,E14001458,2023-current,notional,0.63324285,0.1583479,0.14657642,,2017
+Salford,North West,2019_notional,0.57412064,lab,E14001459,2023-current,notional,0.23295741,0.06156167,0.57412064,,2017
+Salisbury,South West,2019_notional,0.55246294,con,E14001460,2023-current,notional,0.55246294,0.19510068,0.18740283,,2017
+Scarborough and Whitby,Yorkshire and The Humber,2019_notional,0.5549232,con,E14001461,2023-current,notional,0.5549232,0.061097257,0.34838307,,2017
+Scunthorpe,Yorkshire and The Humber,2019_notional,0.56320626,con,E14001462,2023-current,notional,0.56320626,0.026429387,0.34878752,,2017
+Sefton Central,North West,2019_notional,0.5257405,lab,E14001463,2023-current,notional,0.3433236,0.066370055,0.5257405,,2017
+Selby,Yorkshire and The Humber,2019_notional,0.57954395,con,E14001464,2023-current,notional,0.57954395,0.059992038,0.29829216,,2017
+Sevenoaks,South East,2019_notional,0.6172312,con,E14001465,2023-current,notional,0.6172312,0.19396752,0.13513829,,2017
+Sheffield Brightside and Hillsborough,Yorkshire and The Humber,2019_notional,0.5657732,lab,E14001466,2023-current,notional,0.25385225,0.03889412,0.5657732,,2017
+Sheffield Central,Yorkshire and The Humber,2019_notional,0.6697402,lab,E14001467,2023-current,notional,0.12404445,0.05437781,0.6697402,,2017
+Sheffield Hallam,Yorkshire and The Humber,2019_notional,0.349682,lab,E14001468,2023-current,notional,0.25696734,0.33123565,0.349682,,2017
+Sheffield Heeley,Yorkshire and The Humber,2019_notional,0.53876793,lab,E14001469,2023-current,notional,0.2713426,0.06718459,0.53876793,,2017
+Sheffield South East,Yorkshire and The Humber,2019_notional,0.46748123,lab,E14001470,2023-current,notional,0.35629904,0.046613783,0.46748123,,2017
+Sherwood Forest,East Midlands,2019_notional,0.60810995,con,E14001471,2023-current,notional,0.60810995,0.05697672,0.295496,,2017
+Shipley,Yorkshire and The Humber,2019_notional,0.508055,con,E14001472,2023-current,notional,0.508055,0.059032664,0.39247093,,2017
+Shrewsbury,West Midlands,2019_notional,0.49373472,con,E14001473,2023-current,notional,0.49373472,0.108119644,0.35456026,,2017
+Sittingbourne and Sheppey,South East,2019_notional,0.665184,con,E14001474,2023-current,notional,0.665184,0.06334068,0.20890447,,2017
+Skipton and Ripon,Yorkshire and The Humber,2019_notional,0.58858967,con,E14001475,2023-current,notional,0.58858967,0.15207933,0.19197506,,2017
+Sleaford and North Hykeham,East Midlands,2019_notional,0.6647263,con,E14001476,2023-current,notional,0.6647263,0.08197994,0.18584706,,2017
+Slough,South East,2019_notional,0.5880158,lab,E14001477,2023-current,notional,0.29506147,0.068020195,0.5880158,,2017
+Smethwick,West Midlands,2019_notional,0.5696607,lab,E14001478,2023-current,notional,0.3018062,0.04493532,0.5696607,,2017
+Solihull West and Shirley,West Midlands,2019_notional,0.6089799,con,E14001479,2023-current,notional,0.6089799,0.15665916,0.19450368,,2017
+South Basildon and East Thurrock,East of England,2019_notional,0.6544077,con,E14001480,2023-current,notional,0.6544077,0.041047197,0.2356413,,2017
+South Cambridgeshire,East of England,2019_notional,0.43531743,con,E14001481,2023-current,notional,0.43531743,0.41038316,0.15131995,,2017
+South Cotswolds,South West,2019_notional,0.5790295,con,E14001482,2023-current,notional,0.5790295,0.27648574,0.10658219,,2017
+South Derbyshire,East Midlands,2019_notional,0.6211784,con,E14001483,2023-current,notional,0.6211784,0.073412575,0.27195492,,2017
+South Devon,South West,2019_notional,0.53566223,con,E14001484,2023-current,notional,0.53566223,0.28249276,0.17029287,,2017
+South Dorset,South West,2019_notional,0.5919877,con,E14001485,2023-current,notional,0.5919877,0.10675468,0.24776646,,2017
+South East Cornwall,South West,2019_notional,0.590254,con,E14001486,2023-current,notional,0.590254,0.16307156,0.20315042,,2017
+South Holland and The Deepings,East Midlands,2019_notional,0.7592265,con,E14001487,2023-current,notional,0.7592265,0.06557677,0.13217023,,2017
+South Leicestershire,East Midlands,2019_notional,0.66535246,con,E14001488,2023-current,notional,0.66535246,0.09569963,0.1992845,,2017
+South Norfolk,East of England,2019_notional,0.56497675,con,E14001489,2023-current,notional,0.56497675,0.16967815,0.23377751,,2017
+South Northamptonshire,East Midlands,2019_notional,0.6317732,con,E14001490,2023-current,notional,0.6317732,0.111146934,0.20776685,,2017
+South Ribble,North West,2019_notional,0.5352021,con,E14001491,2023-current,notional,0.5352021,0.07743246,0.36223847,,2017
+South Shields,North East,2019_notional,0.4408926,lab,E14001492,2023-current,notional,0.25824273,0.0354819,0.4408926,,2017
+South Shropshire,West Midlands,2019_notional,0.6538728,con,E14001493,2023-current,notional,0.6538728,0.153613,0.1578911,,2017
+South Suffolk,East of England,2019_notional,0.6205644,con,E14001494,2023-current,notional,0.6205644,0.1269309,0.19201294,,2017
+South West Devon,South West,2019_notional,0.6257041,con,E14001495,2023-current,notional,0.6257041,0.1213369,0.21411765,,2017
+South West Hertfordshire,East of England,2019_notional,0.52179724,con,E14001496,2023-current,notional,0.52179724,0.1269704,0.16081607,,2017
+South West Norfolk,East of England,2019_notional,0.6865491,con,E14001497,2023-current,notional,0.6865491,0.082519926,0.18331286,,2017
+South West Wiltshire,South West,2019_notional,0.58314455,con,E14001498,2023-current,notional,0.58314455,0.1648496,0.21525499,,2017
+Southampton Itchen,South East,2019_notional,0.5050927,con,E14001499,2023-current,notional,0.5050927,0.05278252,0.4102402,,2017
+Southampton Test,South East,2019_notional,0.49464372,lab,E14001500,2023-current,notional,0.35655865,0.076654665,0.49464372,,2017
+Southend East and Rochford,East of England,2019_notional,0.59000856,con,E14001501,2023-current,notional,0.59000856,0.06430011,0.31329796,,2017
+Southend West and Leigh,East of England,2019_notional,0.5905564,con,E14001502,2023-current,notional,0.5905564,0.10596838,0.2900177,,2017
+Southgate and Wood Green,London,2019_notional,0.5779519,lab,E14001503,2023-current,notional,0.2855327,0.09944604,0.5779519,,2017
+Southport,North West,2019_notional,0.5037745,con,E14001504,2023-current,notional,0.5037745,0.12481931,0.36783248,,2017
+Spelthorne,South East,2019_notional,0.5885882,con,E14001505,2023-current,notional,0.5885882,0.15146436,0.21708746,,2017
+Spen Valley,Yorkshire and The Humber,2019_notional,0.46359804,con,E14001506,2023-current,notional,0.46359804,0.05835752,0.33514795,,2017
+St Albans,East of England,2019_notional,0.49930376,lib,E14001507,2023-current,notional,0.39251676,0.49930376,0.088214554,,2017
+St Austell and Newquay,South West,2019_notional,0.5557371,con,E14001508,2023-current,notional,0.5557371,0.108243495,0.26639804,,2017
+St Helens North,North West,2019_notional,0.52290744,lab,E14001509,2023-current,notional,0.2662055,0.056096382,0.52290744,,2017
+St Helens South and Whiston,North West,2019_notional,0.58122784,lab,E14001510,2023-current,notional,0.21292156,0.05680992,0.58122784,,2017
+St Ives,South West,2019_notional,0.48986065,con,E14001511,2023-current,notional,0.48986065,0.39288297,0.09078091,,2017
+St Neots and Mid Cambridgeshire,East of England,2019_notional,0.5129589,con,E14001512,2023-current,notional,0.5129589,0.26816937,0.18811822,,2017
+Stafford,West Midlands,2019_notional,0.5794274,con,E14001513,2023-current,notional,0.5794274,0.063768,0.31203836,,2017
+Staffordshire Moorlands,West Midlands,2019_notional,0.64097947,con,E14001514,2023-current,notional,0.64097947,0.0613866,0.26691943,,2017
+Stalybridge and Hyde,North West,2019_notional,0.44904172,lab,E14001515,2023-current,notional,0.3795081,0.04312217,0.44904172,,2017
+Stevenage,East of England,2019_notional,0.53117466,con,E14001516,2023-current,notional,0.53117466,0.086655624,0.3516138,,2017
+Stockport,North West,2019_notional,0.54284286,lab,E14001517,2023-current,notional,0.28180888,0.08662016,0.54284286,,2017
+Stockton North,North East,2019_notional,0.46710587,lab,E14001518,2023-current,notional,0.3749652,0.03996938,0.46710587,,2017
+Stockton West,North East,2019_notional,0.5647839,con,E14001519,2023-current,notional,0.5647839,0.044495676,0.3390586,,2017
+Stoke-on-Trent Central,West Midlands,2019_notional,0.47114012,con,E14001520,2023-current,notional,0.47114012,0.03757695,0.42890912,,2017
+Stoke-on-Trent North,West Midlands,2019_notional,0.54141176,con,E14001521,2023-current,notional,0.54141176,0.033048175,0.34840375,,2017
+Stoke-on-Trent South,West Midlands,2019_notional,0.6253474,con,E14001522,2023-current,notional,0.6253474,0.062331665,0.29631054,,2017
+"Stone, Great Wyrley and Penkridge",West Midlands,2019_notional,0.6848377,con,E14001523,2023-current,notional,0.6848377,0.06516763,0.21582764,,2017
+Stourbridge,West Midlands,2019_notional,0.61786616,con,E14001524,2023-current,notional,0.61786616,0.05780484,0.29109713,,2017
+Stratford and Bow,London,2019_notional,0.7043377,lab,E14001525,2023-current,notional,0.14516094,0.090026386,0.7043377,,2017
+Stratford-on-Avon,West Midlands,2019_notional,0.60190076,con,E14001526,2023-current,notional,0.60190076,0.24676512,0.11341188,,2017
+Streatham and Croydon North,London,2019_notional,0.5789351,lab,E14001527,2023-current,notional,0.18839167,0.17545022,0.5789351,,2017
+Stretford and Urmston,North West,2019_notional,0.60309184,lab,E14001528,2023-current,notional,0.27519125,0.05930054,0.60309184,,2017
+Stroud,South West,2019_notional,0.45697668,con,E14001529,2023-current,notional,0.45697668,0.022343792,0.41632614,,2017
+Suffolk Coastal,East of England,2019_notional,0.564461,con,E14001530,2023-current,notional,0.564461,0.15126516,0.2139406,,2017
+Sunderland Central,North East,2019_notional,0.42174992,lab,E14001531,2023-current,notional,0.3535744,0.06957862,0.42174992,,2017
+Surrey Heath,South East,2019_notional,0.5785617,con,E14001532,2023-current,notional,0.5785617,0.28023633,0.09376379,,2017
+Sussex Weald,South East,2019_notional,0.6371363,con,E14001533,2023-current,notional,0.6371363,0.16840018,0.148711,,2017
+Sutton and Cheam,London,2019_notional,0.49983165,con,E14001534,2023-current,notional,0.49983165,0.33442274,0.14261097,,2017
+Sutton Coldfield,West Midlands,2019_notional,0.60399425,con,E14001535,2023-current,notional,0.60399425,0.1215098,0.23568083,,2017
+Swindon North,South West,2019_notional,0.5850235,con,E14001536,2023-current,notional,0.5850235,0.07901902,0.30537558,,2017
+Swindon South,South West,2019_notional,0.5161629,con,E14001537,2023-current,notional,0.5161629,0.07648353,0.40208372,,2017
+Tamworth,West Midlands,2019_notional,0.6671991,con,E14001538,2023-current,notional,0.6671991,0.05316913,0.23295645,,2017
+Tatton,North West,2019_notional,0.5728418,con,E14001539,2023-current,notional,0.5728418,0.16185868,0.22477163,,2017
+Taunton and Wellington,South West,2019_notional,0.5198016,con,E14001540,2023-current,notional,0.5198016,0.36300513,0.07896767,,2017
+Telford,West Midlands,2019_notional,0.59372777,con,E14001541,2023-current,notional,0.59372777,0.062354967,0.34329695,,2017
+Tewkesbury,South West,2019_notional,0.58099073,con,E14001542,2023-current,notional,0.58099073,0.21998589,0.15685692,,2017
+The Wrekin,West Midlands,2019_notional,0.6471048,con,E14001543,2023-current,notional,0.6471048,0.08033262,0.24328654,,2017
+Thirsk and Malton,Yorkshire and The Humber,2019_notional,0.62500477,con,E14001544,2023-current,notional,0.62500477,0.124564156,0.17791869,,2017
+Thornbury and Yate,South West,2019_notional,0.5848118,con,E14001545,2023-current,notional,0.5848118,0.32558885,0.08735267,,2017
+Thurrock,East of England,2019_notional,0.5990669,con,E14001546,2023-current,notional,0.5990669,0.03132818,0.32946426,,2017
+Tipton and Wednesbury,West Midlands,2019_notional,0.50709426,con,E14001547,2023-current,notional,0.50709426,0.031282723,0.38424084,,2017
+Tiverton and Minehead,South West,2019_notional,0.61316305,con,E14001548,2023-current,notional,0.61316305,0.19493635,0.14308555,,2017
+Tonbridge,South East,2019_notional,0.64760333,con,E14001549,2023-current,notional,0.64760333,0.122865014,0.15078053,,2017
+Tooting,London,2019_notional,0.52692693,lab,E14001550,2023-current,notional,0.28224993,0.14203137,0.52692693,,2017
+Torbay,South West,2019_notional,0.59070843,con,E14001551,2023-current,notional,0.59070843,0.2424516,0.12987778,,2017
+Torridge and Tavistock,South West,2019_notional,0.5983025,con,E14001552,2023-current,notional,0.5983025,0.17942855,0.17855053,,2017
+Tottenham,London,2019_notional,0.7778653,lab,E14001553,2023-current,notional,0.11102362,0.050437447,0.7778653,,2017
+Truro and Falmouth,South West,2019_notional,0.46833882,con,E14001554,2023-current,notional,0.46833882,0.10839465,0.38752764,,2017
+Tunbridge Wells,South East,2019_notional,0.55112535,con,E14001555,2023-current,notional,0.55112535,0.2831473,0.14817932,,2017
+Twickenham,London,2019_notional,0.56238,lib,E14001556,2023-current,notional,0.338326,0.56238,0.086560875,,2017
+Tynemouth,North East,2019_notional,0.46733406,lab,E14001557,2023-current,notional,0.4022247,0.067148685,0.46733406,,2017
+Uxbridge and South Ruislip,London,2019_notional,0.52601314,con,E14001558,2023-current,notional,0.52601314,0.06638179,0.36967823,,2017
+Vauxhall and Camberwell Green,London,2019_notional,0.6045004,lab,E14001559,2023-current,notional,0.1452627,0.19052541,0.6045004,,2017
+Wakefield and Rothwell,Yorkshire and The Humber,2019_notional,0.4485772,con,E14001560,2023-current,notional,0.4485772,0.1092009,0.39508688,,2017
+Wallasey,North West,2019_notional,0.6366621,lab,E14001561,2023-current,notional,0.25931612,0.03899359,0.6366621,,2017
+Walsall and Bloxwich,West Midlands,2019_notional,0.49206662,con,E14001562,2023-current,notional,0.49206662,0.029322814,0.44415954,,2017
+Walthamstow,London,2019_notional,0.76102203,lab,E14001563,2023-current,notional,0.12251991,0.059460018,0.76102203,,2017
+Warrington North,North West,2019_notional,0.44186395,lab,E14001564,2023-current,notional,0.40935847,0.065634,0.44186395,,2017
+Warrington South,North West,2019_notional,0.4447339,lab,E14001565,2023-current,notional,0.44353303,0.08156441,0.4447339,,2017
+Warwick and Leamington,West Midlands,2019_notional,0.43313286,lab,E14001566,2023-current,notional,0.41074166,0.10904459,0.43313286,,2017
+Washington and Gateshead South,North East,2019_notional,0.43118653,lab,E14001567,2023-current,notional,0.33732182,0.049268246,0.43118653,,2017
+Watford,East of England,2019_notional,0.41999668,con,E14001568,2023-current,notional,0.41999668,0.17744006,0.39308047,,2017
+Waveney Valley,East of England,2019_notional,0.62203586,con,E14001569,2023-current,notional,0.62203586,0.09157566,0.18592043,,2017
+Weald of Kent,South East,2019_notional,0.7196085,con,E14001570,2023-current,notional,0.7196085,0.1010634,0.14055829,,2017
+Wellingborough and Rushden,East Midlands,2019_notional,0.62352264,con,E14001571,2023-current,notional,0.62352264,0.06674603,0.28260776,,2017
+Wells and Mendip Hills,South West,2019_notional,0.5612587,con,E14001572,2023-current,notional,0.5612587,0.30798534,0.10765224,,2017
+Welwyn Hatfield,East of England,2019_notional,0.52489525,con,E14001573,2023-current,notional,0.52489525,0.1270923,0.31691024,,2017
+West Bromwich,West Midlands,2019_notional,0.47320977,con,E14001574,2023-current,notional,0.47320977,0.035478648,0.42124853,,2017
+West Dorset,South West,2019_notional,0.542698,con,E14001575,2023-current,notional,0.542698,0.32842094,0.09364676,,2017
+West Ham and Beckton,London,2019_notional,0.7070245,lab,E14001576,2023-current,notional,0.16443235,0.060598567,0.7070245,,2017
+West Lancashire,North West,2019_notional,0.52139074,lab,E14001577,2023-current,notional,0.3631012,0.048610978,0.52139074,,2017
+West Suffolk,East of England,2019_notional,0.6432509,con,E14001578,2023-current,notional,0.6432509,0.090433724,0.22174706,,2017
+West Worcestershire,West Midlands,2019_notional,0.60679644,con,E14001579,2023-current,notional,0.60679644,0.18094908,0.16506171,,2017
+Westmorland and Lonsdale,North West,2019_notional,0.50162363,con,E14001580,2023-current,notional,0.50162363,0.40678966,0.069225095,,2017
+Weston-super-Mare,South West,2019_notional,0.5713725,con,E14001581,2023-current,notional,0.5713725,0.117326476,0.2812173,,2017
+Wetherby and Easingwold,Yorkshire and The Humber,2019_notional,0.68185747,con,E14001582,2023-current,notional,0.68185747,0.079140395,0.18249168,,2017
+Whitehaven and Workington,North West,2019_notional,0.4841905,con,E14001583,2023-current,notional,0.4841905,0.039559238,0.44076243,,2017
+Widnes and Halewood,North West,2019_notional,0.6645131,lab,E14001584,2023-current,notional,0.20820183,0.02779131,0.6645131,,2017
+Wigan,North West,2019_notional,0.46716398,lab,E14001585,2023-current,notional,0.3177923,0.053905245,0.46716398,,2017
+Wimbledon,London,2019_notional,0.39768252,con,E14001586,2023-current,notional,0.39768252,0.3829301,0.2080813,,2017
+Winchester,South East,2019_notional,0.5401574,con,E14001587,2023-current,notional,0.5401574,0.39855424,0.0475505,,2017
+Windsor,South East,2019_notional,0.5603726,con,E14001588,2023-current,notional,0.5603726,0.188703,0.1956587,,2017
+Wirral West,North West,2019_notional,0.45173606,lab,E14001589,2023-current,notional,0.44361773,0.057167325,0.45173606,,2017
+Witham,East of England,2019_notional,0.6674408,con,E14001590,2023-current,notional,0.6674408,0.10006717,0.17480089,,2017
+Witney,South East,2019_notional,0.58058107,con,E14001591,2023-current,notional,0.58058107,0.25964904,0.15397531,,2017
+Woking,South East,2019_notional,0.48257554,con,E14001592,2023-current,notional,0.48257554,0.31054977,0.16729073,,2017
+Wokingham,South East,2019_notional,0.5548608,con,E14001593,2023-current,notional,0.5548608,0.32309315,0.09857849,,2017
+Wolverhampton North East,West Midlands,2019_notional,0.5569204,con,E14001594,2023-current,notional,0.5569204,0.03568901,0.35858357,,2017
+Wolverhampton South East,West Midlands,2019_notional,0.4739059,lab,E14001595,2023-current,notional,0.41182932,0.03811442,0.4739059,,2017
+Wolverhampton West,West Midlands,2019_notional,0.47373277,con,E14001596,2023-current,notional,0.47373277,0.04362166,0.45539677,,2017
+Worcester,West Midlands,2019_notional,0.5079964,con,E14001597,2023-current,notional,0.5079964,0.07202641,0.37522104,,2017
+Worsley and Eccles,North West,2019_notional,0.46522608,lab,E14001598,2023-current,notional,0.38530758,0.05259972,0.46522608,,2017
+Worthing West,South East,2019_notional,0.55998856,con,E14001599,2023-current,notional,0.55998856,0.09918189,0.2953006,,2017
+Wycombe,South East,2019_notional,0.43105432,con,E14001600,2023-current,notional,0.43105432,0.11323893,0.39919388,,2017
+Wyre Forest,West Midlands,2019_notional,0.65188587,con,E14001601,2023-current,notional,0.65188587,0.08071438,0.22837761,,2017
+Wythenshawe and Sale East,North West,2019_notional,0.5329654,lab,E14001602,2023-current,notional,0.3006993,0.06950557,0.5329654,,2017
+Yeovil,South West,2019_notional,0.58152896,con,E14001603,2023-current,notional,0.58152896,0.31109592,0.06316509,,2017
+York Central,Yorkshire and The Humber,2019_notional,0.56404936,lab,E14001604,2023-current,notional,0.2777933,0.07822043,0.56404936,,2017
+York Outer,Yorkshire and The Humber,2019_notional,0.4963105,con,E14001605,2023-current,notional,0.4963105,0.18670319,0.299379,,2017
+East Renfrewshire,Scotland,2019_notional,0.44939214,natSW,S14000021,2023-current,notional,0.35137382,0.075401485,0.123832576,0.44939214,2017
+Na h-Eileanan an Iar,Scotland,2019_notional,0.45112938,natSW,S14000027,2023-current,notional,0.22214547,0.04400083,0.28272432,0.45112938,2017
+Midlothian,Scotland,2019_notional,0.4154414,natSW,S14000045,2023-current,notional,0.2170631,0.07036354,0.29713196,0.4154414,2017
+North Ayrshire and Arran,Scotland,2019_notional,0.48544255,natSW,S14000048,2023-current,notional,0.30848944,0.043755453,0.13917847,0.48544255,2017
+Orkney and Shetland,Scotland,2019_notional,0.4482297,lib,S14000051,2023-current,notional,0.09874784,0.4482297,0.066925734,0.33998272,2017
+Aberdeen North,Scotland,2019_notional,0.5289764,natSW,S14000060,2023-current,notional,0.24549644,0.07730365,0.11979572,0.5289764,2017
+Aberdeen South,Scotland,2019_notional,0.4525919,natSW,S14000061,2023-current,notional,0.34358913,0.106907696,0.08767309,0.4525919,2017
+Aberdeenshire North and Moray East,Scotland,2019_notional,0.48318842,con,S14000062,2023-current,notional,0.48318842,0.044191673,0.041707523,0.43091238,2017
+Airdrie and Shotts,Scotland,2019_notional,0.44600543,natSW,S14000063,2023-current,notional,0.17264448,0.035651084,0.33111054,0.44600543,2017
+Alloa and Grangemouth,Scotland,2019_notional,0.5267423,natSW,S14000064,2023-current,notional,0.24799597,0.053134173,0.14503482,0.5267423,2017
+Angus and Perthshire Glens,Scotland,2019_notional,0.5041647,natSW,S14000065,2023-current,notional,0.39796984,0.049569383,0.04247794,0.5041647,2017
+Arbroath and Broughty Ferry,Scotland,2019_notional,0.5093623,natSW,S14000066,2023-current,notional,0.30260533,0.07996316,0.1020835,0.5093623,2017
+"Argyll, Bute and South Lochaber",Scotland,2019_notional,0.4416386,natSW,S14000067,2023-current,notional,0.34510222,0.14138427,0.070810415,0.4416386,2017
+Bathgate and Linlithgow,Scotland,2019_notional,0.43005696,natSW,S14000068,2023-current,notional,0.24641548,0.08219497,0.18794079,0.43005696,2017
+"Caithness, Sutherland and Easter Ross",Scotland,2019_notional,0.3888088,natSW,S14000069,2023-current,notional,0.17334977,0.33592564,0.053091805,0.3888088,2017
+Coatbridge and Bellshill,Scotland,2019_notional,0.47346175,natSW,S14000070,2023-current,notional,0.118616,0.029959038,0.36268955,0.47346175,2017
+Cowdenbeath and Kirkcaldy,Scotland,2019_notional,0.36315432,natSW,S14000071,2023-current,notional,0.2223212,0.064647496,0.29485875,0.36315432,2017
+Cumbernauld and Kirkintilloch,Scotland,2019_notional,0.5202854,natSW,S14000072,2023-current,notional,0.1502323,0.05581598,0.271281,0.5202854,2017
+Dumfries and Galloway,Scotland,2019_notional,0.4380762,con,S14000073,2023-current,notional,0.4380762,0.059714288,0.09377143,0.4084381,2017
+"Dumfriesshire, Clydesdale and Tweeddale",Scotland,2019_notional,0.4646534,con,S14000074,2023-current,notional,0.4646534,0.07295269,0.08297312,0.3794208,2017
+Dundee Central,Scotland,2019_notional,0.5647682,natSW,S14000075,2023-current,notional,0.11063,0.055432897,0.23849435,0.5647682,2017
+Dunfermline and Dollar,Scotland,2019_notional,0.4429544,natSW,S14000076,2023-current,notional,0.21450461,0.08443201,0.23577203,0.4429544,2017
+East Kilbride and Strathaven,Scotland,2019_notional,0.47037768,natSW,S14000077,2023-current,notional,0.21364446,0.06880272,0.21557929,0.47037768,2017
+Edinburgh East and Musselburgh,Scotland,2019_notional,0.48967522,natSW,S14000078,2023-current,notional,0.14073834,0.06969935,0.26392743,0.48967522,2017
+Edinburgh North and Leith,Scotland,2019_notional,0.4379067,natSW,S14000079,2023-current,notional,0.17605981,0.12512106,0.21731374,0.4379067,2017
+Edinburgh South,Scotland,2019_notional,0.46216223,lab,S14000080,2023-current,notional,0.16824757,0.08191744,0.46216223,0.25859436,2017
+Edinburgh South West,Scotland,2019_notional,0.4763001,natSW,S14000081,2023-current,notional,0.24645604,0.09535593,0.14344631,0.4763001,2017
+Edinburgh West,Scotland,2019_notional,0.38232407,lib,S14000082,2023-current,notional,0.18032132,0.38232407,0.0869984,0.3298379,2017
+Falkirk,Scotland,2019_notional,0.51752096,natSW,S14000083,2023-current,notional,0.25931478,0.06782584,0.120707,0.51752096,2017
+Glasgow East,Scotland,2019_notional,0.48694915,natSW,S14000084,2023-current,notional,0.12312735,0.041010078,0.33456355,0.48694915,2017
+Glasgow North,Scotland,2019_notional,0.4755531,natSW,S14000085,2023-current,notional,0.088061824,0.05190303,0.34117335,0.4755531,2017
+Glasgow North East,Scotland,2019_notional,0.4774682,natSW,S14000086,2023-current,notional,0.10981183,0.033955898,0.37724087,0.4774682,2017
+Glasgow South,Scotland,2019_notional,0.4830065,natSW,S14000087,2023-current,notional,0.12690534,0.060187854,0.29451266,0.4830065,2017
+Glasgow South West,Scotland,2019_notional,0.46705252,natSW,S14000088,2023-current,notional,0.12604886,0.04397648,0.3384469,0.46705252,2017
+Glasgow West,Scotland,2019_notional,0.48588717,natSW,S14000089,2023-current,notional,0.15348484,0.07519783,0.28005585,0.48588717,2017
+Glenrothes and Mid Fife,Scotland,2019_notional,0.49484366,natSW,S14000090,2023-current,notional,0.15331851,0.04437296,0.27364114,0.49484366,2017
+Gordon and Buchan,Scotland,2019_notional,0.4596247,con,S14000091,2023-current,notional,0.4596247,0.11348785,0.03500662,0.3918808,2017
+Hamilton and Clyde Valley,Scotland,2019_notional,0.43449104,natSW,S14000092,2023-current,notional,0.25465512,0.03829527,0.27089265,0.43449104,2017
+Inverclyde and Renfrewshire West,Scotland,2019_notional,0.4748181,natSW,S14000093,2023-current,notional,0.17883125,0.06437407,0.28197655,0.4748181,2017
+"Inverness, Skye and West Ross-shire",Scotland,2019_notional,0.486718,natSW,S14000094,2023-current,notional,0.23338519,0.15117264,0.09394876,0.486718,2017
+Livingston,Scotland,2019_notional,0.47255045,natSW,S14000095,2023-current,notional,0.21927153,0.062045723,0.22030698,0.47255045,2017
+Lothian East,Scotland,2019_notional,0.34801188,natSW,S14000096,2023-current,notional,0.27484885,0.0628828,0.30454734,0.34801188,2017
+Mid Dunbartonshire,Scotland,2019_notional,0.3787915,natSW,S14000097,2023-current,notional,0.15572482,0.34487292,0.09427518,0.3787915,2017
+"Moray West, Nairn and Strathspey",Scotland,2019_notional,0.46099302,natSW,S14000098,2023-current,notional,0.40935102,0.058768127,0.046310775,0.46099302,2017
+"Motherwell, Wishaw and Carluke",Scotland,2019_notional,0.45944923,natSW,S14000099,2023-current,notional,0.2123155,0.039649148,0.27480575,0.45944923,2017
+North East Fife,Scotland,2019_notional,0.4095395,natSW,S14000100,2023-current,notional,0.13655788,0.3955886,0.054787956,0.4095395,2017
+Paisley and Renfrewshire North,Scotland,2019_notional,0.48860577,natSW,S14000101,2023-current,notional,0.19526273,0.07565522,0.23735517,0.48860577,2017
+Paisley and Renfrewshire South,Scotland,2019_notional,0.49769956,natSW,S14000102,2023-current,notional,0.1815617,0.062263988,0.25847477,0.49769956,2017
+Perth and Kinross-shire,Scotland,2019_notional,0.45254493,natSW,S14000103,2023-current,notional,0.4106931,0.079755686,0.049889352,0.45254493,2017
+Rutherglen,Scotland,2019_notional,0.43102252,natSW,S14000104,2023-current,notional,0.1726375,0.07193569,0.31157172,0.43102252,2017
+Stirling and Strathallan,Scotland,2019_notional,0.49834806,natSW,S14000105,2023-current,notional,0.35034856,0.05848368,0.076525226,0.49834806,2017
+West Dunbartonshire,Scotland,2019_notional,0.49690014,natSW,S14000106,2023-current,notional,0.14171404,0.041810576,0.28578785,0.49690014,2017
+"Ayr, Carrick and Cumnock",Scotland,2019_notional,0.43509614,natSW,S14000107,2023-current,notional,0.38510904,0.046316963,0.13347785,0.43509614,2017
+"Berwickshire, Roxburgh and Selkirk",Scotland,2019_notional,0.4844579,con,S14000108,2023-current,notional,0.4844579,0.08066458,0.047284838,0.38759267,2017
+Central Ayrshire,Scotland,2019_notional,0.4617269,natSW,S14000109,2023-current,notional,0.34774575,0.049060903,0.14146645,0.4617269,2017
+Kilmarnock and Loudoun,Scotland,2019_notional,0.50840837,natSW,S14000110,2023-current,notional,0.2426361,0.05131112,0.18914153,0.50840837,2017
+West Aberdeenshire and Kincardine,Scotland,2019_notional,0.4265067,con,S14000111,2023-current,notional,0.4265067,0.11721811,0.045571283,0.4107039,2017
+Aberafan Maesteg,Wales,2019_notional,0.5292078,lab,W07000081,2023-current,notional,0.22627918,0.037030365,0.5292078,0.08984085,2017
+Alyn and Deeside,Wales,2019_notional,0.42739254,lab,W07000082,2023-current,notional,0.41954154,0.0591213,0.42739254,0.034021012,2017
+Bangor Aberconwy,Wales,2019_notional,0.39983886,con,W07000083,2023-current,notional,0.39983886,0.0442498,0.3843659,0.16214597,2017
+Blaenau Gwent and Rhymney,Wales,2019_notional,0.50399107,lab,W07000084,2023-current,notional,0.1958949,0.037440017,0.50399107,0.063833326,2017
+"Brecon, Radnor and Cwm Tawe",Wales,2019_notional,0.46614125,con,W07000085,2023-current,notional,0.46614125,0.29223734,0.17530033,0.03236667,2017
+Bridgend,Wales,2019_notional,0.43956068,con,W07000086,2023-current,notional,0.43956068,0.05251777,0.38490194,0.052260853,2017
+Caerfyrddin,Wales,2019_notional,0.3916426,con,W07000087,2023-current,notional,0.3916426,0.01286041,0.25083423,0.30673766,2017
+Caerphilly,Wales,2019_notional,0.43894917,lab,W07000088,2023-current,notional,0.28582838,0.007166789,0.43894917,0.14710777,2017
+Cardiff East,Wales,2019_notional,0.59222764,lab,W07000089,2023-current,notional,0.2271435,0.1229559,0.59222764,0.006284603,2017
+Cardiff North,Wales,2019_notional,0.49589646,lab,W07000090,2023-current,notional,0.3573635,0.06547369,0.49589646,0.03450986,2017
+Cardiff South and Penarth,Wales,2019_notional,0.53662896,lab,W07000091,2023-current,notional,0.30135,0.070041694,0.53662896,0.041512806,2017
+Cardiff West,Wales,2019_notional,0.50154984,lab,W07000092,2023-current,notional,0.29851177,0.052925434,0.50154984,0.0850773,2017
+Ceredigion Preseli,Wales,2019_notional,0.3105464,natSW,W07000093,2023-current,notional,0.28261754,0.146341,0.20773414,0.3105464,2017
+Clwyd East,Wales,2019_notional,0.47943962,con,W07000094,2023-current,notional,0.47943962,0.053445663,0.37940174,0.046573266,2017
+Clwyd North,Wales,2019_notional,0.45777848,con,W07000095,2023-current,notional,0.45777848,0.04876289,0.40252295,0.07239369,2017
+Dwyfor Meirionnydd,Wales,2019_notional,0.4574607,natSW,W07000096,2023-current,notional,0.26188686,0.001563799,0.22845322,0.4574607,2017
+Gower,Wales,2019_notional,0.4575243,lab,W07000097,2023-current,notional,0.39886782,0.058674928,0.4575243,0.050543047,2017
+Llanelli,Wales,2019_notional,0.3931468,lab,W07000098,2023-current,notional,0.30673015,,0.3931468,0.21142805,2017
+Merthyr Tydfil and Aberdare,Wales,2019_notional,0.5171438,lab,W07000099,2023-current,notional,0.2060502,0.03326683,0.5171438,0.081496775,2017
+Mid and South Pembrokeshire,Wales,2019_notional,0.5288607,con,W07000100,2023-current,notional,0.5288607,0.046042457,0.37203252,0.053064343,2017
+Monmouthshire,Wales,2019_notional,0.5214102,con,W07000101,2023-current,notional,0.5214102,0.09591088,0.31644347,0.024266152,2017
+Montgomeryshire and Glyndŵr,Wales,2019_notional,0.5363615,con,W07000102,2023-current,notional,0.5363615,0.16784486,0.24802765,0.019899234,2017
+Neath and Swansea East,Wales,2019_notional,0.4707746,lab,W07000103,2023-current,notional,0.2822372,0.04125022,0.4707746,0.0852222,2017
+Newport East,Wales,2019_notional,0.47490573,lab,W07000104,2023-current,notional,0.3620084,0.057127465,0.47490573,0.02592393,2017
+Newport West and Islwyn,Wales,2019_notional,0.4179492,lab,W07000105,2023-current,notional,0.3767229,0.050971422,0.4179492,0.04623277,2017
+Pontypridd,Wales,2019_notional,0.46631125,lab,W07000106,2023-current,notional,0.27328375,0.014019614,0.46631125,0.108887866,2017
+Rhondda and Ogmore,Wales,2019_notional,0.5628569,lab,W07000107,2023-current,notional,0.15445721,0.022773743,0.5628569,0.12432725,2017
+Swansea West,Wales,2019_notional,0.5137899,lab,W07000108,2023-current,notional,0.28670332,0.0641191,0.5137899,0.058711737,2017
+Torfaen,Wales,2019_notional,0.42743325,lab,W07000109,2023-current,notional,0.33306545,0.049525864,0.42743325,0.035956193,2017
+Vale of Glamorgan,Wales,2019_notional,0.4907687,con,W07000110,2023-current,notional,0.4907687,,0.43944153,,2017
+Wrexham,Wales,2019_notional,0.4654415,con,W07000111,2023-current,notional,0.4654415,0.042717993,0.38185176,0.06281434,2017
+Ynys Môn,Wales,2019_notional,0.354536,con,W07000112,2023-current,notional,0.354536,,0.3006949,0.2850186,2017

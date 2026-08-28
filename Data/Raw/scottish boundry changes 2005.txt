@@ -1,0 +1,73 @@
+Old Constituency	New Constituency	Member (as at 2001)
+Aberdeen Central	Aberdeen North	Frank Doran
+Aberdeen North	Disappearing seat	Malcolm Savidge
+Aberdeen South	Aberdeen South	Anne Begg
+Aberdeenshire West and Kincardine	West Aberdeenshire and Kincardine	Robert Smith
+Airdrie and Shotts	Airdrie and Shotts	Helen Liddell
+Angus	Angus	Michael Weir
+Argyll and Bute 	Argyll and Bute 	Alan Reid
+Ayr	Central Ayrshire	Sandra Osborne
+Banff and Buchan	Banff and Buchan	Alex Salmond
+Caithness Sutherland and Easter Ross	Caithness Sutherland and Easter Ross	John Thurso
+Carrick Cumnock and Doon Valley 	Ayr Carrick and Cumnock	 George Foulkes
+Clydebank and Milngavie	 West Dunbartonshire	Tony Worthington
+Clydesdale	Lanark and Hamilton East	Jimmy Hood
+Coatbridge and Chryston 	Coatbridge, Chryston and Bellshill	Tom Clarke
+Cumbernauld and Kilsyth 	Cumbernauld, Kilsyth and Kirkintilloch East	Rosemary McKenna
+Cunninghame North	North Ayrshire and Arran	Brian Wilson
+Cunninghame South	Disappearing seat	Brian Donohoe
+Dumbarton	Disappearing seat	John McFall
+Dumfries	Dumfriesshire, Clydesdale and Tweeddale	Russell Brown
+Dundee East	    Dundee East	Iain Luke
+Dundee West 	Dundee West	Ernie Ross
+Dunfermline East	Disappearing seat	Gordon Brown
+Dunfermline West	Dunfermline and West Fife	Rachel Squire
+East Kilbride	East Kilbride, Strathaven and Lesmahagow	Adam Ingram
+East Lothian	East Lothian	Anne Picking
+Eastwood	East Renfrewshire	Jim Murphy
+Edinburgh Central	Disappearing seat	Alistair Darling
+Edinburgh East and Musselburgh	Edinburgh East	Gavin Strang
+Edinburgh North and Leith	Edinburgh North and Leith	Mark Lazarowicz
+Edinburgh Pentlands 	Edinburgh South West	Lynda Clark
+Edinburgh South 	Edinburgh South	Nigel Griffiths
+Edinburgh West  	Edinburgh West	John Barrett
+Falkirk East	Linlithgow and East Falkirk	Michael Connarty
+Falkirk West	Falkirk	Eric Joyce
+Fife Central	Glenrothes	John MacDougall
+Fife North East	   North East Fife	  Menzies Campbell
+Galloway and Upper Nithsdale	Dumfries and Galloway	Peter Duncan
+Glasgow Anniesland  	Glasgow North West	John Robertson
+Glasgow Baillieston 	Glasgow East	Jimmy Wray
+Glasgow Cathcart 	Glasgow South	Tom Harris
+Glasgow Govan	 Disappearing seat	Mohammed Sarwar
+Glasgow Kelvin	 Disappearing seat	George Galloway
+Glasgow Maryhill	Glasgow North	Ann McKechin
+Glasgow Pollok	 Glasgow South West	  Ian Davidson
+Glasgow Rutherglen	 Rutherglen and Hamilton West	Tommy McAvoy
+Glasgow Shettleston	  Glasgow Central	David Marshall
+Glasgow Springburn	Glasgow North East	Michael Martin
+Gordon	  Gordon 	Malcolm Bruce
+Greenock and Inverclyde	   Inverclyde	  David Cairns
+Hamilton North and Bellshill	Disappearing seat	John Reid
+Hamilton South	 Disappearing seat	Bill Tynan
+Inverness East Nairn and Lochaber	Inverness Nairn Badenoch and Strathspey	David Stewart
+Kilmarnock and Loudoun	 Kilmarnock and Loudoun	Des Browne
+Kirkcaldy	Kirkcaldy and Cowdenbeath	Lewis Moonie
+Linlithgow	Disappearing seat	Tam Dalyell
+Livingston	Livingston	Robin Cook
+Midlothian	Midlothian	David Hamilton
+Moray	Moray	Angus Robertson
+Motherwell and Wishaw	Motherwell and Wishaw	Frank Roy
+Ochil	Ochil and South Perthshire	Martin O'Neill
+Orkney and Shetland  	Orkney and Shetland	Alistair Carmichael
+Paisley North	Paisley and Renfrewshire North	Irene Adams
+Paisley South	Paisley and Renfrewshire South	Douglas Alexander
+Perth	Perth and North Perthshire	Annabelle Ewing
+Renfrewshire West	Disappearing seat	James Sheridan
+Ross Skye and Inverness West	Ross Skye and Lochaber	Charles Kennedy
+Roxburgh and Berwickshire	Berwickshire, Roxburgh and Selkirk	Archy Kirkwood
+Stirling	Stirling	Anne McGuire
+Strathkelvin and Bearsden	East Dunbartonshire	John Lyons
+Tayside North	Disappearing seat	Peter Wishart
+Tweeddale Ettrick and Lauderdale	Disappearing seat	Michael Moore
+Western Isles	Na h-Eileanan An Iar (Western Isles)	Calum MacDonald
