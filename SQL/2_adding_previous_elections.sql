@@ -1,73 +1,80 @@
--- union the 2024 data with the cleaned 1997-2019 data to create a new table that includes all years
-CREATE OR REPLACE TABLE all_years AS
-SELECT *
-FROM cleaned_1997_2019
-UNION ALL
-SELECT *
-FROM cleaned_2024;
-
-CREATE OR REPLACE TABLE all_years_2 AS
+CREATE OR REPLACE VIEW actual_results AS
 SELECT
-    * REPLACE (COALESCE(natSW_share, 0) AS natSW_share)
-FROM all_years;
+    constituency_name,
+    "country/region",
+    election,
+    majority_proportion,
+    winner,
+    constituency_id,
+    boundary_set,
+    election_type,
+    con_share,
+    lib_share,
+    lab_share,
+    natSW_share,
+    previous_election
+FROM historical
+UNION ALL
+SELECT
+    constituency_name,
+    "country/region",
+    election,
+    majority_proportion,
+    winner,
+    constituency_id,
+    boundary_set,
+    election_type,
+    con_share,
+    lib_share,
+    lab_share,
+    natSW_share,
+    previous_election
+FROM results_2024;
 
+CREATE OR REPLACE VIEW previous_result_lookup AS
+SELECT
+    election,
+    majority_proportion,
+    winner,
+    constituency_id,
+    con_share,
+    lib_share,
+    lab_share,
+    COALESCE(natSW_share, 0) AS natSW_share
+FROM actual_results
+UNION ALL
+SELECT election, majority_proportion, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0)
+FROM notional_2001
+UNION ALL
+SELECT election, majority_proportion, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0)
+FROM notional_2005
+UNION ALL
+SELECT election, majority_proportion, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0)
+FROM notional_2019;
 
-
-
-
-CREATE OR REPLACE TABLE including_previous_years AS
-SELECT 
-    a.*,
-    COALESCE(b.election, n2019.election, n2005.election, n2001.election) AS election,
-    COALESCE(b.majority_proportion, n2019.majority_proportion, n2005.majority_proportion, n2001.majority_proportion) AS majority_proportion,
-    COALESCE(b.constituency_id,n2019.constituency_id,n2005.constituency_id,n2001.constituency_id) AS constituency_id,
-    COALESCE(b.winner, n2019.winner, n2005.winner, n2001.winner) AS winner,
-    COALESCE(b.con_share, n2019.con_share, n2005.con_share, n2001.con_share) AS con_share,
-    COALESCE(b.lib_share, n2019.lib_share, n2005.lib_share, n2001.lib_share) AS lib_share,
-    COALESCE(b.lab_share, n2019.lab_share, n2005.lab_share, n2001.lab_share) AS lab_share,
-    COALESCE(b.natSW_share, n2019.natSW_share, n2005.natSW_share, n2001.natSW_share) AS natSW_share
-    
-FROM all_years AS a
-LEFT JOIN all_years_2 AS b
-    ON a.constituency_id = b.constituency_id
-    AND a.previous_election = b.election
-LEFT JOIN cleaned_2019_notional AS n2019
-    ON a.constituency_id = n2019.constituency_id
-    AND a.previous_election = n2019.election
-LEFT JOIN cleaned_2005_notional AS n2005
-    ON a.constituency_id = n2005.constituency_id
-    AND a.previous_election = n2005.election
-LEFT JOIN cleaned_2001_notional AS n2001
-    ON a.constituency_id = n2001.constituency_id
-    AND a.previous_election = n2001.election;
-
-CREATE OR REPLACE TABLE including_previous_years AS
-SELECT *
-FROM including_previous_years
-WHERE election <> '1997';
-
-ALTER TABLE including_previous_years
-DROP COLUMN constituency_id_1;
-
-ALTER TABLE including_previous_years
-DROP COLUMN election_1;
-
-ALTER TABLE including_previous_years
-RENAME COLUMN winner_1 TO previous_winner;
-
-ALTER TABLE including_previous_years
-RENAME COLUMN majority_proportion_1 TO previous_majority_proportion;
-
-ALTER TABLE including_previous_years
-RENAME COLUMN con_share_1 TO previous_con_share;
-
-ALTER TABLE including_previous_years
-RENAME COLUMN lib_share_1 TO previous_lib_share;
-
-ALTER TABLE including_previous_years
-RENAME COLUMN lab_share_1 TO previous_lab_share;
-
-ALTER TABLE including_previous_years
-RENAME COLUMN natSW_share_1 TO previous_natSW_share;
-
-
+CREATE OR REPLACE VIEW with_previous_results AS
+SELECT
+    current_results.constituency_name,
+    current_results."country/region",
+    current_results.election,
+    current_results.majority_proportion,
+    current_results.winner,
+    current_results.constituency_id,
+    current_results.boundary_set,
+    current_results.election_type,
+    current_results.con_share,
+    current_results.lib_share,
+    current_results.lab_share,
+    current_results.natSW_share,
+    current_results.previous_election,
+    previous_results.majority_proportion AS previous_majority_proportion,
+    previous_results.winner AS previous_winner,
+    previous_results.con_share AS previous_con_share,
+    previous_results.lib_share AS previous_lib_share,
+    previous_results.lab_share AS previous_lab_share,
+    previous_results.natSW_share AS previous_natSW_share
+FROM actual_results AS current_results
+LEFT JOIN previous_result_lookup AS previous_results
+    ON current_results.constituency_id = previous_results.constituency_id
+    AND current_results.previous_election = previous_results.election
+WHERE current_results.election <> '1997';

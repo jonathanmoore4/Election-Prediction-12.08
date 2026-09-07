@@ -1,32 +1,22 @@
-CREATE OR REPLACE TABLE with_polling AS
-SELECT *,
-FROM including_previous_years AS a
-LEFT JOIN cleaned_polling AS b
-ON a.election = b.Date;
-
-ALTER TABLE with_polling
-DROP COLUMN Date;
-
-CREATE OR REPLACE TABLE with_polling AS
-SELECT *,
-CASE
-    WHEN incumbent = previous_winner THEN 1
-    ELSE 0
-END AS supported_incumbent
-FROM with_polling;
-
-CREATE OR REPLACE TABLE with_polling AS
-SELECT *,
-CASE
-    WHEN incumbent = 'lab' THEN Labour
-    ELSE Conservative
-END AS incumbent_polling
-FROM with_polling;
-
-CREATE OR REPLACE TABLE with_polling AS
-SELECT *,
-CASE
-    WHEN incumbent = 'lab' THEN Conservative
-    ELSE Labour
-END AS opposition_polling
-FROM with_polling;
+CREATE OR REPLACE VIEW with_polling AS
+SELECT
+    previous_results.*,
+    polling.Conservative,
+    polling.Labour,
+    polling.LD,
+    polling.incumbent,
+    CASE
+        WHEN polling.incumbent = previous_results.previous_winner THEN 1
+        ELSE 0
+    END AS supported_incumbent,
+    CASE
+        WHEN polling.incumbent = 'lab' THEN polling.Labour
+        ELSE polling.Conservative
+    END AS incumbent_polling,
+    CASE
+        WHEN polling.incumbent = 'lab' THEN polling.Conservative
+        ELSE polling.Labour
+    END AS opposition_polling
+FROM with_previous_results AS previous_results
+LEFT JOIN polling
+    ON previous_results.election = polling.election;
