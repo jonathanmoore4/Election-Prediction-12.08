@@ -38,10 +38,6 @@ def run_pipeline():
 
     trained_model = automated_model_selection(train_test_data["train"])
 
-    print(trained_model)
     return trained_model
 
 
-
-
-run_pipeline()
