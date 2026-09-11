@@ -8,6 +8,7 @@ CURRENT_DATA_PREPARATION_ROOT = PROJECT_ROOT / "Current Data Preparation"
 if str(CURRENT_DATA_PREPARATION_ROOT) not in sys.path:
     sys.path.append(str(CURRENT_DATA_PREPARATION_ROOT))
 
+from clean_1992_notional import clean_1992_notional_fun
 from clean_2001_notional import clean_2001_notional_fun
 from clean_2005_notional import clean_2005_notional_fun
 from clean_2019_notional import clean_2019_notional_fun
@@ -18,6 +19,7 @@ from clean_polling import clean_polling_fun
 
 def clean_all_data(raw_data):
     cleaned_historical = clean_historical_fun(raw_data["historical_results"])
+    cleaned_1992_notional = clean_1992_notional_fun(raw_data["results_1997_local"])
     cleaned_2001_notional = clean_2001_notional_fun(
         cleaned_historical,
         raw_data["scottish_boundary_changes_2005"],
@@ -32,6 +34,7 @@ def clean_all_data(raw_data):
 
     return {
         "historical": cleaned_historical,
+        "notional_1992": cleaned_1992_notional,
         "notional_2001": cleaned_2001_notional,
         "notional_2005": cleaned_2005_notional,
         "notional_2019": cleaned_2019_notional,

@@ -21,7 +21,7 @@ from SQL.apply_SQL_queries import apply_sql_queries
 
 
 def run_pipeline():
-    # Read the raw data from the internet sources.
+    # Read the configured internet sources and checksum-verified local inputs.
     raw_data = read_raw_data()
 
     # Clean each raw dataframe using the Python cleaning files.
@@ -39,5 +39,4 @@ def run_pipeline():
     trained_model = automated_model_selection(train_test_data["train"])
 
     return trained_model
-
 

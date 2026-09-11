@@ -18,6 +18,23 @@ SELECT
     CAST(previous_election AS VARCHAR) AS previous_election
 FROM input_historical;
 
+-- Load the 1992 results expressed on 1997-2001 boundaries.
+-- The 1992 cleaner supplies constituency names but no constituency IDs or regions.
+CREATE OR REPLACE TABLE notional_1992 AS
+SELECT
+    constituency_name,
+    CAST(election AS VARCHAR) AS election,
+    majority_proportion,
+    winner,
+    boundary_set,
+    election_type,
+    con_share,
+    lib_share,
+    lab_share,
+    natSW_share,
+    CAST(previous_election AS VARCHAR) AS previous_election
+FROM input_notional_1992;
+
 CREATE OR REPLACE TABLE notional_2001 AS
 SELECT
     constituency_name,

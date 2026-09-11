@@ -1,9 +1,14 @@
 from io import BytesIO
+from hashlib import sha256
+from pathlib import Path
 import ssl
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 from urllib.request import Request, urlopen
 
 import pandas as pd
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 REQUEST_HEADERS = {
@@ -19,6 +24,13 @@ REQUEST_HEADERS = {
 
 
 RAW_SOURCES = {
+    "results_1997_local": {
+        "path": "data/manual/results97.xls",
+        "sha256": "e9e3605cc25492f2e3584db44cc9db669a595148f463445c8b4eecb80187ca7d",
+        "reader": "excel",
+        # Read only the first worksheet (index 0), preserving title/header rows.
+        "kwargs": {"sheet_name": 0, "header": None, "engine": "xlrd"},
+    },
     "historical_results": {
         "url": "https://researchbriefings.files.parliament.uk/documents/CBP-8647/1918-2019election_results.csv",
         "reader": "csv",
@@ -74,23 +86,47 @@ RAW_SOURCES = {
 
 def read_raw_data(sources=None):
     # Reads every source listed in RAW_SOURCES into a dictionary of dataframes.
-    sources = sources or RAW_SOURCES
+    sources = RAW_SOURCES if sources is None else sources
 
     raw_data = {}
     for name, source in sources.items():
         try:
             raw_data[name] = _read_one_source(name, source)
-        except (HTTPError, URLError, ValueError) as exc:
-            raise RuntimeError(f"Failed to read raw source '{name}'") from exc
+        except (OSError, URLError, ValueError, ImportError) as exc:
+            raise RuntimeError(f"Failed to read raw source '{name}': {exc}") from exc
 
     return raw_data
 
 
 def _read_one_source(name, source):
-    # Reads one dataset from its internet URL.
+    # Local paths are relative to the project, independent of notebook cwd.
+    local_path = source.get("path")
     url = source.get("url")
+    if local_path and url:
+        raise ValueError(f"Set either path or url for {name}, not both")
+    if local_path:
+        path = Path(local_path)
+        if not path.is_absolute():
+            path = PROJECT_ROOT / path
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"Required local input is missing: {path}. "
+                "Restore the versioned file from the repository."
+            )
+        expected_hash = source.get("sha256")
+        if not expected_hash:
+            raise ValueError(f"Set sha256 for local source {name} to pin its contents")
+        contents = path.read_bytes()
+        actual_hash = sha256(contents).hexdigest()
+        if actual_hash != expected_hash.lower():
+            raise ValueError(
+                f"SHA-256 mismatch for {path}: expected {expected_hash}, "
+                f"got {actual_hash}. Restore the original file or deliberately "
+                "update the source checksum and provenance for a new version."
+            )
+        return _read_and_validate_dataframe(BytesIO(contents), source)
     if not url:
-        raise ValueError(f"No internet URL has been set for {name}")
+        raise ValueError(f"No path or internet URL has been set for {name}")
 
     return _read_and_validate_dataframe(url, source)
 

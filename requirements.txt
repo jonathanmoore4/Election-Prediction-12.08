@@ -1,9 +1,11 @@
 pandas
 duckdb
 openpyxl
+xlrd==2.0.2
 lxml
 jupyter
 matplotlib
 seaborn
 scikit-learn
 xgboost
+scipy>=1.9

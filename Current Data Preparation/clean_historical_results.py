@@ -2,8 +2,10 @@ import pandas as pd
 
 def clean_historical_fun(df):
 
-    # Keep only elections from 1997 onwards
-    df = df[df["election"].isin(["1997", "2001", "2005", "2010", "2015", "2017", "2019"])]
+    # Keep elections from 1983 onwards, accepting string or numeric years.
+    election_years = pd.to_numeric(df["election"], errors="coerce")
+    df = df[election_years >= 1983].copy()
+    df["election"] = election_years.loc[df.index].astype(int).astype(str)
 
     # Remove constituencies in Ireland and Northern Ireland
     df = df[~df["country/region"].isin(["Ireland", "Northern Ireland"])].copy()
@@ -53,7 +55,10 @@ def clean_historical_fun(df):
     df["boundary_set"] = df["boundary_set"].replace("2010-2017", "2010-2019")
 
     previous_election_map = {
-        "1997": pd.NA,
+        "1983": pd.NA,
+        "1987": "1983",
+        "1992": "1987",
+        "1997": "1992_notional",
         "2001": "1997",
         "2005": "2001_notional",
         "2010": "2005_notional",

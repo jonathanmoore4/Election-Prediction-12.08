@@ -4,7 +4,7 @@ Constituency identifiers can improve predictive accuracy but may reduce a model'
 
 The project combines historical election results and national polling in an end-to-end Python and SQL pipeline. Candidate classification models are compared using a temporal validation election before the selected model is refitted and evaluated on the 2024 General Election.
 
-The current pipeline records an accuracy of **55.06%** on the 2024 test data.
+The latest saved evaluation in [the pipeline notebook](Analysis%20and%20model%20development/04_first_pipeline.IPYNB) records **69.94% accuracy** across all **632 Great Britain constituencies** in the 2024 test data, with no rows excluded. This is an increase of **14.88 percentage points** from the previously reported **55.06%**.
 
 ## Motivation
 
@@ -16,7 +16,7 @@ Alongside the research question, the project has been developed as a reproducibl
 
 ## Repository structure
 
-**Data Preparation/**
+**Current Data Preparation/**
 - Functions for cleaning election, polling and boundary-change data.
 
 **SQL/**
@@ -31,6 +31,7 @@ Alongside the research question, the project has been developed as a reproducibl
 
 **Analysis and model development/**
 - Exploratory analysis, baseline modelling, model development and pipeline evaluation.
+- Notebook 04 records the 2024 pipeline evaluation; notebook 05 explores polling-to-seat relationships and constrained 2019 predictions as separate development work.
 
 ## Installation and usage
 
@@ -42,11 +43,31 @@ Then start Jupyter from the project root and run:
 
 `Analysis and model development/04_first_pipeline.IPYNB`
 
-The notebook currently calls `run_pipeline()`, which downloads and prepares the data, applies the SQL transformations, trains and selects a model, and returns the fitted model for evaluation against the 2024 results.
+The notebook currently calls `run_pipeline()`, which downloads and prepares the data, applies the SQL transformations, trains and selects a model, and returns the fitted model for evaluation against the 2024 results. Running it rewrites the training and test CSVs in TEST_TRAIN/.
 
 Dependencies are not currently pinned to exact versions, and the pipeline relies on external data sources, so future reruns are not guaranteed to reproduce identical results.
 
-# Current Analysis — 07/09/2026
+### Manually supplied data
+
+The pipeline also loads the supplied 1997 workbook from [data/manual/results97.xls](data/manual/results97.xls).
+Keep this file in Git with the code so a fresh checkout has the same input. Its
+SHA-256 checksum is checked before reading, and its path is resolved from the
+project root, so it works when running notebooks from another directory.
+Install the updated requirements to include the legacy Excel reader, xlrd.
+
+After importing the existing loader, `raw_data = read_raw_data()` makes the
+workbook available as `raw_data["results_1997_local"]`. For local-only analysis
+without downloading anything, use
+`read_raw_data({"results_1997_local": RAW_SOURCES["results_1997_local"]})`,
+importing both `read_raw_data` and `RAW_SOURCES` from `read_in_raw`.
+The first worksheet is loaded with its title/header rows preserved. Other sheets
+can be selected with the source's `kwargs["sheet_name"]` setting.
+
+This adds reproducible access to the workbook; it does not yet incorporate its
+contents into model features. See [the provenance record](data/manual/README.md)
+for replacement instructions. The original root-level file is retained as supplied.
+
+## Current analysis — 11 September 2026
 
 ## Data and scope
 
@@ -62,11 +83,11 @@ The project has developed from separate exploratory cleaning and modelling scrip
 
 ### 1. Data ingestion
 
-`Run Pipeline/additional_funcs/read_in_raw.py` downloads the election, polling, notional-result and boundary-change data from their configured sources.
+`Run Pipeline/additional_funcs/read_in_raw.py` downloads the election, polling, notional-result and boundary-change data from their configured sources and reads the checksum-verified local workbook.
 
 ### 2. Data cleaning
 
-Reusable functions in `Data Preparation/` clean the individual datasets, including adjustments to previous-election information where constituency boundaries have changed.
+Reusable functions in Current Data Preparation/ clean the individual datasets, including adjustments to previous-election information where constituency boundaries have changed.
 
 ### 3. SQL feature construction
 
@@ -97,17 +118,17 @@ The projected shares attempt to combine previous constituency-level support with
 
 The model is currently evaluated in `Analysis and model development/04_first_pipeline.IPYNB`.
 
-The recorded evaluation covers all 632 Great Britain constituencies in the 2024 test data and reports:
+The recorded evaluation achieves **69.94% accuracy** across all **632 Great Britain constituencies** in the 2024 test data, with no rows excluded.
 
-**2024 test accuracy: 55.06%**
+Accuracy measures the proportion of constituency winners correctly classified; it does not measure vote-share accuracy or national seat-total error. These figures come from the notebook's saved output, rather than a new pipeline run.
 
-For context, Labour won 411 of the 632 constituencies in the test data. Retrospectively predicting Labour for every seat would therefore give an accuracy of **65.03%**. This is a descriptive benchmark based on the realised 2024 labels rather than a forecasting strategy selected in advance, but it highlights the limited performance of the current model.
+For context, Labour won 411 of the 632 constituencies in the test data. Retrospectively predicting Labour for every seat would therefore give an accuracy of **65.03%**. This is a descriptive benchmark based on the realised 2024 labels rather than a forecasting strategy selected in advance, and the current model exceeds it by **4.91 percentage points**.
 
-The result demonstrates that the end-to-end pipeline can produce and evaluate a model on unseen election data, but does not yet establish useful forecasting performance.
+One evaluation election does not establish reliable performance across future elections. The notebook also displays a confusion matrix to examine errors by party. It does not record the selected model family or a per-party precision, recall and F1 report, so the headline result should be attributed to the selected pipeline model rather than to a named classifier.
 
 ## Limitations and future development
 
-Although the modelling dataset contains thousands of constituency observations, it represents only six training elections. Constituencies within an election share the same national political conditions, meaning the number of rows overstates the variety of electoral environments available for training.
+Although the modelling dataset contains thousands of constituency observations, it represents only nine training elections. Constituencies within an election share the same national political conditions, meaning the number of rows overstates the variety of electoral environments available for training.
 
 Model-family selection currently relies on a single validation election, while XGBoost's internal cross-validation mixes observations from different elections. The evaluation process therefore remains an important area for development.
 
@@ -120,7 +141,7 @@ Further improvements include:
 - Adding a neural network as an additional candidate model.
 - Comparing performance with appropriate baseline models.
 - Reviewing the projected-share feature construction.
-- Examining predicted national seat totals and confusion patterns.
+- Quantifying national seat-total errors and extending the notebook's confusion-matrix analysis.
 - Improving the treatment of constituency boundary changes and smaller parties.
 
 ## Data Sources and Acknowledgement
@@ -130,5 +151,6 @@ Further improvements include:
 | Historical general election results | House of Commons Library | Constituency results and historical vote shares |
 | 2024 General Election results | House of Commons Library | Final evaluation |
 | 2005 and 2019 notional results | UK Parliament | Previous-election information across boundary changes |
+| 1992 notional results | Rallings and Thrasher BBC Media Guide | Previous-election information across boundary changes |
 | Historical national polling | Mark Pack's PollBase | Pre-election Conservative, Labour and Liberal Democrat polling |
 | Scottish boundary changes | Electoral Calculus | Approximate mapping across the 2005 Scottish boundary changes |
