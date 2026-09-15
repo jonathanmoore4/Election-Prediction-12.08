@@ -27,15 +27,27 @@ NUMERIC_COLUMNS = [
 ]
 
 
+def filter_logistic_regression_data(data):
+    """Keep complete rows without 'oth' in winner or previous_winner."""
+    # Modelling rationale: 'oth' observations are highly influential, so remove
+    # rows where either the current winner or previous winner is 'oth'.
+    eligible = data.loc[~data[["winner", "previous_winner"]].eq("oth").any(axis=1)]
+    return eligible.dropna(subset=FEATURE_COLUMNS + ["winner"]).copy()
+
+
 def train_logistic_regression(data):
-    """Return a fitted Pipeline predicting winner labels, including 'oth'.
+    """Return a fitted Pipeline excluding 'oth' outcomes and previous winners.
 
     Pool all supplied elections, excluding election itself as a predictor.
-    Drop rows missing a predictor or winner, without imputing values.
+    Drop rows with 'oth' in winner or previous_winner, or missing a predictor
+    or winner, without imputing values.
+    The numeric predictors are considered approximately linear in the log odds,
+    so no major issues with this assumption are expected. This assumption does
+    not apply to categorical predictors, which are one-hot encoded.
     Numeric predictors are scaled to help convergence. Prediction data must
     also have complete predictors. The input dataframe is not modified.
     """
-    training = data.dropna(subset=FEATURE_COLUMNS + ["winner"])
+    training = filter_logistic_regression_data(data)
     preprocessing = ColumnTransformer([
         ("categorical", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_COLUMNS),
         ("numeric", StandardScaler(), NUMERIC_COLUMNS),
@@ -46,4 +58,3 @@ def train_logistic_regression(data):
     ])
     model.fit(training[FEATURE_COLUMNS], training["winner"])
     return model
-

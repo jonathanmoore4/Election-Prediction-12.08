@@ -4,7 +4,7 @@ Constituency identifiers can improve predictive accuracy but may reduce a model'
 
 The project combines historical election results and national polling in an end-to-end Python and SQL pipeline. Candidate classification models are compared using a temporal validation election before the selected model is refitted and evaluated on the 2024 General Election.
 
-The latest saved evaluation in [the pipeline notebook](Analysis%20and%20model%20development/04_first_pipeline.IPYNB) records **69.94% accuracy** across all **632 Great Britain constituencies** in the 2024 test data, with no rows excluded. This is an increase of **14.88 percentage points** from the previously reported **55.06%**.
+The latest saved evaluation in [the pipeline notebook](Analysis%20and%20model%20development/00_run_pipeline.IPYNB) records **69.94% accuracy** across all **632 Great Britain constituencies** in the 2024 test data, with no rows excluded. This is an increase of **14.88 percentage points** from the previously reported **55.06%**.
 
 ## Motivation
 
@@ -31,7 +31,7 @@ Alongside the research question, the project has been developed as a reproducibl
 
 **Analysis and model development/**
 - Exploratory analysis, baseline modelling, model development and pipeline evaluation.
-- Notebook 04 records the 2024 pipeline evaluation; notebook 05 explores polling-to-seat relationships and constrained 2019 predictions as separate development work.
+- Notebook 00 records the 2024 pipeline evaluation.
 
 ## Installation and usage
 

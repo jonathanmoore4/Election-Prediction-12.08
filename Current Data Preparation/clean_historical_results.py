@@ -10,6 +10,12 @@ def clean_historical_fun(df):
     # Remove constituencies in Ireland and Northern Ireland
     df = df[~df["country/region"].isin(["Ireland", "Northern Ireland"])].copy()
 
+    # Standardise Yorkshire and the Humber region labels.
+    df["country/region"] = df["country/region"].replace({
+        "Yorkshire & The Humber": "Yorkshire and the Humber",
+        "Yorkshire and The Humber": "Yorkshire and the Humber",
+    })
+
     # Create winner and majority share columns
     share_columns = ["con_share", "lib_share", "lab_share", "natSW_share", "oth_share"]
     winner_labels = {

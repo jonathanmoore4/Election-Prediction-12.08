@@ -24,7 +24,8 @@ def automated_model_selection(data):
 
     The winning training function is called again with the entire dataframe,
     including 2019 and any later years. For XGBoost this repeats grid search.
-    Return the fitted pipeline without reading files or modifying input data.
+    Return [fitted_pipeline, model_type], with model_type a readable string,
+    without reading files or modifying input data.
     """
     feature_columns = logistic_regression.FEATURE_COLUMNS
     required_columns = ["election", "winner"] + feature_columns
@@ -46,19 +47,21 @@ def automated_model_selection(data):
         raise ValueError("Data must contain complete validation rows for the 2019 election.")
 
     model_functions = [
-        xgboost_model.train_xgboost,
-        random_forest.train_random_forest,
-        logistic_regression.train_logistic_regression,
+        (xgboost_model.train_xgboost, "XGBoost"),
+        (random_forest.train_random_forest, "Random Forest"),
+        (logistic_regression.train_logistic_regression, "Logistic Regression"),
     ]
     best_training_function = None
+    best_model_type = None
     best_accuracy = -1.0
 
-    for train_model in model_functions:
+    for train_model, model_type in model_functions:
         model = train_model(training_data)
         predictions = model.predict(validation_data[feature_columns])
         accuracy = accuracy_score(validation_data["winner"], predictions)
         if accuracy > best_accuracy:
             best_training_function = train_model
+            best_model_type = model_type
             best_accuracy = accuracy
 
-    return best_training_function(data)
+    return [best_training_function(data), best_model_type]
