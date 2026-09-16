@@ -6,6 +6,7 @@ lxml
 jupyter
 matplotlib
 seaborn
-scikit-learn
+scikit-learn>=1.2
+torch
 xgboost
 scipy>=1.9
