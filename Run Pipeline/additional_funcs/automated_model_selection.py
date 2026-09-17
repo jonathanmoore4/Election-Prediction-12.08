@@ -15,7 +15,9 @@ from Models import NN01_model, logistic_regression, random_forest, xgboost_model
 from Models.custom_model import custom_model
 
 
-def automated_model_selection(data: pd.DataFrame) -> list[custom_model | str]:
+def automated_model_selection(
+    data: pd.DataFrame, scores_path: Path | None = None,
+) -> list[custom_model | str]:
     """Train before 2019, validate on 2019, and refit the best model on data.
 
     Accept numeric or string election years. Evaluate all models on the same
@@ -27,7 +29,9 @@ def automated_model_selection(data: pd.DataFrame) -> list[custom_model | str]:
     The winning object retrains on the entire dataframe, including 2019 and
     any later years, using its own retraining procedure.
     Return [fitted_model, model_name], with model_name a readable string,
-    without reading files or modifying input data.
+    without reading files or modifying input data. Print all initial accuracies
+    and retain them on fitted_model.initial_accuracies. If scores_path is supplied,
+    save the scores there before retraining.
     """
     feature_columns = logistic_regression.FEATURE_COLUMNS
     required_columns = ["election", "winner"] + feature_columns
@@ -56,16 +60,28 @@ def automated_model_selection(data: pd.DataFrame) -> list[custom_model | str]:
     ]
     best_model: custom_model | None = None
     best_accuracy = -1.0
+    initial_accuracies: dict[str, float] = {}
 
+    print(f"Initial model accuracies on {len(validation_data)} complete 2019 rows:", flush=True)
     for model in models:
         model.train(training_data)
         predictions = model.predict(validation_data)
-        accuracy = accuracy_score(validation_data["winner"], predictions)
+        accuracy = float(accuracy_score(validation_data["winner"], predictions))
+        initial_accuracies[model.name] = accuracy
+        print(f"  {model.name}: {accuracy:.2%}", flush=True)
         if accuracy > best_accuracy:
             best_model = model
             best_accuracy = accuracy
 
     # Strict comparison above preserves the existing ordering for tied scores.
     assert best_model is not None
+    best_model.initial_accuracies = initial_accuracies
+    if scores_path is not None:
+        pd.DataFrame([
+            {"model": name, "accuracy": score, "evaluation_year": 2019,
+             "evaluation_rows": len(validation_data)}
+            for name, score in initial_accuracies.items()
+        ]).to_csv(scores_path, index=False)
+    print(f"Selected {best_model.name}; retraining on all supplied data.", flush=True)
     best_model.retrain(data)
     return [best_model, best_model.name]

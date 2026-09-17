@@ -14,6 +14,8 @@ class custom_model(ABC):
         self.name: str = name
         # Only state needed between training stages must be retained here.
         self.hyperparameters: dict[str, Any] = {}
+        # Initial held-out accuracies for every candidate, populated on selection.
+        self.initial_accuracies: dict[str, float] = {}
 
     @abstractmethod
     def train(self, data: pd.DataFrame) -> None:

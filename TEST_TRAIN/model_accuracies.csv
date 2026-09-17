@@ -1,0 +1,5 @@
+model,accuracy,evaluation_year,evaluation_rows
+XGBoost,0.8775834658187599,2019,629
+Random Forest,0.8680445151033387,2019,629
+Logistic Regression,0.8553259141494436,2019,629
+Neural Network,0.8712241653418124,2019,629

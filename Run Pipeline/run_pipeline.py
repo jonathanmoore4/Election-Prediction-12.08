@@ -36,7 +36,9 @@ def run_pipeline():
     train_test_data["train"].to_csv(output_dir / "train.csv", index=False)
     train_test_data["test"].to_csv(output_dir / "test.csv", index=False)
 
-    trained_model = automated_model_selection(train_test_data["train"])
+    trained_model = automated_model_selection(
+        train_test_data["train"], scores_path=output_dir / "model_accuracies.csv",
+    )
 
     return trained_model
 
