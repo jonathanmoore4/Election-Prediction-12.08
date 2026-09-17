@@ -1,8 +1,9 @@
 """Train an ensemble of neural networks to predict the winning party.
 
-Training uses held-out rows from the latest election to
-choose a training duration. Retraining fits fresh networks on all supplied
-rows for that duration. Predictions average the networks' party probabilities.
+Both training and retraining hold out half of the latest supplied election
+for early stopping in each of ten seeded runs. Retraining shifts the split
+forward as newer elections are supplied and retains the best checkpoints.
+Predictions average the networks' party probabilities.
 Importing this module only defines the classes and functions; it does not train.
 """
 
@@ -29,9 +30,10 @@ from torch.utils.data import DataLoader, TensorDataset
 from Models.logistic_regression import FEATURE_COLUMNS, CATEGORICAL_COLUMNS, NUMERIC_COLUMNS
 
 
-SEEDS = tuple(range(42, 52))  # Ten reproducible runs with different random seeds.
+# Ten randomly sampled seeds, fixed for reproducible ensemble runs.
+SEEDS = (29798, 58084, 77167, 85291, 72969, 93189, 8914, 95011, 30096, 63732)
 BATCH_SIZE = 64  # Maximum number of training rows per weight update.
-MAX_EPOCHS = 1500  # Limit on full passes through the data during duration selection.
+MAX_EPOCHS = 1500  # Maximum training epochs per early-stopping run.
 PATIENCE = 20  # Stop after this many epochs without a qualifying improvement.
 MIN_DELTA = 0.001  # Minimum decrease in validation loss counted as improvement.
 LEARNING_RATE = 0.001  # Adam's base step size for adjusting network weights.
@@ -102,7 +104,7 @@ class TrainingRecord(TypedDict):
 
 
 class NeuralNetworkModel(custom_model):
-    """Own ten networks, their preprocessing, and the selected retraining duration."""
+    """Own ten early-stopped networks, their preprocessing, and diagnostics."""
 
     def __init__(self) -> None:
         super().__init__("Neural Network")
@@ -114,13 +116,11 @@ class NeuralNetworkModel(custom_model):
         self.final_records: list[TrainingRecord] = []
 
     def train(self, data: pd.DataFrame) -> None:
-        """Select epochs afresh and retain all ten early-stopping checkpoints."""
+        """Fit candidate networks and retain all ten early-stopping checkpoints."""
         self._fit(data, selecting=True)
 
     def retrain(self, data: pd.DataFrame) -> None:
-        """Replace the ensemble with ten fresh fits on every row for exactly E epochs."""
-        if "epochs" not in self.hyperparameters:
-            raise RuntimeError("Call train() before retrain() to select the epoch count.")
+        """Fit ten fresh checkpoints, holding out half of the latest supplied election."""
         self._fit(data, selecting=False)
 
     def predict_proba(self, data: pd.DataFrame) -> NDArray[np.floating[Any]]:
@@ -162,44 +162,36 @@ class NeuralNetworkModel(custom_model):
             raise ValueError("Election years must not be missing.")
         # All ensemble members in this call share the same party-to-index mapping.
         label_encoder = LabelEncoder().fit(data["winner"])
-        epochs = MAX_EPOCHS if selecting else self.hyperparameters["epochs"]
-        if selecting:
-            # Keep all earlier elections for training and split only the latest.
-            latest = data.loc[years == years.max()]
-            historical = data.loc[years < years.max()]
-            if historical.empty or len(latest) < 2:
-                raise ValueError("Epoch-selection training needs earlier elections and at least two latest-election rows.")
-            counts = latest["winner"].value_counts()
-            # Stratification preserves party proportions where counts and split
-            # sizes allow each party to appear in both halves.
-            can_stratify = counts.min() >= 2 and len(latest) // 2 >= len(counts)
-            if not can_stratify:
-                warnings.warn("Latest-election class counts do not permit stratification.", stacklevel=2)
+        # Keep all earlier elections for training and split only the latest.
+        latest = data.loc[years == years.max()]
+        historical = data.loc[years < years.max()]
+        if historical.empty or len(latest) < 2:
+            raise ValueError("Epoch-selection training needs earlier elections and at least two latest-election rows.")
+        counts = latest["winner"].value_counts()
+        # Stratification preserves party proportions where counts and split
+        # sizes allow each party to appear in both halves.
+        can_stratify = counts.min() >= 2 and len(latest) // 2 >= len(counts)
+        if not can_stratify:
+            warnings.warn("Latest-election class counts do not permit stratification.", stacklevel=2)
 
         networks, preprocessors, records = [], [], []
         for seed in SEEDS:
-            training, validation = data, None
-            if selecting:
-                # Each seed changes both the latest-election split and network
-                # initialisation. Hold out half of the latest election internally.
-                latest_train, validation = train_test_split(
-                    latest, test_size=0.5, random_state=seed,
-                    stratify=latest["winner"] if can_stratify else None,
-                )
-                training = pd.concat([historical, latest_train])
+            # Each seed changes both the latest-election split and network
+            # initialisation. Hold out half of the latest election internally.
+            latest_train, validation = train_test_split(
+                latest, test_size=0.5, random_state=seed,
+                stratify=latest["winner"] if can_stratify else None,
+            )
+            training = pd.concat([historical, latest_train])
             network, preprocessor, record = _train_network(
                 training, validation, label_encoder, seed,
-                epochs,
+                MAX_EPOCHS,
             )
             networks.append(network)
             preprocessors.append(preprocessor)
             records.append(record)
 
         if selecting:
-            # Use the median best epoch across runs, rounded up, as the fixed
-            # duration for retraining. Training retains the selected checkpoints;
-            # retrain() fits fresh networks on all supplied rows.
-            self.hyperparameters["epochs"] = int(np.ceil(np.median([r["best_epoch"] for r in records])))
             self.selection_records = records
             self.final_records = []
         else:

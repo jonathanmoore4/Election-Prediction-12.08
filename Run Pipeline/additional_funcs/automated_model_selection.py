@@ -1,4 +1,4 @@
-﻿"""Select using 2019 validation results, then retrain on all supplied data."""
+﻿"""Select using 2019 validation results, then retrain using each model's procedure."""
 
 from pathlib import Path
 import sys
@@ -26,15 +26,20 @@ def automated_model_selection(
     logistic regression, then neural network. Each trainer applies its own
     missing-data handling.
 
-    The winning object retrains on the entire dataframe, including 2019 and
-    any later years, using its own retraining procedure.
+    The winning object receives the entire training dataframe for retraining.
+    The neural network holds out half of its latest election (2019 in the
+    pipeline) per seed for early stopping and retains those checkpoints.
+    Keep the prediction election (2024) outside this dataframe.
     Return [fitted_model, model_name], with model_name a readable string,
     without reading files or modifying input data. Print all initial accuracies
     and retain them on fitted_model.initial_accuracies. If scores_path is supplied,
-    save the scores there before retraining.
+    save the scores there before retraining. Also record accuracy on complete
+    2019 rows where winner differs from a known previous_winner. Select by the
+    sum of overall and changed-seat accuracy, weighting both equally. An empty
+    changed-seat subset has accuracy None; selection then uses overall accuracy.
     """
     feature_columns = logistic_regression.FEATURE_COLUMNS
-    required_columns = ["election", "winner"] + feature_columns
+    required_columns = ["election", "winner", "previous_winner"] + feature_columns
     missing_columns = [column for column in required_columns if column not in data.columns]
     if missing_columns:
         raise ValueError(f"Data is missing required columns: {missing_columns}")
@@ -52,6 +57,12 @@ def automated_model_selection(
     if validation_data.empty:
         raise ValueError("Data must contain complete validation rows for the 2019 election.")
 
+    changed_seats = (
+        validation_data["previous_winner"].notna()
+        & validation_data["winner"].ne(validation_data["previous_winner"])
+    ).to_numpy(dtype=bool)
+    changed_seat_count = int(changed_seats.sum())
+
     models: list[custom_model] = [
         xgboost_model.XGBoostModel(),
         random_forest.RandomForestModel(),
@@ -59,8 +70,9 @@ def automated_model_selection(
         NN01_model.NeuralNetworkModel(),
     ]
     best_model: custom_model | None = None
-    best_accuracy = -1.0
+    best_selection_score = -1.0
     initial_accuracies: dict[str, float] = {}
+    changed_seat_accuracies: dict[str, float | None] = {}
 
     print(f"Initial model accuracies on {len(validation_data)} complete 2019 rows:", flush=True)
     for model in models:
@@ -68,20 +80,42 @@ def automated_model_selection(
         predictions = model.predict(validation_data)
         accuracy = float(accuracy_score(validation_data["winner"], predictions))
         initial_accuracies[model.name] = accuracy
-        print(f"  {model.name}: {accuracy:.2%}", flush=True)
-        if accuracy > best_accuracy:
+        changed_accuracy = (
+            float(accuracy_score(
+                validation_data.loc[changed_seats, "winner"],
+                pd.Series(predictions).to_numpy()[changed_seats],
+            ))
+            if changed_seat_count else None
+        )
+        changed_seat_accuracies[model.name] = changed_accuracy
+        selection_score = accuracy + (changed_accuracy if changed_accuracy is not None else 0.0)
+        changed_display = f"{changed_accuracy:.2%}" if changed_accuracy is not None else "N/A"
+        print(
+            f"  {model.name}: {accuracy:.2%}; changed winning party: "
+            f"{changed_display} ({changed_seat_count} seats); "
+            f"combined score: {selection_score:.4f}", flush=True,
+        )
+        if selection_score > best_selection_score:
             best_model = model
-            best_accuracy = accuracy
+            best_selection_score = selection_score
 
     # Strict comparison above preserves the existing ordering for tied scores.
     assert best_model is not None
     best_model.initial_accuracies = initial_accuracies
+    best_model.initial_changed_seat_accuracies = changed_seat_accuracies
+    best_model.changed_seat_evaluation_rows = changed_seat_count
     if scores_path is not None:
         pd.DataFrame([
             {"model": name, "accuracy": score, "evaluation_year": 2019,
-             "evaluation_rows": len(validation_data)}
+             "evaluation_rows": len(validation_data),
+             "changed_seat_accuracy": changed_seat_accuracies[name],
+             "changed_seat_evaluation_rows": changed_seat_count,
+             "selection_score": score + (
+                 changed_seat_accuracies[name]
+                 if changed_seat_accuracies[name] is not None else 0.0
+             )}
             for name, score in initial_accuracies.items()
         ]).to_csv(scores_path, index=False)
-    print(f"Selected {best_model.name}; retraining on all supplied data.", flush=True)
+    print(f"Selected {best_model.name}; retraining using its model-specific procedure.", flush=True)
     best_model.retrain(data)
     return [best_model, best_model.name]

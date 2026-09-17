@@ -16,6 +16,8 @@ class custom_model(ABC):
         self.hyperparameters: dict[str, Any] = {}
         # Initial held-out accuracies for every candidate, populated on selection.
         self.initial_accuracies: dict[str, float] = {}
+        self.initial_changed_seat_accuracies: dict[str, float | None] = {}
+        self.changed_seat_evaluation_rows: int = 0
 
     @abstractmethod
     def train(self, data: pd.DataFrame) -> None:
