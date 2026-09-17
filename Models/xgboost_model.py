@@ -1,5 +1,12 @@
 """Tune XGBoost on pooled election data; nothing runs on import."""
 
+from typing import Any
+
+import pandas as pd
+from numpy.typing import NDArray
+
+from Models.custom_model import custom_model
+
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import GridSearchCV
@@ -64,7 +71,7 @@ class _LabelledXGBClassifier(ClassifierMixin, BaseEstimator):
         return self.model_.predict_proba(X)
 
 
-def train_xgboost(data):
+def train_xgboost(data: pd.DataFrame) -> Pipeline:
     """Return the best fitted Pipeline from the notebook's accuracy grid search.
 
     Pool all supplied elections and retain all winner classes, including 'oth'.
@@ -98,3 +105,20 @@ def train_xgboost(data):
     search.fit(training[FEATURE_COLUMNS], training["winner"])
     return search.best_estimator_
 
+
+class XGBoostModel(custom_model):
+    """Own the fitted pipeline; retraining repeats the existing training procedure."""
+
+    def __init__(self) -> None:
+        super().__init__("XGBoost")
+        self.pipeline: Pipeline | None = None
+
+    def train(self, data: pd.DataFrame) -> None:
+        """Replace the fitted pipeline using this model's original training routine."""
+        self.pipeline = train_xgboost(data)
+
+    def predict(self, data: pd.DataFrame) -> NDArray[Any]:
+        """Select this model's predictors and return the original party labels."""
+        if self.pipeline is None:
+            raise RuntimeError("Call train() before predict().")
+        return self.pipeline.predict(data[FEATURE_COLUMNS])

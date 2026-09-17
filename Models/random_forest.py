@@ -1,5 +1,12 @@
 """Train a random forest on pooled election data; nothing runs on import."""
 
+from typing import Any
+
+import pandas as pd
+from numpy.typing import NDArray
+
+from Models.custom_model import custom_model
+
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
@@ -28,7 +35,7 @@ NUMERIC_COLUMNS = [
 ]
 
 
-def train_random_forest(data):
+def train_random_forest(data: pd.DataFrame) -> Pipeline:
     """Return a fitted Pipeline predicting winner labels, including 'oth'.
 
     Election is metadata, not a predictor. Rows without a winner are dropped;
@@ -48,3 +55,20 @@ def train_random_forest(data):
     model.fit(training[FEATURE_COLUMNS], training["winner"])
     return model
 
+
+class RandomForestModel(custom_model):
+    """Own the fitted pipeline; retraining repeats the existing training procedure."""
+
+    def __init__(self) -> None:
+        super().__init__("Random Forest")
+        self.pipeline: Pipeline | None = None
+
+    def train(self, data: pd.DataFrame) -> None:
+        """Replace the fitted pipeline using this model's original training routine."""
+        self.pipeline = train_random_forest(data)
+
+    def predict(self, data: pd.DataFrame) -> NDArray[Any]:
+        """Select this model's predictors and return the original party labels."""
+        if self.pipeline is None:
+            raise RuntimeError("Call train() before predict().")
+        return self.pipeline.predict(data[FEATURE_COLUMNS])

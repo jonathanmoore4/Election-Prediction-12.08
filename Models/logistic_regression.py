@@ -1,5 +1,12 @@
 """Train multinomial logistic regression; nothing runs on import."""
 
+from typing import Any
+
+import pandas as pd
+from numpy.typing import NDArray
+
+from Models.custom_model import custom_model
+
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -27,7 +34,7 @@ NUMERIC_COLUMNS = [
 ]
 
 
-def filter_logistic_regression_data(data):
+def filter_logistic_regression_data(data: pd.DataFrame) -> pd.DataFrame:
     """Keep complete rows without 'oth' in winner or previous_winner."""
     # Modelling rationale: 'oth' observations are highly influential, so remove
     # rows where either the current winner or previous winner is 'oth'.
@@ -35,7 +42,7 @@ def filter_logistic_regression_data(data):
     return eligible.dropna(subset=FEATURE_COLUMNS + ["winner"]).copy()
 
 
-def train_logistic_regression(data):
+def train_logistic_regression(data: pd.DataFrame) -> Pipeline:
     """Return a fitted Pipeline excluding 'oth' outcomes and previous winners.
 
     Pool all supplied elections, excluding election itself as a predictor.
@@ -58,3 +65,21 @@ def train_logistic_regression(data):
     ])
     model.fit(training[FEATURE_COLUMNS], training["winner"])
     return model
+
+
+class LogisticRegressionModel(custom_model):
+    """Own the fitted pipeline; retraining repeats the existing training procedure."""
+
+    def __init__(self) -> None:
+        super().__init__("Logistic Regression")
+        self.pipeline: Pipeline | None = None
+
+    def train(self, data: pd.DataFrame) -> None:
+        """Replace the fitted pipeline using this model's original training routine."""
+        self.pipeline = train_logistic_regression(data)
+
+    def predict(self, data: pd.DataFrame) -> NDArray[Any]:
+        """Select this model's predictors and return the original party labels."""
+        if self.pipeline is None:
+            raise RuntimeError("Call train() before predict().")
+        return self.pipeline.predict(data[FEATURE_COLUMNS])
