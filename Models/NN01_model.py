@@ -33,8 +33,8 @@ from Models.logistic_regression import FEATURE_COLUMNS, CATEGORICAL_COLUMNS, NUM
 # Ten randomly sampled seeds, fixed for reproducible ensemble runs.
 SEEDS = (29798, 58084, 77167, 85291, 72969, 93189, 8914, 95011, 30096, 63732)
 BATCH_SIZE = 64  # Maximum number of training rows per weight update.
-MAX_EPOCHS = 1500  # Maximum training epochs per early-stopping run.
-PATIENCE = 20  # Stop after this many epochs without a qualifying improvement.
+MAX_EPOCHS = 1000  # Maximum training epochs per early-stopping run.
+PATIENCE = 50  # Stop after this many epochs without a qualifying improvement.
 MIN_DELTA = 0.001  # Minimum decrease in validation loss counted as improvement.
 LEARNING_RATE = 0.001  # Adam's base step size for adjusting network weights.
 HIDDEN_SIZES = (64, 32)  # Number of neurons in the two hidden layers.
@@ -74,7 +74,7 @@ def as_features(matrix: NDArray[Any] | sparse.spmatrix) -> torch.Tensor:
 
 
 class NeuralNetwork(nn.Module):
-    """CPU classifier with raw logits for cross-entropy training."""
+    """CPU classifier whose logits are converted to probabilities for MAE training."""
 
     def __init__(self, input_dim: int, num_classes: int) -> None:
         super().__init__()
@@ -84,8 +84,8 @@ class NeuralNetwork(nn.Module):
         for width in HIDDEN_SIZES:
             layers.extend([nn.Linear(input_dim, width), nn.ReLU()])
             input_dim = width
-        # Output one raw score (logit) per party. CrossEntropyLoss handles the
-        # probability conversion internally, so no softmax is needed in training.
+        # Output one raw score (logit) per party. Convert these to probabilities
+        # with softmax when computing the loss or making predictions.
         layers.append(nn.Linear(input_dim, num_classes))
         self.layers = nn.Sequential(*layers)
 
@@ -211,13 +211,18 @@ def _train_network(
     preprocessor = make_preprocessor()
     # Learn preprocessing only from training rows to avoid leaking validation data.
     x_train = as_features(preprocessor.fit_transform(training[FEATURE_COLUMNS]))
-    # Cross-entropy expects integer class indices, not the original party names.
-    y_train = torch.tensor(label_encoder.transform(training["winner"]), dtype=torch.long)
+    # MAE compares party probabilities with one-hot targets (1 for the winner).
+    num_classes = len(label_encoder.classes_)
+    y_train = nn.functional.one_hot(
+        torch.tensor(label_encoder.transform(training["winner"]), dtype=torch.long),
+        num_classes=num_classes,
+    ).float()
     if validation is not None:
         x_validation = as_features(preprocessor.transform(validation[FEATURE_COLUMNS]))
-        y_validation = torch.tensor(
-            label_encoder.transform(validation["winner"]), dtype=torch.long
-        )
+        y_validation = nn.functional.one_hot(
+            torch.tensor(label_encoder.transform(validation["winner"]), dtype=torch.long),
+            num_classes=num_classes,
+        ).float()
 
     # Keep initialisation reproducible without changing the caller's RNG state.
     with torch.random.fork_rng(devices=[]):
@@ -230,8 +235,8 @@ def _train_network(
             generator=torch.Generator().manual_seed(seed), num_workers=0,
         )
         optimizer = torch.optim.Adam(network.parameters(), lr=LEARNING_RATE)
-        # Cross-entropy penalises assigning low probability to the actual winner.
-        criterion = nn.CrossEntropyLoss()
+        # Average absolute probability errors over all rows and parties.
+        criterion = nn.L1Loss()
         best_loss = float("inf")
         best_epoch = 0
         best_state = None
@@ -242,7 +247,7 @@ def _train_network(
                 # Clear old gradients, measure this batch's error, differentiate
                 # it with respect to the weights, then apply an Adam update.
                 optimizer.zero_grad()
-                loss = criterion(network(x_batch), y_batch)
+                loss = criterion(torch.softmax(network(x_batch), dim=1), y_batch)
                 if not torch.isfinite(loss).item():
                     raise RuntimeError(f"Non-finite training loss for seed {seed}, epoch {epoch}")
                 loss.backward()
@@ -253,7 +258,9 @@ def _train_network(
             # Evaluate held-out rows after each epoch without updating the weights.
             network.eval()
             with torch.inference_mode():
-                validation_loss = criterion(network(x_validation), y_validation).item()
+                validation_loss = criterion(
+                    torch.softmax(network(x_validation), dim=1), y_validation
+                ).item()
             if not np.isfinite(validation_loss):
                 raise RuntimeError(f"Non-finite validation loss for seed {seed}, epoch {epoch}")
             if best_loss - validation_loss >= MIN_DELTA:
