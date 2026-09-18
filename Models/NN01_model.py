@@ -36,8 +36,8 @@ BATCH_SIZE = 64  # Maximum number of training rows per weight update.
 MAX_EPOCHS = 1000  # Maximum training epochs per early-stopping run.
 PATIENCE = 50  # Stop after this many epochs without a qualifying improvement.
 MIN_DELTA = 0.001  # Minimum decrease in validation loss counted as improvement.
-LEARNING_RATE = 0.001  # Adam's base step size for adjusting network weights.
-HIDDEN_SIZES = (64, 32)  # Number of neurons in the two hidden layers.
+LEARNING_RATE = 0.01  # SGD's step size for adjusting network weights.
+HIDDEN_SIZES = (32, 16)  # Number of neurons in the two hidden layers.
 
 
 def make_preprocessor() -> ColumnTransformer:
@@ -234,7 +234,7 @@ def _train_network(
             TensorDataset(x_train, y_train), batch_size=BATCH_SIZE, shuffle=True,
             generator=torch.Generator().manual_seed(seed), num_workers=0,
         )
-        optimizer = torch.optim.Adam(network.parameters(), lr=LEARNING_RATE)
+        optimizer = torch.optim.SGD(network.parameters(), lr=LEARNING_RATE, momentum=0.0)
         # Average absolute probability errors over all rows and parties.
         criterion = nn.L1Loss()
         best_loss = float("inf")
@@ -245,7 +245,7 @@ def _train_network(
             network.train()
             for x_batch, y_batch in loader:
                 # Clear old gradients, measure this batch's error, differentiate
-                # it with respect to the weights, then apply an Adam update.
+                # it with respect to the weights, then apply an SGD update.
                 optimizer.zero_grad()
                 loss = criterion(torch.softmax(network(x_batch), dim=1), y_batch)
                 if not torch.isfinite(loss).item():
