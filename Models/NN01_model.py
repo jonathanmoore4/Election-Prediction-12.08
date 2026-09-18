@@ -31,7 +31,7 @@ from Models.logistic_regression import FEATURE_COLUMNS, CATEGORICAL_COLUMNS, NUM
 
 
 # Ten randomly sampled seeds, fixed for reproducible ensemble runs.
-SEEDS = (29798, 58084, 77167, 85291, 72969, 93189, 8914, 95011, 30096, 63732)
+SEEDS = tuple(range(111223, 111233))
 BATCH_SIZE = 64  # Maximum number of training rows per weight update.
 MAX_EPOCHS = 1000  # Maximum training epochs per early-stopping run.
 PATIENCE = 50  # Stop after this many epochs without a qualifying improvement.
