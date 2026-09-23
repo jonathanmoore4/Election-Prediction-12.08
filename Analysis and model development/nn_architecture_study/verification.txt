@@ -1,3 +1,0 @@
-screening: 288 ensembles, 864 patience records, policy selection, source-row alignment, accuracy, changed-seat accuracy, log loss and Brier score verified
-confirmation: 144 ensembles, 1440 patience records, policy selection, source-row alignment, accuracy, changed-seat accuracy, log loss and Brier score verified
-All 24 original ten-seed 32/16 patience-20 validation results reproduced.

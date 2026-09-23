@@ -1,8 +1,9 @@
 """Train an ensemble of neural networks to predict the winning party.
 
-Based on Analysis and model development/08_nn_proposed_pipeline_2019.IPYNB.
+Shared training implementation for NN01, NN02 and NN03.
+Development report: Analysis and model development/05_nn_first_development/.
 Training and retraining hold out the entire latest supplied election, search
-four learning rates across ten seeds, and retain the rate with the lowest
+the configured rates (four for NN01) across ten seeds, and retain the rate with the lowest
 ensemble validation log loss. Predictions average the ten best checkpoints'
 party probabilities.
 Importing this module only defines the classes and functions; it does not train.
@@ -74,12 +75,13 @@ def as_features(matrix: NDArray[Any] | sparse.spmatrix) -> torch.Tensor:
 class NeuralNetwork(nn.Module):
     """CPU classifier trained with cross-entropy on raw logits."""
 
-    def __init__(self, input_dim: int, num_classes: int) -> None:
+    def __init__(self, input_dim: int, num_classes: int,
+                 hidden_sizes: tuple[int, ...] | None = None) -> None:
         super().__init__()
         layers = []
         # Each linear layer learns weighted combinations of its inputs. ReLU sets
         # negative outputs to zero, letting the network learn nonlinear patterns.
-        for width in HIDDEN_SIZES:
+        for width in (HIDDEN_SIZES if hidden_sizes is None else hidden_sizes):
             layers.extend([nn.Linear(input_dim, width), nn.ReLU()])
             input_dim = width
         # Output raw logits for cross-entropy, which applies log-softmax internally.
@@ -108,8 +110,15 @@ class TrainingRecord(TypedDict):
 class NeuralNetworkModel(custom_model):
     """Own the selected rate's ten networks, preprocessing, and search diagnostics."""
 
-    def __init__(self) -> None:
-        super().__init__("Neural Network")
+    def __init__(
+        self, *, hidden_sizes: tuple[int, ...] | None = None,
+        learning_rates: tuple[float, ...] | None = None,
+        name: str = "Neural Network", class_labels: tuple[str, ...] | None = None,
+    ) -> None:
+        super().__init__(name)
+        self.hidden_sizes = tuple(HIDDEN_SIZES if hidden_sizes is None else hidden_sizes)
+        self.learning_rates = tuple(LEARNING_RATES if learning_rates is None else learning_rates)
+        self.class_labels = class_labels
         self.networks: list[NeuralNetwork] = []
         self.preprocessors: list[ColumnTransformer] = []
         self.label_encoder: LabelEncoder | None = None
@@ -168,7 +177,7 @@ class NeuralNetworkModel(custom_model):
         training = data.loc[years < years.max()]
         if training.empty:
             raise ValueError("Learning-rate selection needs at least two whole elections.")
-        label_encoder = LabelEncoder().fit(training["winner"])
+        label_encoder = LabelEncoder().fit(training["winner"] if self.class_labels is None else self.class_labels)
         if not set(validation["winner"]).issubset(label_encoder.classes_):
             raise ValueError("Validation includes a party absent from weight-update data.")
         validation_targets = label_encoder.transform(validation["winner"])
@@ -177,13 +186,14 @@ class NeuralNetworkModel(custom_model):
         runs_by_learning_rate = {}
         all_records = []
         ensemble_losses = {}
-        for learning_rate in LEARNING_RATES:
+        for learning_rate in self.learning_rates:
             networks, preprocessors, records = [], [], []
             validation_probabilities = []
             for seed in SEEDS:
                 network, preprocessor, record = _train_network(
                     training, validation, label_encoder, seed,
                     MAX_EPOCHS, learning_rate,
+                    hidden_sizes=self.hidden_sizes,
                 )
                 record.update(
                     validation_year=validation_year,
@@ -231,8 +241,8 @@ class NeuralNetworkModel(custom_model):
         self.validation_year = validation_year
         self.training_elections = sorted(years.loc[years < years.max()].unique().tolist())
         self.hyperparameters.update(
-            hidden_sizes=HIDDEN_SIZES, loss="cross_entropy", optimizer="SGD",
-            learning_rate=selected_rate, candidate_rates=LEARNING_RATES,
+            hidden_sizes=self.hidden_sizes, loss="cross_entropy", optimizer="SGD",
+            learning_rate=selected_rate, candidate_rates=self.learning_rates,
             patience=PATIENCE, min_delta=0.0, max_epochs=MAX_EPOCHS,
             batch_size=BATCH_SIZE, seeds=SEEDS,
         )
@@ -253,6 +263,7 @@ def _probabilities(network, preprocessor, data):
 def _train_network(
     training: pd.DataFrame, validation: pd.DataFrame | None,
     label_encoder: LabelEncoder, seed: int, epochs: int, learning_rate: float,
+    *, hidden_sizes: tuple[int, ...] | None = None,
 ) -> tuple[NeuralNetwork, ColumnTransformer, TrainingRecord]:
     """Restore the best checkpoint with validation; otherwise run exactly epochs."""
     preprocessor = make_preprocessor()
@@ -271,7 +282,7 @@ def _train_network(
     # Keep initialisation reproducible without changing the caller's RNG state.
     with torch.random.fork_rng(devices=[]):
         torch.manual_seed(seed)
-        network = NeuralNetwork(x_train.shape[1], len(label_encoder.classes_))
+        network = NeuralNetwork(x_train.shape[1], len(label_encoder.classes_), hidden_sizes)
         # Shuffle paired features and labels into batches with a separately seeded
         # generator, making the batch order reproducible for this run.
         loader = DataLoader(

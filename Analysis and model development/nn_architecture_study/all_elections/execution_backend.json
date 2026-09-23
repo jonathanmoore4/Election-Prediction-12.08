@@ -1,9 +1,0 @@
-{
-  "backend": "Verified DataLoader-equivalent tensor indexing; reference and accelerated caches may coexist.",
-  "reference_runner_sha256": "58c12a8ca0d3d69151a6599aa28160e052cd3e5c3e333d336b7aa7836eed69b5",
-  "accelerated_runner_sha256": "b6f4859ac99aa42619a4e7fca2bccc28a8f814ca37a8116ed2338764768715a0",
-  "batch_loader_sha256": "b3a1fd3b534e99db4203c00a1bf7beb04392693440d5242e0d9b99c1542b15b3",
-  "verification_sha256": "46820e3ad0dde9890972fe682edfa731ae14869b2f96847536cfd7e5a2e42d5b",
-  "torch": "2.14.0+cu130",
-  "timing_note": "Elapsed times mix reference and accelerated batching and are not a controlled performance comparison."
-}

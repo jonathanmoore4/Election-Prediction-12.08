@@ -4,7 +4,7 @@ Constituency identifiers can improve predictive accuracy but may reduce a model'
 
 The project combines historical election results and national polling in an end-to-end Python and SQL pipeline. Candidate classification models are compared using a temporal validation election before the selected model is refitted and evaluated on the 2024 General Election.
 
-The latest saved evaluation in [the pipeline notebook](Analysis%20and%20model%20development/00_run_pipeline.IPYNB) records **69.94% accuracy** across all **632 Great Britain constituencies** in the 2024 test data, with no rows excluded. This is an increase of **14.88 percentage points** from the previously reported **55.06%**.
+The latest saved evaluation in [the pipeline notebook](Analysis%20and%20model%20development/00_pipeline/00_run_pipeline.IPYNB) records **69.94% accuracy** across all **632 Great Britain constituencies** in the 2024 test data, with no rows excluded. This is an increase of **14.88 percentage points** from the previously reported **55.06%**.
 
 ## Motivation
 
@@ -31,6 +31,7 @@ Alongside the research question, the project has been developed as a reproducibl
 
 **Analysis and model development/**
 - Exploratory analysis, baseline modelling, model development and pipeline evaluation.
+- Notebooks 00–04 each have their own numbered directory; neural-network study notebooks are grouped in `05_nn_first_development/`.
 - Notebook 00 records the 2024 pipeline evaluation.
 
 ## Installation and usage
@@ -41,7 +42,7 @@ Install the required dependencies with:
 
 Then start Jupyter from the project root and run:
 
-`Analysis and model development/04_first_pipeline.IPYNB`
+`Analysis and model development/00_pipeline/00_run_pipeline.IPYNB`
 
 The notebook currently calls `run_pipeline()`, which downloads and prepares the data, applies the SQL transformations, trains and selects a model, and returns the fitted model for evaluation against the 2024 results. Running it rewrites the training and test CSVs in TEST_TRAIN/.
 
@@ -116,7 +117,7 @@ The projected shares attempt to combine previous constituency-level support with
 
 ## Evaluation
 
-The model is currently evaluated in `Analysis and model development/04_first_pipeline.IPYNB`.
+The model is currently evaluated in `Analysis and model development/00_pipeline/00_run_pipeline.IPYNB`.
 
 The recorded evaluation achieves **69.94% accuracy** across all **632 Great Britain constituencies** in the 2024 test data, with no rows excluded.
 

@@ -1,5 +1,0 @@
-model,subset,accuracy,changed_seat_accuracy,changed_seats,log_loss,brier_score,rows,unseen_winners,selection_score
-Neural Network — whole-election validation,All labelled rows,0.9018987341772152,0.35526315789473684,76,0.24370383581672622,0.14249094465448156,632,0.0,1.257161892071952
-Previous winner,All labelled rows,0.879746835443038,0.0,76,,,632,,0.879746835443038
-Neural Network — whole-election validation,Complete rows — current selector filter,0.9030206677265501,0.3466666666666667,75,0.238688192149763,0.14093979261767553,629,0.0,1.2496873343932169
-Previous winner,Complete rows — current selector filter,0.8807631160572337,0.0,75,,,629,,0.8807631160572337

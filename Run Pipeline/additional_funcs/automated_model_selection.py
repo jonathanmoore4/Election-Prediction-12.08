@@ -1,4 +1,4 @@
-﻿"""Select using 2019 validation results, then retrain using each model's procedure."""
+"""Select using 2019 validation results, then retrain using each model's procedure."""
 
 from pathlib import Path
 import sys
@@ -11,7 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
-from Models import NN01_model, logistic_regression, random_forest, xgboost_model
+from Models import NN01_model, NN02_model, NN03_model, logistic_regression, random_forest, xgboost_model
 from Models.custom_model import custom_model
 
 
@@ -23,13 +23,13 @@ def automated_model_selection(
     Accept numeric or string election years. Evaluate all models on the same
     complete validation rows because logistic regression does not impute.
     Retain all party classes. Ties favour XGBoost, then random forest, then
-    logistic regression, then neural network. Each trainer applies its own
+    logistic regression, then NN01, NN02 and NN03 in that order. Each trainer applies its own
     missing-data handling.
 
     The winning object receives the entire training dataframe for retraining.
-    The neural network holds out its entire latest election (2019 in the
-    pipeline) for early stopping, searches four learning rates across ten seeds,
-    and retains the ten checkpoints with the best ensemble validation log loss.
+    Each neural network holds out its latest whole election for early stopping
+    across ten seeds. NN01 searches four rates with 32/16 layers; NN02 searches
+    eight rates with 64/32 layers; NN03 uses one 16-unit layer and fixed rate 0.3.
     Keep the prediction election (2024) outside this dataframe.
     Return [fitted_model, model_name], with model_name a readable string,
     without reading files or modifying input data. Print all initial accuracies
@@ -69,6 +69,8 @@ def automated_model_selection(
         random_forest.RandomForestModel(),
         logistic_regression.LogisticRegressionModel(),
         NN01_model.NeuralNetworkModel(),
+        NN02_model.NeuralNetworkModel(),
+        NN03_model.NeuralNetworkModel(),
     ]
     best_model: custom_model | None = None
     best_selection_score = -1.0

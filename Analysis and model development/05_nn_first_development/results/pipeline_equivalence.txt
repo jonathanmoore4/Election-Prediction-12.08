@@ -1,0 +1,1 @@
+NN02 and NN03: first-seed, rate-0.3, 2019 evaluation probabilities and checkpoint epochs exactly reproduce retained study trajectories using the production trainer.

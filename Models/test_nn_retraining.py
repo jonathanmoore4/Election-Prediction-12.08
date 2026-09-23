@@ -9,6 +9,7 @@ import pandas as pd
 import torch
 
 from Models import NN01_model as nn
+from Models import NN02_model, NN03_model
 
 
 def sample_data():
@@ -29,7 +30,8 @@ class NeuralNetworkRetrainingTests(unittest.TestCase):
             checkpoints = {rate: [] for rate in nn.LEARNING_RATES}
             splits = {}
 
-            def train(training, validation, labels, seed, epochs, learning_rate):
+            def train(training, validation, labels, seed, epochs, learning_rate, *, hidden_sizes):
+                self.assertEqual(hidden_sizes, nn.HIDDEN_SIZES)
                 self.assertEqual(set(validation.election), {latest})
                 self.assertEqual(len(validation), 8)
                 self.assertEqual(len(training.loc[training.election == latest]), 0)
@@ -69,6 +71,26 @@ class NeuralNetworkRetrainingTests(unittest.TestCase):
         self.assertEqual(len(model.final_records), 40)
         self.assertEqual(model.selection_learning_rate_summary['log_loss'].idxmin(), 0.1)
         self.assertEqual(model.final_learning_rate_summary['log_loss'].idxmin(), 0.3)
+
+    def test_variants_use_independent_architectures_and_rate_grids(self):
+        data = sample_data()
+        for module, widths, rate_count in [(NN02_model, [64, 32], 8), (NN03_model, [16], 1)]:
+            model = module.NeuralNetworkModel()
+            with patch.object(nn, 'MAX_EPOCHS', 2), patch.object(nn, 'SEEDS', nn.SEEDS[:2]):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    model.train(data.loc[data.election < 2019])
+                    model.retrain(data)
+            self.assertEqual(len(model.training_records), rate_count * 2)
+            self.assertEqual(model.validation_year, 2019)
+            self.assertEqual(model.training_elections, [2015, 2017])
+            self.assertEqual([layer.out_features for layer in model.networks[0].layers if isinstance(layer, torch.nn.Linear)], widths + [5])
+            self.assertEqual(tuple(model.learning_rate_summary.index), module.LEARNING_RATES)
+            best = model.learning_rate_summary.log_loss.idxmin()
+            self.assertEqual(model.selected_learning_rate, best)
+            np.testing.assert_allclose(model.predict_proba(data).sum(axis=1), 1, atol=1e-6)
+        self.assertEqual(nn.NeuralNetworkModel().hidden_sizes, (32, 16))
+        self.assertEqual(nn.NeuralNetworkModel().learning_rates, (0.1, 0.2, 0.3, 0.5))
+        self.assertEqual(len({nn.NeuralNetworkModel().name, NN02_model.NeuralNetworkModel().name, NN03_model.NeuralNetworkModel().name}), 3)
 
     def test_validation_only_party_is_rejected_before_training(self):
         data = sample_data()

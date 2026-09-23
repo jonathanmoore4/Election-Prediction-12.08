@@ -1,0 +1,3 @@
+screening: 672 ensembles, 2016 patience records, policy selection, source-row alignment, accuracy, changed-seat accuracy, log loss and Brier score verified
+confirmation: 672 ensembles, 6720 patience records, policy selection, source-row alignment, accuracy, changed-seat accuracy, log loss and Brier score verified
+Election diagnostics and party totals verified, including missing-history denominators and persistence-gain identity.

@@ -1,0 +1,124 @@
+{
+  "data_sha256": "a7a5f0792357932573fa6eb7601ac6212aea63927a1e95bf7129fce8b341724f",
+  "implementation_sha256": "9fbcc11cf72fed29807a63fdbc50c01a21ecaece2c9e07a8a8aebe8318a6f305",
+  "architectures": {
+    "16": [
+      16
+    ],
+    "32": [
+      32
+    ],
+    "32_16": [
+      32,
+      16
+    ],
+    "64_32": [
+      64,
+      32
+    ]
+  },
+  "rates": [
+    0.01,
+    0.03,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.5,
+    1.0
+  ],
+  "patiences": [
+    10,
+    20,
+    50
+  ],
+  "seeds": [
+    101223,
+    101224,
+    101225,
+    101226,
+    101227,
+    101228,
+    101229,
+    101230,
+    101231,
+    101232
+  ],
+  "windows": [
+    [
+      1987,
+      1992,
+      1997
+    ],
+    [
+      1992,
+      1997,
+      2001
+    ],
+    [
+      1997,
+      2001,
+      2005
+    ],
+    [
+      2001,
+      2005,
+      2010
+    ],
+    [
+      2005,
+      2010,
+      2015
+    ],
+    [
+      2010,
+      2015,
+      2017
+    ],
+    [
+      2015,
+      2017,
+      2019
+    ]
+  ],
+  "classes": [
+    "con",
+    "lab",
+    "lib",
+    "natSW",
+    "oth"
+  ],
+  "max_epochs": 1000,
+  "batch_size": 64,
+  "features": [
+    "country/region",
+    "previous_majority_proportion",
+    "previous_winner",
+    "Conservative",
+    "Labour",
+    "LD",
+    "incumbent",
+    "previous_con_share",
+    "previous_lib_share",
+    "previous_lab_share",
+    "previous_natSW_share",
+    "projected_con_share",
+    "projected_lib_share",
+    "projected_lab_share"
+  ],
+  "optimizer": "SGD",
+  "loss": "cross_entropy",
+  "min_delta": 0.0,
+  "momentum": 0.0,
+  "weight_decay": 0.0,
+  "torch": "2.14.0+cu130",
+  "sklearn": "1.9.1",
+  "numpy": "2.5.3",
+  "python": "3.14.2",
+  "finalist_rule": "All four architectures confirmed with ten seeds; no cross-election shortlist.",
+  "interpretation": "Retrospective development restricted to seven evaluation elections from 1997 through 2019. Derived by filtering saved per-window results and recomputing summaries; not an independent test.",
+  "target_taxonomy": "Fixed five classes. No oth training winners in 1987 or through 1992.",
+  "source_cache_fingerprint": "018a0e80fbc66bd295b345ed25013d443ac42cbb78b51db6445b8645d76c3d29",
+  "input_file": "data/train.csv",
+  "package_configuration_sha256": "efa6d9a574594965305aac362d06a9a56ada661bac909333eaf0192873536ac5"
+}
