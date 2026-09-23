@@ -17,6 +17,12 @@ def clean_2024_results_fun(df):
         ~df["country/region"].isin(["Ireland", "Northern Ireland"])
     ].copy()
 
+    # Use the historical region labels expected by the training data.
+    df["country/region"] = df["country/region"].replace({
+        "East of England": "Eastern",
+        "Yorkshire and The Humber": "Yorkshire and the Humber",
+    })
+
     # Define each party's vote share as party votes divided by valid votes.
     party_vote_columns = {
         "Con": "con_share",

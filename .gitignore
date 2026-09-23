@@ -22,3 +22,6 @@ env/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Resumable neural-network experiment checkpoints (workspace-persistent)
+.nn_study_cache/

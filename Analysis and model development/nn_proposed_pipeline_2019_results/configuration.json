@@ -1,0 +1,76 @@
+{
+  "data_sha256": "a7a5f0792357932573fa6eb7601ac6212aea63927a1e95bf7129fce8b341724f",
+  "training_elections": [
+    1987,
+    1992,
+    1997,
+    2001,
+    2005,
+    2010,
+    2015
+  ],
+  "validation_year": 2017,
+  "evaluation_year": 2019,
+  "selection_metric": "ensemble_validation_log_loss",
+  "hyperparameters": {
+    "hidden_sizes": [
+      32,
+      16
+    ],
+    "loss": "cross_entropy",
+    "optimizer": "SGD",
+    "learning_rate": 0.3,
+    "candidate_rates": [
+      0.1,
+      0.2,
+      0.3,
+      0.5
+    ],
+    "patience": 20,
+    "min_delta": 0.0,
+    "max_epochs": 1000,
+    "batch_size": 64,
+    "seeds": [
+      101223,
+      101224,
+      101225,
+      101226,
+      101227,
+      101228,
+      101229,
+      101230,
+      101231,
+      101232
+    ]
+  },
+  "features": [
+    "country/region",
+    "previous_majority_proportion",
+    "previous_winner",
+    "Conservative",
+    "Labour",
+    "LD",
+    "incumbent",
+    "previous_con_share",
+    "previous_lib_share",
+    "previous_lab_share",
+    "previous_natSW_share",
+    "projected_con_share",
+    "projected_lib_share",
+    "projected_lab_share"
+  ],
+  "classes": [
+    "con",
+    "lab",
+    "lib",
+    "natSW",
+    "oth"
+  ],
+  "versions": {
+    "python": "3.14.2",
+    "torch": "2.14.0+cu130",
+    "sklearn": "1.9.1",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6"
+  }
+}

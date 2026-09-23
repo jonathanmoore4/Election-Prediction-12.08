@@ -27,8 +27,9 @@ def automated_model_selection(
     missing-data handling.
 
     The winning object receives the entire training dataframe for retraining.
-    The neural network holds out half of its latest election (2019 in the
-    pipeline) per seed for early stopping and retains those checkpoints.
+    The neural network holds out its entire latest election (2019 in the
+    pipeline) for early stopping, searches four learning rates across ten seeds,
+    and retains the ten checkpoints with the best ensemble validation log loss.
     Keep the prediction election (2024) outside this dataframe.
     Return [fitted_model, model_name], with model_name a readable string,
     without reading files or modifying input data. Print all initial accuracies

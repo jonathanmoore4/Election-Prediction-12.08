@@ -1,0 +1,26 @@
+[
+  {
+    "name": "existing",
+    "accuracy": 0.7642405063291139,
+    "correct": 483,
+    "changed_accuracy": 0.7966666666666666
+  },
+  {
+    "name": "vote_share_swing",
+    "accuracy": 0.7436708860759493,
+    "correct": 470,
+    "changed_accuracy": 0.5
+  },
+  {
+    "name": "mixed_swing",
+    "accuracy": 0.8449367088607594,
+    "correct": 534,
+    "changed_accuracy": 0.75
+  },
+  {
+    "name": "proportional",
+    "accuracy": 0.8117088607594937,
+    "correct": 513,
+    "changed_accuracy": 0.67
+  }
+]
