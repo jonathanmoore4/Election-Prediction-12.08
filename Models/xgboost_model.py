@@ -1,7 +1,8 @@
-"""Tune XGBoost on pooled election data; nothing runs on import."""
+"""Tune XGBoost with expanding election cross-validation; nothing runs on import."""
 
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
@@ -74,14 +75,31 @@ class _LabelledXGBClassifier(ClassifierMixin, BaseEstimator):
 def train_xgboost(data: pd.DataFrame) -> Pipeline:
     """Return the best fitted Pipeline from the notebook's accuracy grid search.
 
-    Pool all supplied elections and retain all winner classes, including 'oth'.
-    Election is metadata, not a predictor. Rows without a winner are dropped;
-    XGBoost handles missing numeric predictors. Five-fold stratified CV selects
-    parameters, then refits the winner on all labelled rows. Preprocessing is
-    fitted inside each fold. Predictions return original party labels, and
+    Retain all winner classes, including 'oth'. Election is metadata, not a
+    predictor. Rows without a winner are dropped; XGBoost handles missing
+    numeric predictors. Expanding-window CV validates on each supplied election
+    after 2001, training on all earlier elections. Mean accuracy weights each
+    validation election equally. The winner is refitted on all labelled rows.
+    Callers must exclude any held-out elections from data. Preprocessing and
+    target encoding are fitted inside each fold. Predictions return party labels, and
     predict_proba columns follow classes_. The input dataframe is not modified.
     """
     training = data.dropna(subset=["winner"])
+    # These positions index the same labelled rows supplied to search.fit.
+    cv_years = pd.to_numeric(training["election"], errors="raise").to_numpy()
+    if not np.isfinite(cv_years).all():
+        raise ValueError("Every training row must have a valid election year.")
+    validation_years = sorted(year for year in np.unique(cv_years) if year > 2001)
+    election_splits = []
+    for validation_year in validation_years:
+        train_indices = np.flatnonzero(cv_years < validation_year)
+        validation_indices = np.flatnonzero(cv_years == validation_year)
+        if not len(train_indices):
+            raise ValueError(f"No earlier training rows for election {validation_year}.")
+        election_splits.append((train_indices, validation_indices))
+    if len(election_splits) < 2:
+        raise ValueError("At least two validation elections after 2001 are required.")
+
     preprocessing = ColumnTransformer([
         ("categorical", OneHotEncoder(handle_unknown="ignore", sparse_output=False),
          CATEGORICAL_COLUMNS),
@@ -98,7 +116,8 @@ def train_xgboost(data: pd.DataFrame) -> Pipeline:
             "classifier__max_depth": [2, 3, 4, 5],
         },
         scoring="accuracy",
-        cv=5,
+        cv=election_splits,
+        refit=True,
         n_jobs=-1,
         error_score="raise",
     )
