@@ -16,7 +16,7 @@ def clean_historical_fun(df):
         "Yorkshire and The Humber": "Yorkshire and the Humber",
     })
 
-    # Create winner and majority share columns
+    # Create winner and winning-party vote-share columns
     share_columns = ["con_share", "lib_share", "lab_share", "natSW_share", "oth_share"]
     winner_labels = {
         "con_share": "con",
@@ -26,8 +26,8 @@ def clean_historical_fun(df):
         "oth_share": "oth"
     }
 
-    # Calculate the majority proportion for each row
-    df["majority_proportion"] = df[share_columns].max(axis=1)
+    # Calculate the largest party vote share for each row
+    df["winning_party_vote_share"] = df[share_columns].max(axis=1)
 
     # Determine the winner based on the maximum share column
     has_share = df[share_columns].notna().any(axis=1)
@@ -46,7 +46,7 @@ def clean_historical_fun(df):
             "constituency_name",
             "country/region",
             "election",
-            "majority_proportion",
+            "winning_party_vote_share",
             "winner",
             "constituency_id",
             "boundary_set",

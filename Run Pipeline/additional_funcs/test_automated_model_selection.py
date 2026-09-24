@@ -21,7 +21,7 @@ class ChangedSeatAccuracyTests(unittest.TestCase):
         data["election"] = ["2017", "2019", "2019", "2019", "2019"]
         data["winner"] = ["lab", "con", "lab", "con", "lab"]
         data["previous_winner"] = ["lab", *previous_winners]
-        data.loc[4, "Labour"] = None
+        data.loc[4, "lab_polling"] = None
         data.index = [10, 20, 30, 40, 50]
         original = data.copy(deep=True)
         models = [

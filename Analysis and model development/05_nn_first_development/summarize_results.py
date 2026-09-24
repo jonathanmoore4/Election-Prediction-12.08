@@ -45,7 +45,7 @@ def main():
     for cutoff,vy,ey in config['windows']:
         tr = data.loc[data.election<=cutoff]
         ev = data.loc[data.election==ey]
-        for feature in ['Conservative','Labour','LD']:
+        for feature in ['con_polling','lab_polling','lib_polling']:
             minimum,maximum = tr[feature].min(),tr[feature].max()
             value = ev[feature].iloc[0]
             assert ev[feature].nunique() == 1

@@ -12,7 +12,7 @@ Rows with missing previous winners remain in all-seat metrics but are excluded f
 
 | train_through | validation_year | evaluation_year | training_elections | training_rows | evaluation_rows | missing_training_classes | unseen_incumbents | constant_numeric_features | actual_changed_seats | missing_previous_winner | unseen_regions | unseen_region_rows |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1987 | 1992 | 1997 | 1 | 633 | 641 | oth |  | Conservative,Labour,LD | 160 | 91 |  | 0 |
+| 1987 | 1992 | 1997 | 1 | 633 | 641 | oth |  | con_polling,lab_polling,lib_polling | 160 | 91 |  | 0 |
 | 1992 | 1997 | 2001 | 2 | 1267 | 641 | oth | lab |  | 24 | 0 |  | 0 |
 | 1997 | 2001 | 2005 | 3 | 1908 | 628 |  | lab |  | 57 | 0 |  | 0 |
 | 2001 | 2005 | 2010 | 4 | 2549 | 632 |  |  |  | 112 | 0 |  | 0 |
@@ -589,27 +589,27 @@ An out-of-range input identifies extrapolation, not proof that it caused an erro
 
 | evaluation_year | feature | training_min | training_max | evaluation_value | outside_training_range |
 | --- | --- | --- | --- | --- | --- |
-| 1997 | Conservative | 42.69% | 42.69% | 30.91% | True |
-| 1997 | Labour | 34.12% | 34.12% | 49.32% | True |
-| 1997 | LD | 21.47% | 21.47% | 13.42% | True |
-| 2001 | Conservative | 37.73% | 42.69% | 31.43% | True |
-| 2001 | Labour | 34.12% | 39.03% | 44.86% | True |
-| 2001 | LD | 19.47% | 21.47% | 17.67% | True |
-| 2005 | Conservative | 30.91% | 42.69% | 32.62% | False |
-| 2005 | Labour | 34.12% | 49.32% | 37.50% | False |
-| 2005 | LD | 13.42% | 21.47% | 22.75% | True |
-| 2010 | Conservative | 30.91% | 42.69% | 35.77% | False |
-| 2010 | Labour | 34.12% | 49.32% | 28.08% | True |
-| 2010 | LD | 13.42% | 21.47% | 27.00% | True |
-| 2015 | Conservative | 30.91% | 42.69% | 33.58% | False |
-| 2015 | Labour | 34.12% | 49.32% | 33.37% | True |
-| 2015 | LD | 13.42% | 22.75% | 9.21% | True |
-| 2017 | Conservative | 30.91% | 42.69% | 42.87% | True |
-| 2017 | Labour | 28.08% | 49.32% | 36.80% | False |
-| 2017 | LD | 13.42% | 27.00% | 7.73% | True |
-| 2019 | Conservative | 30.91% | 42.69% | 43.10% | True |
-| 2019 | Labour | 28.08% | 49.32% | 33.24% | False |
-| 2019 | LD | 9.21% | 27.00% | 12.01% | False |
+| 1997 | con_polling | 42.69% | 42.69% | 30.91% | True |
+| 1997 | lab_polling | 34.12% | 34.12% | 49.32% | True |
+| 1997 | lib_polling | 21.47% | 21.47% | 13.42% | True |
+| 2001 | con_polling | 37.73% | 42.69% | 31.43% | True |
+| 2001 | lab_polling | 34.12% | 39.03% | 44.86% | True |
+| 2001 | lib_polling | 19.47% | 21.47% | 17.67% | True |
+| 2005 | con_polling | 30.91% | 42.69% | 32.62% | False |
+| 2005 | lab_polling | 34.12% | 49.32% | 37.50% | False |
+| 2005 | lib_polling | 13.42% | 21.47% | 22.75% | True |
+| 2010 | con_polling | 30.91% | 42.69% | 35.77% | False |
+| 2010 | lab_polling | 34.12% | 49.32% | 28.08% | True |
+| 2010 | lib_polling | 13.42% | 21.47% | 27.00% | True |
+| 2015 | con_polling | 30.91% | 42.69% | 33.58% | False |
+| 2015 | lab_polling | 34.12% | 49.32% | 33.37% | True |
+| 2015 | lib_polling | 13.42% | 22.75% | 9.21% | True |
+| 2017 | con_polling | 30.91% | 42.69% | 42.87% | True |
+| 2017 | lab_polling | 28.08% | 49.32% | 36.80% | False |
+| 2017 | lib_polling | 13.42% | 27.00% | 7.73% | True |
+| 2019 | con_polling | 30.91% | 42.69% | 43.10% | True |
+| 2019 | lab_polling | 28.08% | 49.32% | 33.24% | False |
+| 2019 | lib_polling | 9.21% | 27.00% | 12.01% | False |
 
 
 ## Learning-rate sensitivity

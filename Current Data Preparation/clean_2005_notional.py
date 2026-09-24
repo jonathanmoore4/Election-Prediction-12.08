@@ -55,7 +55,7 @@ def clean_2005_notional_fun(df, historical_df):
         "natSW_share": "natSW",
     }
     df["winner"] = df[share_columns].idxmax(axis=1).map(winner_labels)
-    df["majority_proportion"] = df[share_columns].max(axis=1)
+    df["winning_party_vote_share"] = df[share_columns].max(axis=1)
 
     # Keep only the columns needed for analysis
     df = df[
@@ -63,7 +63,7 @@ def clean_2005_notional_fun(df, historical_df):
             "constituency_name",
             "country/region",
             "election",
-            "majority_proportion",
+            "winning_party_vote_share",
             "winner",
             "constituency_id",
             "boundary_set",

@@ -1,6 +1,6 @@
 # Can UK general election results be predicted without using constituency identities?
 
-Constituency identifiers can improve predictive accuracy but may reduce a model's ability to generalise across future boundary reviews and changing electoral landscapes. This project investigates whether the outcome of the 2024 UK general election can instead be predicted using only features that remain meaningful across elections, including the previous winning party, previous majority proportion, national polling, the incumbent government, and the constituency's country or region.
+Constituency identifiers can improve predictive accuracy but may reduce a model's ability to generalise across future boundary reviews and changing electoral landscapes. This project investigates whether the outcome of the 2024 UK general election can instead be predicted using only features that remain meaningful across elections, including the previous winning party, previous winning party’s vote share, national polling, the incumbent government, and the constituency's country or region.
 
 The project combines historical election results and national polling in an end-to-end Python and SQL pipeline. Candidate classification models are compared using a temporal validation election before the selected model is refitted and evaluated on the 2024 General Election. The candidates include logistic regression, random forest, XGBoost and three neural-network variants.
 
@@ -73,7 +73,7 @@ Each row represents a Great Britain constituency at an election; Northern Irelan
 
 The target groups winning parties into Conservative (`con`), Labour (`lab`), Liberal Democrat (`lib`), SNP/Plaid Cymru (`natSW`) and Other (`oth`). Constituency identifiers support joins and reporting but are not predictors; election year controls data splitting rather than serving as a predictor.
 
-The shared predictors include country/region, previous winning party and majority proportion, previous party vote shares, Conservative/Labour/Liberal Democrat national polling, the governing party and three projected party shares.
+The shared predictors include country/region, previous winning party and its last-election vote share, previous party vote shares, Conservative/Labour/Liberal Democrat national polling (`con_polling`, `lab_polling`, `lib_polling`), the governing party and three projected party shares.
 
 The SQL currently calculates each projected share as:
 

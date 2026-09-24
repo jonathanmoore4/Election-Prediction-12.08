@@ -47,11 +47,11 @@ def clean_2024_results_fun(df):
 
     df = df.drop(columns=["SNP_share", "PC_share"])
 
-    # Define majority proportion as the largest party vote share.
+    # Define winning-party vote share as the largest party vote share.
     share_columns = [
         column for column in party_vote_columns.values() if column not in ["SNP_share", "PC_share"]
     ] + ["natSW_share"]
-    df["majority_proportion"] = df[share_columns].max(axis=1)
+    df["winning_party_vote_share"] = df[share_columns].max(axis=1)
 
     # Add election year for all 2024 results
     df["election"] = "2024"
@@ -85,7 +85,7 @@ def clean_2024_results_fun(df):
             "constituency_name",
             "country/region",
             "election",
-            "majority_proportion",
+            "winning_party_vote_share",
             "winner",
             "constituency_id",
             "boundary_set",

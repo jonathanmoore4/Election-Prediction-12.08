@@ -2,7 +2,12 @@ import pandas as pd
 
 
 def clean_polling_fun(df):
-    df = df[["Date", "Conservative", "Labour", "LD"]]
+    # Keep the source schema at ingestion; expose consistent polling feature names.
+    df = df[["Date", "Conservative", "Labour", "LD"]].rename(columns={
+        "Conservative": "con_polling",
+        "Labour": "lab_polling",
+        "LD": "lib_polling",
+    })
 
     df = df[df["Date"].shift(-1).eq("GE")].copy()
 
@@ -23,7 +28,7 @@ def clean_polling_fun(df):
     }
 
     df["incumbent"] = df["Date"].map(incumbent_by_year)
-    df[["Conservative", "Labour", "LD"]] = df[["Conservative", "Labour", "LD"]] / 100
+    df[["con_polling", "lab_polling", "lib_polling"]] = df[["con_polling", "lab_polling", "lib_polling"]] / 100
 
     return df
 

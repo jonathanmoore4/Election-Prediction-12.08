@@ -3,14 +3,14 @@
 -- A view is a saved query over the source tables, rather than a copied table.
 CREATE OR REPLACE VIEW actual_results AS
 -- Keep constituency details, election metadata, winner, and party vote shares.
--- majority_proportion is the winning vote share calculated by the cleaners,
+-- winning_party_vote_share is the winning vote share calculated by the cleaners,
 -- not the winning party's lead over the runner-up.
 -- previous_election identifies the actual or notional comparison to use later.
 SELECT
     constituency_name,
     "country/region",
     election,
-    majority_proportion,
+    winning_party_vote_share,
     winner,
     constituency_id,
     boundary_set,
@@ -28,7 +28,7 @@ SELECT
     constituency_name,
     "country/region",
     election,
-    majority_proportion,
+    winning_party_vote_share,
     winner,
     constituency_id,
     boundary_set,
@@ -47,7 +47,7 @@ FROM results_2024;
 CREATE OR REPLACE VIEW previous_result_lookup AS
 SELECT
     election,
-    majority_proportion,
+    winning_party_vote_share,
     winner,
     constituency_id,
     con_share,
@@ -60,21 +60,21 @@ FROM actual_results
 -- Add 1992 votes on 1997-2001 boundaries for comparison with 1997.
 -- A typed NULL fills the ID position without inventing a constituency ID.
 UNION ALL
-SELECT election, majority_proportion, winner, CAST(NULL AS VARCHAR) AS constituency_id,
+SELECT election, winning_party_vote_share, winner, CAST(NULL AS VARCHAR) AS constituency_id,
        con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
 FROM notional_1992
 -- Add 2001 votes expressed on 2005 boundaries for comparison with 2005.
 UNION ALL
-SELECT election, majority_proportion, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
+SELECT election, winning_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
 FROM notional_2001
 -- Add 2005 notional votes for comparison with the 2010 election.
 UNION ALL
-SELECT election, majority_proportion, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
+SELECT election, winning_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
 FROM notional_2005
 -- Add 2019 votes expressed on the new boundaries for comparison with 2024.
 -- Each notional SELECT also replaces missing nationalist shares with zero.
 UNION ALL
-SELECT election, majority_proportion, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
+SELECT election, winning_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
 FROM notional_2019;
 
 -- Step 3: attach the selected previous election's results to each actual result.
@@ -84,7 +84,7 @@ SELECT
     current_results.constituency_name,
     current_results."country/region",
     current_results.election,
-    current_results.majority_proportion,
+    current_results.winning_party_vote_share,
     current_results.winner,
     current_results.constituency_id,
     current_results.boundary_set,
@@ -96,7 +96,7 @@ SELECT
     current_results.previous_election,
     -- Prefix the matched comparison fields with previous_ to distinguish them
     -- from the current result. No vote-share changes are calculated here.
-    previous_results.majority_proportion AS previous_majority_proportion,
+    previous_results.winning_party_vote_share AS previous_winning_party_last_election_vote_share,
     previous_results.winner AS previous_winner,
     previous_results.con_share AS previous_con_share,
     previous_results.lib_share AS previous_lib_share,

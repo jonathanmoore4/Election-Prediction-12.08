@@ -17,11 +17,11 @@ from xgboost import XGBClassifier
 
 FEATURE_COLUMNS = [
     "country/region",
-    "previous_majority_proportion",
+    "previous_winning_party_last_election_vote_share",
     "previous_winner",
-    "Conservative",
-    "Labour",
-    "LD",
+    "con_polling",
+    "lab_polling",
+    "lib_polling",
     "incumbent",
     "previous_con_share",
     "previous_lib_share",

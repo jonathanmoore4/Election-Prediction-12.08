@@ -1,5 +1,5 @@
 train_through,validation_year,evaluation_year,training_elections,training_rows,evaluation_rows,missing_training_classes,unseen_incumbents,constant_numeric_features,actual_changed_seats,missing_previous_winner,unseen_regions,unseen_region_rows
-1987,1992,1997,1,633,641,oth,,"Conservative,Labour,LD",160,91,,0
+1987,1992,1997,1,633,641,oth,,"con_polling,lab_polling,lib_polling",160,91,,0
 1992,1997,2001,2,1267,641,oth,lab,,24,0,,0
 1997,2001,2005,3,1908,628,,lab,,57,0,,0
 2001,2005,2010,4,2549,632,,,,112,0,,0
