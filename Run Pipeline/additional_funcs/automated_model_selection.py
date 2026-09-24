@@ -12,6 +12,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
 from Models import NN01_model, NN02_model, NN03_model, logistic_regression, random_forest, xgboost_model
+from Models import xgboost_expanded_model
 from Models.custom_model import custom_model
 
 
@@ -23,7 +24,7 @@ def automated_model_selection(
     Accept numeric or string election years. Evaluate all models on the same
     complete validation rows because logistic regression does not impute.
     Retain all party classes. Ties favour XGBoost, then random forest, then
-    logistic regression, then NN01, NN02 and NN03 in that order. Each trainer applies its own
+    logistic regression, then NN01, NN02, NN03 and XGBoost Expanded in that order. Each trainer applies its own
     missing-data handling.
 
     The winning object receives the entire training dataframe for retraining.
@@ -40,7 +41,10 @@ def automated_model_selection(
     changed-seat subset has accuracy None; selection then uses overall accuracy.
     """
     feature_columns = logistic_regression.FEATURE_COLUMNS
-    required_columns = ["election", "winner", "previous_winner"] + feature_columns
+    required_columns = list(dict.fromkeys(
+        ["election", "winner", "previous_winner"]
+        + feature_columns + xgboost_expanded_model.FEATURE_COLUMNS
+    ))
     missing_columns = [column for column in required_columns if column not in data.columns]
     if missing_columns:
         raise ValueError(f"Data is missing required columns: {missing_columns}")
@@ -71,6 +75,7 @@ def automated_model_selection(
         NN01_model.NeuralNetworkModel(),
         NN02_model.NeuralNetworkModel(),
         NN03_model.NeuralNetworkModel(),
+        xgboost_expanded_model.XGBoostExpandedModel(),
     ]
     best_model: custom_model | None = None
     best_selection_score = -1.0

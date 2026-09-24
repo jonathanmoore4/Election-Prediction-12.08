@@ -10,6 +10,21 @@ def clean_historical_fun(df):
     # Remove constituencies in Ireland and Northern Ireland
     df = df[~df["country/region"].isin(["Ireland", "Northern Ireland"])].copy()
 
+    # National shares use vote totals across the retained constituencies only.
+    parties = ["con", "lab", "lib", "natSW", "oth"]
+    vote_columns = [f"{party}_votes" for party in parties]
+    # Space-only entries in the source CSV can make entire vote columns text.
+    # Preserve blanks as missing and reject unexpected nonnumeric values.
+    count_columns = vote_columns + ["total_votes"]
+    df[count_columns] = df[count_columns].replace(r"^\s*$", pd.NA, regex=True).apply(
+        pd.to_numeric, errors="raise"
+    )
+    national_totals = df.groupby("election")[count_columns].transform("sum", min_count=1)
+    denominator = national_totals["total_votes"].where(national_totals["total_votes"].ne(0))
+    national_share_columns = [f"{party}_national_vote_share" for party in parties]
+    for party, column in zip(parties, national_share_columns):
+        df[column] = national_totals[f"{party}_votes"] / denominator
+
     # Standardise Yorkshire and the Humber region labels.
     df["country/region"] = df["country/region"].replace({
         "Yorkshire & The Humber": "Yorkshire and the Humber",
@@ -60,7 +75,8 @@ def clean_historical_fun(df):
             "con_share",
             "lib_share",
             "lab_share",
-            "natSW_share"
+            "natSW_share",
+            *national_share_columns,
         ]
     ]
 

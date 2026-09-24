@@ -16,6 +16,11 @@ SELECT
     lib_share,
     lab_share,
     natSW_share,
+    con_national_vote_share,
+    lab_national_vote_share,
+    lib_national_vote_share,
+    natSW_national_vote_share,
+    oth_national_vote_share,
     CAST(previous_election AS VARCHAR) AS previous_election
 FROM input_historical;
 

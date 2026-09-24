@@ -33,21 +33,23 @@ Training includes XGBoost grid search and neural-network ensembles, so a full ru
 
 ## Outputs
 
-The pipeline notebook and all CSVs it generates share one directory:
+Train and test CSVs are saved only in `TEST_TRAIN/`. Model accuracies are saved alongside the pipeline notebook:
 
 ```text
-Analysis and model development/00_pipeline/
-├── 00_run_pipeline.IPYNB
+TEST_TRAIN/
 ├── train.csv
 ├── test.csv
+└── predictor_descriptions.md
+Analysis and model development/00_pipeline/
+├── 00_run_pipeline.IPYNB
 └── model_accuracies.csv
 ```
 
-The CSVs are created or overwritten when the notebook runs. `model_accuracies.csv` records each candidate's initial 2019 accuracy, changed-seat accuracy, evaluation row counts and combined selection score. These are validation results before retraining, not 2024 test scores. Accuracies are stored as fractions.
+The CSVs and `TEST_TRAIN/predictor_descriptions.md` are created or overwritten when the notebook runs. The guide describes every exported column, distinguishes predictors from outcomes and metadata, and documents units and missing values. `model_accuracies.csv` records each candidate's initial 2019 accuracy, changed-seat accuracy, evaluation row counts and combined selection score. These are validation results before retraining, not 2024 test scores. Accuracies are stored as fractions.
 
 The fitted model remains in memory; the confusion matrix and printed test results appear in the notebook. No model file or separate plot file is currently exported. Save the notebook to retain its displayed outputs.
 
-For Python callers, `run_pipeline(output_dir=...)` accepts a custom output directory and returns `[fitted_model, model_name]`. Calling `run_pipeline()` without an argument retains the existing `TEST_TRAIN/` destination. Relative output paths are resolved against the caller's working directory. Existing files in `TEST_TRAIN/` are not refreshed by the notebook.
+For Python callers, `run_pipeline(output_dir=...)` controls the model accuracy output directory and returns `[fitted_model, model_name]`. Train and test always go to the project's `TEST_TRAIN/` directory. Without an argument, model accuracies also go to `TEST_TRAIN/`. Relative score output paths are resolved against the caller's working directory.
 
 ## Repository guide
 

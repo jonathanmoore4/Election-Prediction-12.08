@@ -80,6 +80,14 @@ UNION ALL
 SELECT election, winning_party_vote_share, second_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
 FROM notional_2019;
 
+-- National shares are independent of constituency boundaries. One row per
+-- actual election also prevents the national joins from multiplying rows.
+CREATE OR REPLACE VIEW national_result_lookup AS
+SELECT DISTINCT election,
+    con_national_vote_share, lab_national_vote_share, lib_national_vote_share,
+    natSW_national_vote_share, oth_national_vote_share
+FROM historical;
+
 -- Step 3: attach the selected previous election's results to each actual result.
 CREATE OR REPLACE VIEW with_previous_results AS
 SELECT
@@ -98,6 +106,17 @@ SELECT
     current_results.lab_share,
     current_results.natSW_share,
     current_results.previous_election,
+    current_national.con_national_vote_share,
+    previous_national.con_national_vote_share AS previous_con_national_vote_share,
+    current_national.lab_national_vote_share,
+    previous_national.lab_national_vote_share AS previous_lab_national_vote_share,
+    current_national.lib_national_vote_share,
+    previous_national.lib_national_vote_share AS previous_lib_national_vote_share,
+    current_national.natSW_national_vote_share,
+    previous_national.natSW_national_vote_share AS previous_natSW_national_vote_share,
+    current_national.oth_national_vote_share,
+    previous_national.oth_national_vote_share AS previous_oth_national_vote_share,
+
     -- Prefix the matched comparison fields with previous_ to distinguish them
     -- from the current result. No vote-share changes are calculated here.
     previous_results.winning_party_vote_share AS previous_winning_party_last_election_vote_share,
@@ -132,6 +151,11 @@ LEFT JOIN previous_result_lookup AS previous_results
             AND current_results.constituency_id = previous_results.constituency_id
         )
     )
+-- Use the actual election's national shares even for notional comparisons.
+LEFT JOIN national_result_lookup AS current_national
+    ON current_results.election = current_national.election
+LEFT JOIN national_result_lookup AS previous_national
+    ON REPLACE(current_results.previous_election, '_notional', '') = previous_national.election
 -- Keep 1983 in actual_results and previous_result_lookup for 1987 comparisons,
 -- but exclude it as a current election from downstream features and model data.
 WHERE current_results.election <> '1983';

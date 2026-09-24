@@ -17,16 +17,20 @@ for import_path in (
 from automated_model_selection import automated_model_selection
 from clean_data_all import clean_all_data
 from read_in_raw import read_raw_data
+from predictor_guide import write_predictor_guide
 from SQL.apply_SQL_queries import apply_sql_queries
 
 
 def run_pipeline(output_dir: str | Path | None = None):
-    """Run the workflow, saving all CSVs in output_dir (default: TEST_TRAIN).
+    """Run the workflow, saving train/test CSVs only in PROJECT_ROOT/TEST_TRAIN.
 
-    Relative output paths are resolved from the caller's working directory.
+    output_dir controls model scores only (default: TEST_TRAIN).
+    Relative score output paths are resolved from the caller's working directory.
     Returns [fitted_model, model_name].
     """
-    output_dir = Path(output_dir) if output_dir is not None else PROJECT_ROOT / "TEST_TRAIN"
+    train_test_dir = PROJECT_ROOT / "TEST_TRAIN"
+    train_test_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(output_dir) if output_dir is not None else train_test_dir
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Read the configured internet sources and checksum-verified local inputs.
@@ -38,8 +42,9 @@ def run_pipeline(output_dir: str | Path | None = None):
     # Run the SQL feature-building files and write the train/test CSV files.
     train_test_data = apply_sql_queries(cleaned_data)
 
-    train_test_data["train"].to_csv(output_dir / "train.csv", index=False)
-    train_test_data["test"].to_csv(output_dir / "test.csv", index=False)
+    train_test_data["train"].to_csv(train_test_dir / "train.csv", index=False)
+    train_test_data["test"].to_csv(train_test_dir / "test.csv", index=False)
+    write_predictor_guide(train_test_data, train_test_dir / "predictor_descriptions.md")
 
     trained_model = automated_model_selection(
         train_test_data["train"], scores_path=output_dir / "model_accuracies.csv",
