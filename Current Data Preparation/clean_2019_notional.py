@@ -69,6 +69,11 @@ def clean_2019_notional_fun(df):
     df["winner"] = df[share_columns].idxmax(axis=1).map(winner_labels)
 
     df["winning_party_vote_share"] = df[share_columns].max(axis=1)
+    # Rank the same party categories; ties count as separate places.
+    df["second_party_vote_share"] = df[share_columns].apply(
+        lambda shares: shares.nlargest(2).iloc[-1] if shares.count() >= 2 else float("nan"),
+        axis=1,
+    )
 
     # Keep only the columns needed for analysis.
     df = df[
@@ -77,6 +82,7 @@ def clean_2019_notional_fun(df):
             "country/region",
             "election",
             "winning_party_vote_share",
+            "second_party_vote_share",
             "winner",
             "constituency_id",
             "boundary_set",

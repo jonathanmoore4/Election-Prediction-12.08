@@ -35,6 +35,9 @@ def clean_1992_notional_fun(df):
     # Ties use the first party above, matching the notebook's behaviour.
     df["winner"] = votes.idxmax(axis=1).map(party_labels)
     df["winning_party_vote_share"] = (votes.max(axis=1) / denominator).fillna(0)
+    # Use the same party categories and zero-total convention as the winning share.
+    second_votes = votes.apply(lambda row: row.nlargest(2).iloc[-1], axis=1)
+    df["second_party_vote_share"] = (second_votes / denominator).fillna(0)
 
     for party, column in {
         "con": "CON 92", "lib": "LD 92", "lab": "LAB 92", "natSW": "NAT 92",

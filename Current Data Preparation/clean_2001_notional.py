@@ -41,6 +41,7 @@ def clean_2001_notional_fun(df, scottish_boundary_changes_df):
         )
     }
 
+    # Keep the historical winning and second-party shares on the remapped rows.
     # Keep only the 2001 general election rows.
     df = df[df["election"] == "2001"].copy()
 

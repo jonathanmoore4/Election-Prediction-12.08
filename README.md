@@ -137,3 +137,11 @@ These cover source loading, model selection and neural-network training/retraini
 | 1992 notional results | Rallings and Thrasher BBC Media Guide | Previous-election information across boundary changes |
 | Historical national polling | Mark Pack's PollBase | Pre-election Conservative, Labour and Liberal Democrat polling |
 | Scottish boundary changes | Electoral Calculus | Approximate mapping across the 2005 Scottish boundary changes |
+
+### Second-party vote shares
+
+The election cleaners calculate `second_party_vote_share` as the second-highest available share among the same party categories used for `winning_party_vote_share`. Ties occupy separate ranking positions. Historical and 1992 notional results include the aggregate other-party category; the 2005 and 2019 notional cleaners use their existing four main-party categories, while 2024 uses its broader party list. This therefore measures the second-ranked available category, which may differ from an individual runner-up candidate. The 2001 notional data retains the historical share when remapping constituencies.
+
+Fewer than two non-missing shares give a missing second share. The 1992 cleaner retains its existing convention of treating missing votes and zero-total shares as zero. SQL carries the feature into the final datasets and joins the matched actual or notional comparison as `previous_second_party_last_election_vote_share`; an unmatched previous result remains missing. Regenerate the train/test CSVs through the pipeline to populate these new columns. Current-election shares are outcome information; only the previous-election feature is suitable as a pre-election predictor. Existing model feature lists are unchanged.
+
+SQL step `5_further_feature_engineering.sql` adds `previous_margin_1st_2nd` as `previous_winning_party_last_election_vote_share - previous_second_party_last_election_vote_share`. The margin uses the same proportion scale as the shares and remains missing if either share is missing. Step `6_reading_into_testtrain.sql` then splits the enriched data into training elections and the 2024 test election.

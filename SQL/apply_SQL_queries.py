@@ -9,7 +9,8 @@ SQL_FILES = [
     SQL_DIR / "2_adding_previous_elections.sql",
     SQL_DIR / "3_add_polling.sql",
     SQL_DIR / "4_projected_polling.sql",
-    SQL_DIR / "5_reading_into_testtrain.sql",
+    SQL_DIR / "5_further_feature_engineering.sql",
+    SQL_DIR / "6_reading_into_testtrain.sql",
 ]
 
 

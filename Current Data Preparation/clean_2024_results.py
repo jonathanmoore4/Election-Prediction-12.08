@@ -52,6 +52,11 @@ def clean_2024_results_fun(df):
         column for column in party_vote_columns.values() if column not in ["SNP_share", "PC_share"]
     ] + ["natSW_share"]
     df["winning_party_vote_share"] = df[share_columns].max(axis=1)
+    # Rank the same party categories; ties count as separate places.
+    df["second_party_vote_share"] = df[share_columns].apply(
+        lambda shares: shares.nlargest(2).iloc[-1] if shares.count() >= 2 else float("nan"),
+        axis=1,
+    )
 
     # Add election year for all 2024 results
     df["election"] = "2024"
@@ -86,6 +91,7 @@ def clean_2024_results_fun(df):
             "country/region",
             "election",
             "winning_party_vote_share",
+            "second_party_vote_share",
             "winner",
             "constituency_id",
             "boundary_set",
