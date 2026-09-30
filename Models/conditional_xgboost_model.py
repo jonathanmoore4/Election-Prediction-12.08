@@ -14,6 +14,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from xgboost import XGBClassifier
 
 from Models.custom_model import custom_model
+from Models.missing_data import ElectionImputer
 
 PARTIES = ('con', 'lib', 'lab', 'natSW', 'oth')
 ROLES = ('incumbent', 'contesting_party', 'third_party', 'fourth_party', 'fifth_party')
@@ -36,6 +37,8 @@ class RoleMapper:
     """Impute ranking inputs before assigning all five parties to unique roles."""
 
     def fit(self, data):
+        self.imputer = ElectionImputer().fit(data)
+        data = self.imputer.transform(data)
         self.shares = SimpleImputer(strategy='median', keep_empty_features=True)
         self.shares.fit(data[PREVIOUS_COLUMNS])
         counts = data.previous_winner.dropna().value_counts()
@@ -45,7 +48,7 @@ class RoleMapper:
         return self
 
     def transform(self, data):
-        frame = data[FEATURE_COLUMNS].copy().reset_index(drop=True)
+        frame = self.imputer.transform(data)[FEATURE_COLUMNS].copy().reset_index(drop=True)
         frame['previous_winner'] = frame.previous_winner.fillna(self.previous_winner)
         incumbent = pd.Index(PARTIES).get_indexer(frame.previous_winner)
         if (incumbent < 0).any():
@@ -133,7 +136,7 @@ class Stage:
 class ConditionalXGBoostModel(custom_model):
     """One candidate: P(hold) for incumbent, P(change) × P(role | change) otherwise.
 
-    Missing previous winners use the training mode. Missing ranking shares use
+    Missing previous winners use the preceding election's majority class. Missing ranking shares use
     training medians (zero for an entirely missing column, as in NN01). No
     prediction rows are filtered. Unlabelled training rows cannot supply targets.
     Retraining repeats both independent searches on the newly supplied elections.

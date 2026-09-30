@@ -163,7 +163,7 @@ Expanding election folds are weighted equally by accuracy; ties retain grid orde
 Unlike the notebook's eligibility filter, prediction retains every input row.
 Named challengers are ranked by previous shares; `oth` is always last unless it
 is incumbent, in which case all four named parties are challengers. Missing
-previous winners use the training mode; missing ranking shares use training
+previous winners use the preceding available election's majority winner class; missing ranking shares use training
 medians. Numeric role features use median imputation and standardisation;
 categories use a missing marker and one-hot encoding with unknowns ignored,
 following NN01. Entirely missing numeric columns use zero. All mapping and
@@ -174,11 +174,27 @@ Single-class stages produce constant probabilities; destination folds without
 training or validation changes are skipped. If no destination fold is usable,
 the first grid configuration is used and its validation score remains unavailable.
 
-The existing common complete-row sample remains in use for candidate comparison.
-When Conditional XGBoost wins, the pipeline notebook predicts all test rows and
-scores those with known winners. Run focused checks with:
+All candidates are compared on every validation row with a known winner.
+The pipeline notebook predicts all test rows and scores those with known winners. Run focused checks with:
 
 ```bash
 python -m unittest Models.test_conditional_xgboost
 python -m unittest discover -s "Run Pipeline/additional_funcs" -p "test_automated_model_selection.py"
 ```
+
+### Missing predictors after SQL
+
+All model families now apply `Models/missing_data.py` during fitting, after SQL
+joins. Missing previous winners use the party with the most wins in the preceding
+available training election (ties use sorted party order). For the earliest
+training election, the known previous-winner mode for that election is used,
+with the pooled previous-winner mode as a last resort. Prediction outcomes are
+never read. For neural networks, the holdout election's winner distribution is
+registered only after model selection, for forecasting later elections.
+
+Missing numeric inputs, including `previous_lib_share` and `projected_lib_share`,
+use medians fitted on training rows inside each validation fold. Entirely missing
+numeric columns use zero. Other missing categories receive a missing marker.
+The raw CSVs and SQL are unchanged. Election year is required as prediction
+metadata; it is not passed to the estimator as a predictor. Only missing winners
+are excluded from accuracy scoring; missing predictors no longer remove rows.

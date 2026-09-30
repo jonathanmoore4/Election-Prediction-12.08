@@ -61,8 +61,8 @@ class ConditionalTests(unittest.TestCase):
             self.assertEqual(fits, [[2010], [2010, 2015]])
             model.retrain(data)
         self.assertEqual(fits[-3:], [[2010], [2010, 2015], [2010, 2015, 2017]])
-        predict_data = data.drop(columns=['winner', 'election']).copy()
-        predict_data.loc[predict_data.index[:2], :] = np.nan
+        predict_data = data.drop(columns=['winner']).copy()
+        predict_data.loc[predict_data.index[:2], conditional.FEATURE_COLUMNS] = np.nan
         predict_data.loc[predict_data.index[2], 'country/region'] = 'unseen'
         probabilities = model.predict_proba(predict_data)
         self.assertEqual(probabilities.shape, (30, 5))

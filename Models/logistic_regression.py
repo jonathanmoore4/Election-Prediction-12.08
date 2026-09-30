@@ -2,15 +2,18 @@
 
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
 from Models.custom_model import custom_model
+from Models.missing_data import ElectionImputer
 
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
+from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 
 FEATURE_COLUMNS = [
     "country/region",
@@ -34,36 +37,55 @@ NUMERIC_COLUMNS = [
 ]
 
 
+def normalise_predictors(data: pd.DataFrame) -> pd.DataFrame:
+    """Normalise SQL/CSV dtypes before fitting or applying missing-value fills."""
+    result = data.copy()
+    for column in NUMERIC_COLUMNS:
+        values = pd.to_numeric(result[column], errors="raise").astype(float)
+        result[column] = values.replace([np.inf, -np.inf], np.nan)
+    for column in CATEGORICAL_COLUMNS:
+        values = result[column].astype(object)
+        result[column] = values.where(values.notna(), np.nan)
+    return result
+
+
 def filter_logistic_regression_data(data: pd.DataFrame) -> pd.DataFrame:
-    """Keep complete rows without 'oth' in winner or previous_winner."""
+    """Keep labelled rows without 'oth' in winner or previous_winner."""
     # Modelling rationale: 'oth' observations are highly influential, so remove
     # rows where either the current winner or previous winner is 'oth'.
     eligible = data.loc[~data[["winner", "previous_winner"]].eq("oth").any(axis=1)]
-    return eligible.dropna(subset=FEATURE_COLUMNS + ["winner"]).copy()
+    return eligible.dropna(subset=["winner"]).copy()
 
 
 def train_logistic_regression(data: pd.DataFrame) -> Pipeline:
     """Return a fitted Pipeline excluding 'oth' outcomes and previous winners.
 
     Pool all supplied elections, excluding election itself as a predictor.
-    Drop rows with 'oth' in winner or previous_winner, or missing a predictor
-    or winner, without imputing values.
+    Drop rows with 'oth' in winner or previous_winner, or missing a winner.
+    Impute missing predictors using training-fitted values after SQL.
     The numeric predictors are considered approximately linear in the log odds,
     so no major issues with this assumption are expected. This assumption does
     not apply to categorical predictors, which are one-hot encoded.
-    Numeric predictors are scaled to help convergence. Prediction data must
-    also have complete predictors. The input dataframe is not modified.
+    Numeric predictors are scaled to help convergence. Prediction data may contain missing predictors. The input dataframe is not modified.
     """
     training = filter_logistic_regression_data(data)
     preprocessing = ColumnTransformer([
-        ("categorical", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_COLUMNS),
-        ("numeric", StandardScaler(), NUMERIC_COLUMNS),
+        ("categorical", Pipeline([
+            ("impute", SimpleImputer(strategy="constant", fill_value="__MISSING__", keep_empty_features=True)),
+            ("encode", OneHotEncoder(handle_unknown="ignore")),
+        ]), CATEGORICAL_COLUMNS),
+        ("numeric", Pipeline([
+            ("impute", SimpleImputer(strategy="median", keep_empty_features=True)),
+            ("scale", StandardScaler()),
+        ]), NUMERIC_COLUMNS),
     ])
     model = Pipeline([
+        ("normalise", FunctionTransformer(normalise_predictors, validate=False)),
+        ("missing_data", ElectionImputer()),
         ("preprocessing", preprocessing),
         ("classifier", LogisticRegression(solver="lbfgs", max_iter=1000)),
     ])
-    model.fit(training[FEATURE_COLUMNS], training["winner"])
+    model.fit(training[FEATURE_COLUMNS + ["election"]], training["winner"])
     return model
 
 
@@ -82,4 +104,4 @@ class LogisticRegressionModel(custom_model):
         """Select this model's predictors and return the original party labels."""
         if self.pipeline is None:
             raise RuntimeError("Call train() before predict().")
-        return self.pipeline.predict(data[FEATURE_COLUMNS])
+        return self.pipeline.predict(data[FEATURE_COLUMNS + ["election"]])

@@ -12,6 +12,7 @@ Importing this module only defines the classes and functions; it does not train.
 from typing import Any, NotRequired, TypedDict
 from numpy.typing import NDArray
 from Models.custom_model import custom_model
+from Models.missing_data import ElectionImputer
 
 import copy
 
@@ -39,9 +40,9 @@ LEARNING_RATES = (0.1, 0.2, 0.3, 0.5)
 HIDDEN_SIZES = (32, 16)  # Number of neurons in the two hidden layers.
 
 
-def make_preprocessor() -> ColumnTransformer:
+def make_preprocessor() -> Pipeline:
     """Create preprocessing to fit on training rows and reuse for prediction."""
-    return ColumnTransformer([
+    return Pipeline([("missing_data", ElectionImputer()), ("features", ColumnTransformer([
         # Fill missing numbers with training medians, then centre and scale them.
         # Keep even entirely missing columns so the feature layout stays stable.
         ("numeric", Pipeline([
@@ -57,7 +58,7 @@ def make_preprocessor() -> ColumnTransformer:
             )),
             ("encode", OneHotEncoder(handle_unknown="ignore")),
         ]), CATEGORICAL_COLUMNS),
-    ])
+    ]))])
 
 
 def as_features(matrix: NDArray[Any] | sparse.spmatrix) -> torch.Tensor:
@@ -120,7 +121,7 @@ class NeuralNetworkModel(custom_model):
         self.learning_rates = tuple(LEARNING_RATES if learning_rates is None else learning_rates)
         self.class_labels = class_labels
         self.networks: list[NeuralNetwork] = []
-        self.preprocessors: list[ColumnTransformer] = []
+        self.preprocessors: list[Pipeline] = []
         self.label_encoder: LabelEncoder | None = None
         self.classes_: NDArray[Any] = np.array([])
         self.selection_records: list[TrainingRecord] = []
@@ -247,6 +248,11 @@ class NeuralNetworkModel(custom_model):
             batch_size=BATCH_SIZE, seeds=SEEDS,
         )
         self.networks = networks
+        # Holdout outcomes remain excluded from weight updates and rate scoring.
+        # Once selection finishes, they are historical results for a later forecast.
+        historical_modes = ElectionImputer().fit(data).winner_modes_
+        for preprocessor in preprocessors:
+            preprocessor.named_steps["missing_data"].winner_modes_.update(historical_modes)
         self.preprocessors = preprocessors
         self.label_encoder = label_encoder
         self.classes_ = label_encoder.classes_
@@ -254,7 +260,7 @@ class NeuralNetworkModel(custom_model):
 
 def _probabilities(network, preprocessor, data):
     """Evaluate a checkpoint with its training-only preprocessing."""
-    features = as_features(preprocessor.transform(data[FEATURE_COLUMNS]))
+    features = as_features(preprocessor.transform(data))
     network.eval()
     with torch.inference_mode():
         return torch.softmax(network(features), dim=1).numpy()
@@ -264,17 +270,17 @@ def _train_network(
     training: pd.DataFrame, validation: pd.DataFrame | None,
     label_encoder: LabelEncoder, seed: int, epochs: int, learning_rate: float,
     *, hidden_sizes: tuple[int, ...] | None = None,
-) -> tuple[NeuralNetwork, ColumnTransformer, TrainingRecord]:
+) -> tuple[NeuralNetwork, Pipeline, TrainingRecord]:
     """Restore the best checkpoint with validation; otherwise run exactly epochs."""
     preprocessor = make_preprocessor()
     # Learn preprocessing only from training rows to avoid leaking validation data.
-    x_train = as_features(preprocessor.fit_transform(training[FEATURE_COLUMNS]))
+    x_train = as_features(preprocessor.fit_transform(training))
     # Cross-entropy expects integer class indices and raw network logits.
     y_train = torch.tensor(
         label_encoder.transform(training["winner"]), dtype=torch.long,
     )
     if validation is not None:
-        x_validation = as_features(preprocessor.transform(validation[FEATURE_COLUMNS]))
+        x_validation = as_features(preprocessor.transform(validation))
         y_validation = torch.tensor(
             label_encoder.transform(validation["winner"]), dtype=torch.long,
         )

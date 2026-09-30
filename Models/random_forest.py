@@ -6,6 +6,7 @@ import pandas as pd
 from numpy.typing import NDArray
 
 from Models.custom_model import custom_model
+from Models.missing_data import ElectionImputer
 
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
@@ -45,14 +46,18 @@ def train_random_forest(data: pd.DataFrame) -> Pipeline:
     """
     training = data.dropna(subset=["winner"])
     preprocessing = ColumnTransformer([
-        ("categorical", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_COLUMNS),
+        ("categorical", Pipeline([
+            ("impute", SimpleImputer(strategy="constant", fill_value="__MISSING__", keep_empty_features=True)),
+            ("encode", OneHotEncoder(handle_unknown="ignore")),
+        ]), CATEGORICAL_COLUMNS),
         ("numeric", SimpleImputer(strategy="median"), NUMERIC_COLUMNS),
     ])
     model = Pipeline([
+        ("missing_data", ElectionImputer()),
         ("preprocessing", preprocessing),
         ("classifier", RandomForestClassifier(random_state=42, n_jobs=-1)),
     ])
-    model.fit(training[FEATURE_COLUMNS], training["winner"])
+    model.fit(training[FEATURE_COLUMNS + ["election"]], training["winner"])
     return model
 
 
@@ -71,4 +76,4 @@ class RandomForestModel(custom_model):
         """Select this model's predictors and return the original party labels."""
         if self.pipeline is None:
             raise RuntimeError("Call train() before predict().")
-        return self.pipeline.predict(data[FEATURE_COLUMNS])
+        return self.pipeline.predict(data[FEATURE_COLUMNS + ["election"]])

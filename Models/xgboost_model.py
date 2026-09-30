@@ -7,10 +7,12 @@ import pandas as pd
 from numpy.typing import NDArray
 
 from Models.custom_model import custom_model
+from Models.missing_data import ElectionImputer
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import GridSearchCV
+from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.utils.validation import check_is_fitted
@@ -76,8 +78,7 @@ def train_xgboost(data: pd.DataFrame) -> Pipeline:
     """Return the best fitted Pipeline from the notebook's accuracy grid search.
 
     Retain all winner classes, including 'oth'. Election is metadata, not a
-    predictor. Rows without a winner are dropped; XGBoost handles missing
-    numeric predictors. Expanding-window CV validates on each supplied election
+    predictor. Rows without a winner are dropped; Missing numeric predictors use training medians. Expanding-window CV validates on each supplied election
     after 2001, training on all earlier elections. Mean accuracy weights each
     validation election equally. The winner is refitted on all labelled rows.
     Callers must exclude any held-out elections from data. Preprocessing and
@@ -101,11 +102,15 @@ def train_xgboost(data: pd.DataFrame) -> Pipeline:
         raise ValueError("At least two validation elections after 2001 are required.")
 
     preprocessing = ColumnTransformer([
-        ("categorical", OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+        ("categorical", Pipeline([
+            ("impute", SimpleImputer(strategy="constant", fill_value="__MISSING__", keep_empty_features=True)),
+            ("encode", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+        ]),
          CATEGORICAL_COLUMNS),
         ("numeric", "passthrough", NUMERIC_COLUMNS),
     ])
     model = Pipeline([
+        ("missing_data", ElectionImputer()),
         ("preprocessing", preprocessing),
         ("classifier", _LabelledXGBClassifier()),
     ])
@@ -121,7 +126,7 @@ def train_xgboost(data: pd.DataFrame) -> Pipeline:
         n_jobs=-1,
         error_score="raise",
     )
-    search.fit(training[FEATURE_COLUMNS], training["winner"])
+    search.fit(training[FEATURE_COLUMNS + ["election"]], training["winner"])
     return search.best_estimator_
 
 
@@ -140,4 +145,4 @@ class XGBoostModel(custom_model):
         """Select this model's predictors and return the original party labels."""
         if self.pipeline is None:
             raise RuntimeError("Call train() before predict().")
-        return self.pipeline.predict(data[FEATURE_COLUMNS])
+        return self.pipeline.predict(data[FEATURE_COLUMNS + ["election"]])

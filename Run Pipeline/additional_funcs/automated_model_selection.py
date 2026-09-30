@@ -22,7 +22,7 @@ def automated_model_selection(
     """Train before 2019, validate on 2019, and refit the best model on data.
 
     Accept numeric or string election years. Evaluate all models on the same
-    complete validation rows because logistic regression does not impute.
+    labelled validation rows, with training-fitted imputation in each model.
     Retain all party classes. Ties favour XGBoost, then random forest, then
     logistic regression, then NN01, NN02, NN03, XGBoost Expanded and Conditional XGBoost in that order. Each trainer applies its own
     missing-data handling.
@@ -35,7 +35,7 @@ def automated_model_selection(
     Return [fitted_model, model_name], with model_name a readable string,
     without reading files or modifying input data. Print all initial accuracies
     and retain them on fitted_model.initial_accuracies. If scores_path is supplied,
-    save the scores there before retraining. Also record accuracy on complete
+    save the scores there before retraining. Also record accuracy on labelled
     2019 rows where winner differs from a known previous_winner. Select by the
     sum of overall and changed-seat accuracy, weighting both equally. An empty
     changed-seat subset has accuracy None; selection then uses overall accuracy.
@@ -56,12 +56,12 @@ def automated_model_selection(
 
     training_data = data.loc[election_years < 2019].copy()
     validation_data = data.loc[election_years == 2019].dropna(
-        subset=feature_columns + ["winner"]
+        subset=["winner"]
     )
     if training_data.empty:
         raise ValueError("Data must contain training rows from elections before 2019.")
     if validation_data.empty:
-        raise ValueError("Data must contain complete validation rows for the 2019 election.")
+        raise ValueError("Data must contain labelled validation rows for the 2019 election.")
 
     changed_seats = (
         validation_data["previous_winner"].notna()
@@ -85,7 +85,7 @@ def automated_model_selection(
     changed_seat_accuracies: dict[str, float | None] = {}
 
     # Report the shared validation sample size; flush=True prints progress immediately.
-    print(f"Initial model accuracies on {len(validation_data)} complete 2019 rows:", flush=True)
+    print(f"Initial model accuracies on {len(validation_data)} labelled 2019 rows:", flush=True)
     # Evaluate candidates in list order, which also sets the priority for tied scores.
     for model in models:
         # Fit this candidate on elections before 2019 using its own training procedure.
