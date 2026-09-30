@@ -32,6 +32,7 @@ class ChangedSeatAccuracyTests(unittest.TestCase):
             Mock(name="fifth", predict=Mock(return_value=["lab", "con", "lab"])),
             Mock(name="sixth", predict=Mock(return_value=["lab", "con", "lab"])),
             Mock(name="expanded", predict=Mock(return_value=["lab", "con", "lab"])),
+            Mock(name="conditional", predict=Mock(return_value=["lab", "con", "lab"])),
         ]
         if predictions is not None:
             for model, values in zip(models, predictions):
@@ -44,6 +45,7 @@ class ChangedSeatAccuracyTests(unittest.TestCase):
             (selection.NN02_model, "NeuralNetworkModel"),
             (selection.NN03_model, "NeuralNetworkModel"),
             (selection.xgboost_expanded_model, "XGBoostExpandedModel"),
+            (selection.conditional_xgboost_model, "ConditionalXGBoostModel"),
         ]
         with ExitStack() as stack, tempfile.TemporaryDirectory() as directory:
             for index, ((module, factory), model) in enumerate(zip(factories, models)):
@@ -57,7 +59,7 @@ class ChangedSeatAccuracyTests(unittest.TestCase):
         self.assertEqual(name, f"model_{expected_model}")
         best.retrain.assert_called_once_with(data)
         pd.testing.assert_frame_equal(data, original)
-        self.assertEqual(scores["evaluation_rows"].tolist(), [3] * 7)
+        self.assertEqual(scores["evaluation_rows"].tolist(), [3] * 8)
         return best, scores
 
     def test_changed_subset_scores_and_combined_selection(self):
@@ -66,20 +68,20 @@ class ChangedSeatAccuracyTests(unittest.TestCase):
         self.assertEqual(best.initial_changed_seat_accuracies["model_0"], 0.0)
         self.assertEqual(best.initial_changed_seat_accuracies["model_1"], 1.0)
         self.assertAlmostEqual(best.initial_accuracies["model_0"], 2 / 3)
-        self.assertEqual(scores["changed_seat_accuracy"].tolist(), [0, 1, 0, 0, 0, 0, 0])
-        self.assertEqual(scores["changed_seat_evaluation_rows"].tolist(), [1] * 7)
+        self.assertEqual(scores["changed_seat_accuracy"].tolist(), [0, 1, 0, 0, 0, 0, 0, 0])
+        self.assertEqual(scores["changed_seat_evaluation_rows"].tolist(), [1] * 8)
         self.assertAlmostEqual(scores.loc[0, "selection_score"], 2 / 3)
         self.assertAlmostEqual(scores.loc[1, "selection_score"], 1 + 1 / 3)
 
     def test_combined_tie_preserves_candidate_order(self):
         self.run_selection(
             ["con", "lab", "lab", "con"],
-            predictions=[["con", "lab", "con"]] * 7,
+            predictions=[["con", "lab", "con"]] * 8,
         )
 
     def test_each_new_candidate_can_win_selection(self):
-        for candidate in [4, 5, 6]:
-            predictions = [["lab", "con", "lab"] for _ in range(7)]
+        for candidate in [4, 5, 6, 7]:
+            predictions = [["lab", "con", "lab"] for _ in range(8)]
             predictions[candidate] = ["con", "lab", "con"]
             self.run_selection(["con", "lab", "lab", "con"], expected_model=candidate, predictions=predictions)
 

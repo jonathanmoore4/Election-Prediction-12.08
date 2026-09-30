@@ -147,3 +147,38 @@ The election cleaners calculate `second_party_vote_share` as the second-highest 
 Fewer than two non-missing shares give a missing second share. The 1992 cleaner retains its existing convention of treating missing votes and zero-total shares as zero. SQL carries the feature into the final datasets and joins the matched actual or notional comparison as `previous_second_party_last_election_vote_share`; an unmatched previous result remains missing. Regenerate the train/test CSVs through the pipeline to populate these new columns. Current-election shares are outcome information; only the previous-election feature is suitable as a pre-election predictor. Existing model feature lists are unchanged.
 
 SQL step `5_further_feature_engineering.sql` adds `previous_margin_1st_2nd` as `previous_winning_party_last_election_vote_share - previous_second_party_last_election_vote_share`. The margin uses the same proportion scale as the shares and remains missing if either share is missing. Step `6_reading_into_testtrain.sql` then splits the enriched data into training elections and the 2024 test election.
+
+### Conditional two-stage XGBoost
+
+`Models/conditional_xgboost_model.py` adds **Conditional XGBoost** as one selection
+candidate. It follows `06_xgboost_changed_extended_multilayer.ipynb`: one classifier
+estimates seat change and a second learns the winning challenger role using changed
+seats only. Predictions assign the incumbent `1 - P(change)` and each challenger
+`P(change) * P(role | change)`. Both classifiers belong to one `custom_model` wrapper;
+retraining repeats both searches. Each stage independently searches depths 2–5 and
+25/50/100/200 trees at learning rate 0.05, with seed 42, `hist`, and one thread.
+Expanding election folds are weighted equally by accuracy; ties retain grid order.
+`search_results` stores parameters and per-election scores for both stages.
+
+Unlike the notebook's eligibility filter, prediction retains every input row.
+Named challengers are ranked by previous shares; `oth` is always last unless it
+is incumbent, in which case all four named parties are challengers. Missing
+previous winners use the training mode; missing ranking shares use training
+medians. Numeric role features use median imputation and standardisation;
+categories use a missing marker and one-hot encoding with unknowns ignored,
+following NN01. Entirely missing numeric columns use zero. All mapping and
+preprocessing are fitted within each training fold. Missing outcomes are excluded
+from training, not prediction. Training needs at least two elections, at least
+one known previous winner in each fold, and at least one changed seat overall.
+Single-class stages produce constant probabilities; destination folds without
+training or validation changes are skipped. If no destination fold is usable,
+the first grid configuration is used and its validation score remains unavailable.
+
+The existing common complete-row sample remains in use for candidate comparison.
+When Conditional XGBoost wins, the pipeline notebook predicts all test rows and
+scores those with known winners. Run focused checks with:
+
+```bash
+python -m unittest Models.test_conditional_xgboost
+python -m unittest discover -s "Run Pipeline/additional_funcs" -p "test_automated_model_selection.py"
+```
