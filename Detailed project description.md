@@ -230,7 +230,7 @@ Diagnostics include changed/retained-seat accuracy and counts, macro-F1, log los
 
 ### logistic_regression.py
 
-[Open the file](Models/logistic_regression.py).
+[Open the file](Models/model_candidates/logistic_regression.py).
 
 Logistic regression learns a weighted relationship between the predictors and each party's chance of winning. For example, a higher previous Labour vote share might increase the estimated probability of a Labour win.
 
@@ -247,7 +247,7 @@ The candidate trains on all five party categories, including Other.
 
 ### random_forest.py
 
-[Open the file](Models/random_forest.py).
+[Open the file](Models/model_candidates/random_forest.py).
 
 A random forest combines 300 decision trees. Each tree learns rules that divide constituencies into groups, using sampled training rows and subsets of predictors. The forest averages the trees' probabilities.
 
@@ -265,7 +265,7 @@ The random seed is fixed at 42 for reproducibility.
 
 ### xgboost_model.py
 
-[Open the file](Models/xgboost_model.py).
+[Open the file](Models/model_candidates/xgboost_model.py).
 
 This candidate uses boosted decision trees with the standard set of 14 predictors: region, previous winner and vote shares, national polling, the governing party and projected shares.
 
@@ -277,7 +277,7 @@ The evaluator tries 16 combinations: 20, 35, 50 or 100 trees, each with a maximu
 
 ### xgboost_expanded_model.py
 
-[Open the file](Models/xgboost_expanded_model.py).
+[Open the file](Models/model_candidates/xgboost_expanded_model.py).
 
 This uses the same boosted-tree implementation as standard XGBoost, with a larger predictor set.
 
@@ -287,7 +287,7 @@ It tests the same 16 tree-count and depth combinations, but its settings are sel
 
 ### conditional_xgboost_model.py
 
-[Open the file](Models/conditional_xgboost_model.py).
+[Open the file](Models/model_candidates/conditional_xgboost_model.py).
 
 This candidate breaks constituency prediction into two questions:
 
@@ -315,7 +315,7 @@ The evaluator compares 256 pairs of stage settings using the accuracy of the com
 
 ### NN01_model.py
 
-[Open the file](Models/NN01_model.py).
+[Open the file](Models/model_candidates/NN01_model.py).
 
 This file contains the shared neural-network implementation and the NN01 candidate.
 
@@ -333,7 +333,7 @@ During a later refit, each network trains for a fixed duration derived from its 
 
 ### NN02_model.py
 
-[Open the file](Models/NN02_model.py).
+[Open the file](Models/model_candidates/NN02_model.py).
 
 This file reuses the implementation in `NN01_model.py`, but changes the hidden layers to 64 and 32 neurons.
 
@@ -343,7 +343,7 @@ It still averages ten networks and follows the same checkpoint and refit rules. 
 
 ### NN03_model.py
 
-[Open the file](Models/NN03_model.py).
+[Open the file](Models/model_candidates/NN03_model.py).
 
 This also reuses the implementation in `NN01_model.py`. It uses one hidden layer containing 16 neurons and a fixed learning rate of 0.3.
 

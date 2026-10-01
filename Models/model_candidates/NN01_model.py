@@ -23,7 +23,7 @@ from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 # Use the same predictors and numeric/categorical groupings as logistic regression.
-from Models.logistic_regression import FEATURE_COLUMNS, CATEGORICAL_COLUMNS, NUMERIC_COLUMNS
+from Models.model_candidates.logistic_regression import FEATURE_COLUMNS, CATEGORICAL_COLUMNS, NUMERIC_COLUMNS
 
 
 # Use ten reproducible seeds and the notebook's learning-rate candidates.

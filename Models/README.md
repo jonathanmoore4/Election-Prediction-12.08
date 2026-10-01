@@ -23,9 +23,41 @@ run_pipeline(...)` unpacking still works. Comparison scores now live in
 `result.report`, rather than in `model.initial_accuracies` or similar attributes.
 The common class order is `con, lab, lib, natSW, oth`.
 
+## Directory layout
+
+All concrete model implementations live in `model_candidates/`. Shared code
+stays directly under `Models/`.
+
+```text
+Models/
+├── model_candidates/
+│   ├── logistic_regression.py
+│   ├── random_forest.py
+│   ├── xgboost_model.py
+│   ├── xgboost_expanded_model.py
+│   ├── conditional_xgboost_model.py
+│   ├── NN01_model.py
+│   ├── NN02_model.py
+│   └── NN03_model.py
+├── candidates.py
+├── evaluation.py
+├── custom_model.py
+├── pipeline_model.py
+├── boosting.py
+├── missing_data.py
+└── training_policy.py
+```
+
+The top-level modules provide the registry, evaluation, model contracts,
+preprocessing and training policies. Import concrete models from the subfolder:
+
+```python
+from Models.model_candidates.logistic_regression import LogisticRegressionModel
+```
+
 ## Adding a model
 
-1. Implement a `custom_model` subclass with `train(data, configuration,
+1. Add a module under `model_candidates/` implementing a `custom_model` subclass with `train(data, configuration,
    fit_context) -> FitRecord` and `predict_proba(data)`. The inherited `predict`
    chooses the most probable class. Fit and retain preprocessing using training
    data only. Return a detached fit record through `_record()`.

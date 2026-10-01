@@ -10,7 +10,7 @@ This package contains the report and reproducible evidence for seven evaluation 
 - `results/`: filtered ensemble probabilities, per-seed diagnostics, derived tables, figures, configuration and numerical verification.
 - `.nn_study_cache/`: retained per-trajectory caches, ignored by Git and regenerable. All 2,240 trajectories used by the report are retained here locally.
 
-The pipeline implementations are [`NN01_model.py`](../../Models/NN01_model.py), [`NN02_model.py`](../../Models/NN02_model.py) and [`NN03_model.py`](../../Models/NN03_model.py). NN02 and NN03 use NN01's shared training code without changing NN01's default architecture or rate grid. All six pipeline candidates (three existing non-neural models and three neural variants) are evaluated by the existing selection rule. The notebook variant-definition cells copy their corresponding module definitions; set `TRAIN_MODEL=True` to execute a full example fit.
+The pipeline implementations are [`NN01_model.py`](../../Models/model_candidates/NN01_model.py), [`NN02_model.py`](../../Models/model_candidates/NN02_model.py) and [`NN03_model.py`](../../Models/model_candidates/NN03_model.py). NN02 and NN03 use NN01's shared training code without changing NN01's default architecture or rate grid. All six pipeline candidates (three existing non-neural models and three neural variants) are evaluated by the existing selection rule. The notebook variant-definition cells copy their corresponding module definitions; set `TRAIN_MODEL=True` to execute a full example fit.
 
 ## Reproduction
 

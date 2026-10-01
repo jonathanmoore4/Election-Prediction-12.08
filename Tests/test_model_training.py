@@ -11,7 +11,7 @@ import torch
 from Models.candidates import default_candidates
 from Models.custom_model import FitContext, PARTIES
 from Models.evaluation import HistoricalEvaluator
-from Models import NN01_model as neural
+from Models.model_candidates import NN01_model as neural
 from Models.training_policy import NeuralTrainingPolicy
 
 
@@ -146,7 +146,7 @@ def test_validation_boundary_is_enforced_before_neural_fit():
 
 
 def test_conditional_reuses_stages_only_inside_same_fold():
-    from Models.conditional_xgboost_model import Stage
+    from Models.model_candidates.conditional_xgboost_model import Stage
     spec = small_spec(default_candidates()[-1])
     data = sample().query('election < 1997')
     config = spec.configurations()[0]

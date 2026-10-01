@@ -1,18 +1,14 @@
 # Can UK general election results be predicted without using constituency identities?
 
-Constituency identifiers can improve predictive accuracy but may reduce a model's ability to generalise across future boundary reviews and changing electoral landscapes. This project investigates whether the outcome of the 2024 UK general election can instead be predicted using only features that remain meaningful across elections, including the previous winning party, previous winning party’s vote share, national polling, the incumbent government, and the constituency's country or region.
+Constituency identifiers can improve predictive accuracy but may reduce a model's ability to generalise across boundary reviews and changing electoral landscapes. This project investigates whether constituency winners can instead be predicted using information that remains meaningful across elections: previous party vote shares, national polling, the governing party and country or region.
 
-The project combines historical election results and national polling in an end-to-end Python and SQL pipeline. Candidate classification models are compared using a temporal validation election before the selected model is refitted and evaluated on the 2024 General Election. The candidates include logistic regression, random forest, XGBoost and three neural-network variants.
+The project combines historical election results and polling in an end-to-end Python and SQL pipeline. The current iteration compares **eight modelling procedures across five historical elections**, tuning each procedure using only earlier elections. The selected procedure is then tuned again on pre-2024 history and evaluated retrospectively on the 2024 General Election.
 
-The previous XGBoost model achieved **69.94% accuracy** on the 2024 election. The latest saved neural-network evaluation achieves **58.94%**, despite outperforming XGBoost on the held-out 2019 validation election. Neural-network development now compares architectures and learning-rate policies across multiple historical elections to improve generalisation; the evaluation section below explains the different samples and the status of these results.
+The saved complete comparison selects **Conditional XGBoost**, with **88.85% mean historical accuracy** across 2005, 2010, 2015, 2017 and 2019. The saved pipeline notebook reports **75.00% accuracy on all 632 Great Britain constituencies in 2024** (474 correct predictions). On the same constituencies, predicting the previous winner achieves **52.37%** (331 correct), predicting Labour everywhere achieves **65.03%** (411 correct), and predicting Conservative everywhere achieves **19.15%** (121 correct).  These are recorded results; rerunning with different inputs or dependencies may change them.
 
 ## Motivation
 
-Going into the 2024 election, a substantial Labour victory was widely expected, representing a markedly different national political environment from recent elections.
-
-Models that rely heavily on constituency identity or historical constituency patterns may struggle to generalise when political conditions or constituency boundaries change. This project therefore investigates how much constituency-level behaviour can be captured using publicly available information that can be applied consistently between elections.
-
-Alongside the research question, the project has been developed as a reproducible machine-learning workflow in which data ingestion, cleaning, feature engineering, model selection and evaluation can be coordinated through a single pipeline.
+The 2024 election represented a markedly different political environment from recent elections. A model that performs well on one historical election may struggle when national conditions change. This project tests how much constituency behaviour can be captured without using constituency identity as a predictor, while developing a reproducible workflow for ingestion, cleaning, feature engineering, tuning and evaluation.
 
 ## Quick start
 
@@ -27,112 +23,107 @@ jupyter lab
 
 On Windows, activate the environment with `.venv\Scripts\activate` instead.
 
-Open [00_run_pipeline.IPYNB](00_pipeline/00_run_pipeline.IPYNB) and run all cells. Start Jupyter from the repository root or a directory within it. The pipeline downloads the configured sources, checks the supplied local workbook, prepares features, compares models on 2019 and retrains the selected model. The notebook then evaluates it on complete 2024 rows and displays a confusion matrix.
+Open [00_run_pipeline.IPYNB](00_pipeline/00_run_pipeline.IPYNB) and run all cells. Start Jupyter from the repository root or a directory within it. The notebook downloads the configured sources, checks the supplied local workbook, prepares features, compares all candidates and fits the selected procedure for 2024. It then predicts every test row, scores rows with known winners and displays a confusion matrix.
 
-Training includes XGBoost grid search and neural-network ensembles, so a full run can take time. Internet access is required for ingestion. Most dependency versions are not pinned, and remote inputs can change.
+A full run includes nested searches and ten-network ensembles and can take substantial time. Internet access is required for ingestion. Most dependency versions are not pinned, and remote inputs can change.
 
 ## Outputs
 
-All generated datasets, the predictor guide and historical evaluation reports are saved in `00_pipeline/outputs/`:
+| Location | Output |
+|---|---|
+| `00_pipeline/outputs/train.csv`, `test.csv` | Prepared historical training data and 2024 test data |
+| `00_pipeline/outputs/predictor_descriptions.md` | Guide to exported columns, units and missing values |
+| `00_pipeline/outputs/model_accuracies.csv` | Candidate scorecard across five historical elections |
+| `00_pipeline/outputs/model_accuracies_elections.csv` | Metrics and selected settings for each candidate and election |
+| `00_pipeline/outputs/model_accuracies_predictions.csv` | Historical constituency predictions and party probabilities |
+| `00_pipeline/outputs/model_accuracies_report.json` | Tuning records, final-fit details and run status |
+| `00_pipeline/outputs/test_predictions.csv` | Final test rows with predicted winners, exported by the notebook |
+| `00_pipeline/outputs/test_metrics.json` | Final test accuracy and evaluation row counts, exported by the notebook |
+| `00_pipeline/outputs/test_confusion_matrix.csv`, `test_confusion_matrix.png` | Final confusion matrix as data and an image, exported by the notebook |
 
-```text
-00_pipeline/outputs/
-├── train.csv
-├── test.csv
-├── predictor_descriptions.md
-├── model_accuracies.csv
-├── model_accuracies_elections.csv
-├── model_accuracies_predictions.csv
-├── model_accuracies_report.json
-├── test_predictions.csv
-├── test_metrics.json
-├── test_confusion_matrix.csv
-└── test_confusion_matrix.png
-```
-
-Reruns overwrite these files. The predictor guide describes exported columns, units and missing values. The reports record candidate scores, election-level metrics, historical predictions and tuning details. CSV accuracies are fractions.
-
-The fitted model remains in memory. The notebook exports final test predictions, metrics and the confusion matrix to the same output directory, and also displays the results. These final test exports are produced when its evaluation cell runs.
-
-For Python callers, `run_pipeline(output_dir=...)` redirects all exports to one directory and returns a `SelectionResult` containing the fitted model and evaluation report. Without an argument, it uses the project's `00_pipeline/outputs/`. Relative paths resolve against the caller's working directory. Analysis notebooks read the default shared datasets; when using a custom directory, update their input paths accordingly.
+All exports default to `00_pipeline/outputs/`. `run_pipeline(output_dir=...)` redirects every export to the specified directory; relative paths resolve from the caller's working directory. Reruns overwrite data exports and reports. CSV accuracies are fractions. The fitted model remains in memory.
 
 ## Repository guide
 
-| Location | Contents |
+| Directory | Purpose |
 |---|---|
-| `Run Pipeline/run_pipeline.py` | End-to-end workflow and CSV output handling |
-| `Run Pipeline/additional_funcs/` | Source loading, cleaning coordination and model selection |
-| `Current Data Preparation/` | Election, polling and boundary-change cleaning functions |
-| `SQL/` | Five ordered feature-building queries, executed in an in-memory DuckDB database |
-| `Models/` | Logistic regression, random forest, XGBoost and three neural-network variants |
-| `00_pipeline/` | Pipeline notebook |
-| `Analysis and model development/01_initial_overview/` | Initial data overview notebook |
-| `Analysis and model development/02_baseline_models/` | Baseline comparison notebook |
-| `Analysis and model development/03_XGboost/` | XGBoost analysis notebook |
-| `Analysis and model development/04_logistic_regression_improvement/` | Logistic-regression diagnostics notebook |
-| `Analysis and model development/05_nn_first_development/` | Neural-network study, input snapshot, results, reports and reproduction scripts |
-| `data/manual/` | Checksum-verified local workbook and provenance notes |
+| `00_pipeline/` | Notebook for running the complete pipeline |
+| `Run Pipeline/` | Coordinates source loading, data preparation, exports and model selection |
+| `Current Data Preparation/` | Cleans election, polling and boundary-change data |
+| `SQL/` | Builds predictors and separates training and test data in DuckDB |
+| `Models/` | Model candidates, preprocessing, training and historical evaluation |
+| `Analysis and model development/` | Development notebooks and experiments, retained for reference; this directory is not used to run the project |
+| `data/manual/` | Local source workbook and provenance notes |
 | `00_pipeline/outputs/` | All generated datasets, predictor guide and evaluation reports |
-| `Tests/` | Automated tests for models, source loading, selection and SQL feature engineering |
+| `Tests/` | Automated checks for the pipeline and models |
 
 ## Data and predictors
 
-Each row represents a Great Britain constituency at an election; Northern Ireland is excluded. The existing training export contains 5,705 rows across nine elections from 1987 to 2019. The existing test export contains 632 rows for 2024. These are saved-data counts, and completeness filters reduce the rows used for evaluation.
+Each row represents a Great Britain constituency at an election; Northern Ireland is excluded. The existing exports contain 5,705 training rows across nine elections from 1987 to 2019 and 632 test rows for 2024. These are saved-data counts and may change when inputs are regenerated.
 
-The target groups winning parties into Conservative (`con`), Labour (`lab`), Liberal Democrat (`lib`), SNP/Plaid Cymru (`natSW`) and Other (`oth`). Constituency identifiers support joins and reporting but are not predictors; election year controls data splitting rather than serving as a predictor.
+The target groups winners into Conservative (`con`), Labour (`lab`), Liberal Democrat (`lib`), SNP/Plaid Cymru (`natSW`) and Other (`oth`). All models expose probabilities in this common class order. Constituency identifiers support joins and reporting but are not predictors. Election year controls chronological splitting and missing-data handling; it is metadata rather than an estimator predictor.
 
-The shared predictors include country/region, previous winning party and its last-election vote share, previous party vote shares, Conservative/Labour/Liberal Democrat national polling (`con_polling`, `lab_polling`, `lib_polling`), the governing party and three projected party shares.
+The table below groups party-specific columns using `{party}`. `con`, `lab` and `lib` denote Conservative, Labour and Liberal/Liberal Democrat; `natSW` combines SNP/Plaid Cymru and `oth` groups other parties. Shares and polling are proportions: 0.05 represents five percentage points.
 
-The SQL currently calculates each projected share as:
+For party $p$, let $s_{p,t-1}$ be its previous constituency vote share, $N_{p,t-1}$ its previous national vote share, and $P_{p,t}$ its current pre-election national polling. Previous constituency results use matched actual or notional results where boundaries change; national shares always use the previous actual election.
 
-```text
-previous constituency vote share + current national polling − previous national seat share
-```
-
-The last term is a share of constituency winners, not a national vote share. Reviewing this feature definition remains a useful development task.
-
-## Model comparison
-
-Candidates are trained using elections before 2019 and evaluated on the same complete 2019 rows, including all target classes. A changed seat is one whose winner differs from its known previous winner.
-
-Selection maximises **overall accuracy + changed-seat accuracy**, giving the two metrics equal weight. If no changed seats are available, selection uses overall accuracy. Exact ties follow candidate order: XGBoost, random forest, logistic regression, NN01, NN02, NN03. The winner is passed the full pre-2024 training dataframe for its model-specific retraining procedure.
-
-| Candidate | Training procedure |
+| Predictor | Meaning or engineering equation |
 |---|---|
-| XGBoost | Five-fold stratified grid search over tree count and depth; handles missing numeric values |
-| Random forest | Median-imputed numeric features; fixed random seed |
-| Logistic regression | Standardised numeric features; excludes incomplete rows and rows with `oth` as winner or previous winner during training |
-| NN01 | Hidden layers of 32 and 16 units; four candidate learning rates |
-| NN02 | Hidden layers of 64 and 32 units; eight candidate learning rates |
-| NN03 | One hidden layer of 16 units; fixed learning rate of 0.3 |
+| `country/region` | Constituency country or English region |
+| `previous_winner` | Party with the largest share in the matched previous constituency result |
+| `previous_winning_party_last_election_vote_share` | Previous winner's share: $\max_p s_{p,t-1}$ |
+| `previous_{party}_share` (`con`, `lab`, `lib`, `natSW`) | $s_{p,t-1} = \text{previous constituency votes for }p / \text{previous constituency valid votes}$ |
+| `{party}_polling` (`con`, `lab`, `lib`) | $P_{p,t}$: national polling from the source observation immediately before the election marker |
+| `incumbent` | Party in national government before the election |
+| `projected_{party}_share` (`con`, `lab`, `lib`) | $s_{p,t-1} + (P_{p,t} - N_{p,t-1})$: previous local share adjusted by national change |
+| `previous_{party}_national_vote_share` (all five categories) | $N_{p,t-1} = \sum_c \text{previous votes for }p\text{ in constituency }c / \sum_c \text{previous valid votes in }c$, over retained Great Britain constituencies |
+| `supported_incumbent` | $1$ when the previous constituency winner equals the national governing party; $0$ otherwise |
+| `incumbent_polling` | $P_{g,t}$ for governing party $g$: Labour polling when Labour governs, otherwise Conservative polling |
+| `opposition_polling` | Polling for the other party in the Conservative/Labour pair |
+| `{party}_national_change` (all five categories) | $P_{p,t} - N_{p,t-1}$; missing for `natSW` and `oth` because neither has a polling input |
+| `holder_polling`, `challenger_polling` | $P_{h,t}$ and $P_{r,t}$ for previous constituency winner $h$ and matched challenger $r$ |
+| `holder_national_swing`, `challenger_national_swing` | $P_{h,t} - N_{h,t-1}$ and $P_{r,t} - N_{r,t-1}$ |
 
-Each neural variant uses ten seeds, holds out the latest supplied whole election for early stopping, and averages checkpoint probabilities. Rate selection uses ensemble validation log loss. Retraining repeats this procedure, retaining a whole-election validation holdout rather than fitting every supplied row.
+Holder/challenger features are missing where their party has no polling input or cannot be matched. Projected shares are not clipped to 0–1. Models select their own feature subsets; the conditional model rearranges party features into previous-winner and challenger roles. Current-election outcomes and constituency identifiers are excluded from predictors.
 
-The [neural-network development package](Analysis%20and%20model%20development/05_nn_first_development/README.md) contains the historical study and reproduction commands, with evaluation windows restricted to 1997–2019.
+### Imputation
 
-## Evaluation status and limitations
+Missing predictors are imputed using training data within each fold. Numeric values use medians (zero for entirely missing columns); categories use a missing marker, with a historical fallback for previous winners. Exported CSVs retain missing values.
 
-The latest saved neural-network run outperforms XGBoost on the **held-out 2019 validation election**: overall accuracy is **90.30% versus 87.76%** on the same 629 complete rows. On the 75 seats whose winning party changed, the neural network achieves **34.67% versus 4.00%**. Its higher combined score leads the pipeline to select it for retraining.
+## Historical tuning and model selection
 
-That validation advantage does not carry through to the **2024 test election**. The selected neural network achieves **58.94% on 621 of 632 seats**, excluding 11 rows with missing predictors or winners. The previous XGBoost model's reported 2024 result was **69.94% across all 632 seats**. The neural network therefore underperforms the earlier model in the recorded test results, although the different evaluation samples mean this is not a controlled comparison on identical rows. Stronger performance on one held-out election has not translated into stronger performance on the next.
+The shared evaluator implements **nested walk-forward validation**: tuning happens inside each historical forecast, and both levels keep whole elections together.
 
-Development is addressing this through whole-election validation, early stopping, ten-seed probability ensembles, and comparisons of network size and learning-rate policy across seven historical evaluation elections from 1997 to 2019. NN02 expands the hidden layers to 64/32 and searches eight rates; NN03 tests a smaller 16-unit network with a fixed rate of 0.3. The historical study favours different configurations for overall accuracy and changed-seat performance, so these variants are candidates for improvement rather than established solutions to the 2024 shortfall.
+| Outer election scored | Earlier elections used for inner validation | History used for outer refit |
+|---|---|---|
+| 2005 | 1997, 2001 | 1987–2001 |
+| 2010 | 1997, 2001, 2005 | 1987–2005 |
+| 2015 | 1997, 2001, 2005, 2010 | 1987–2010 |
+| 2017 | 1997, 2001, 2005, 2010, 2015 | 1987–2015 |
+| 2019 | 1997, 2001, 2005, 2010, 2015, 2017 | 1987–2017 |
 
-The pipeline notebook's retained output comes from the earlier four-candidate run, before NN02 and NN03 were added. It does not establish the 2024 performance of the current six-candidate pipeline. Rerun all cells to obtain updated validation scores and test evaluation.
+For each configuration and inner election, fit a fresh model using only earlier elections. Select settings by mean inner-election accuracy, giving elections equal weight. Refit a fresh model on all history before the outer election and save its predictions. Outer outcomes do not determine preprocessing, settings or training duration.
 
-Accuracy measures correctly classified constituency winners, not vote-share error or national seat-total error. The notebook reports excluded rows and displays a confusion matrix. Further work could add per-party precision/recall, changed-seat test metrics and seat-total errors.
+Candidate selection uses **mean accuracy across the five outer elections**, with equal election weights. Changed-seat accuracy is a diagnostic and receives no extra selection weight. Exact ties follow registry order; configuration ties follow configuration order.
 
-Model-family selection uses one validation election. XGBoost's internal folds mix elections, while neural networks hold out an entire election. Constituencies within an election share national conditions, so thousands of rows do not represent thousands of independent electoral environments. Historical development comparisons and repeated inspection of 2024 results also limit claims of untouched out-of-sample performance.
+After selection, tune the winning procedure again using inner elections from 1997 through 2019, then fit a fresh model on pre-2024 history. Historical fitted models and settings are not averaged into the final model.
 
-## Focused checks
+### Eight candidates
 
-From the repository root:
+| Candidate | Configuration search and fitting |
+|---|---|
+| Logistic regression | L2 regularisation; search `C` = 0.01, 0.1, 1, 10; scaled numeric inputs |
+| Random forest | 300 trees; 18 combinations of depth, minimum leaf size and feature sampling; seed 42 |
+| XGBoost | Baseline features; 16 combinations of 20/35/50/100 trees and depths 2–5; learning rate 0.05 |
+| XGBoost Expanded | Expanded features; independently tunes the same boosted-tree search |
+| Conditional XGBoost | Change and challenger classifiers; jointly compares 256 pairs of stage settings using complete winner accuracy |
+| NN01 | Hidden layers 32/16; rates 0.1, 0.2, 0.3, 0.5 |
+| NN02 | Hidden layers 64/32; rates 0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0 |
+| NN03 | One 16-unit hidden layer; fixed rate 0.3; inner fits still determine refit durations |
 
-```bash
-python -m unittest discover -s Tests -t . -p "test_*.py"
-```
+Conditional XGBoost assigns the previous winner `P(no change)` and each challenger `P(change) × P(challenger wins | change)`. Its challenger stage trains on changed seats. Both stages form one candidate and their combined winner predictions determine tuning scores.
 
-These cover source loading, model selection, model preprocessing, conditional XGBoost and SQL feature engineering. They do not replace a full pipeline run against the remote data sources.
+Each neural candidate averages probabilities from ten networks with predefined seeds. Inner fits select each seed's checkpoint by validation log loss, while learning rates are ranked by mean inner-election accuracy. For the outer and final refits, each seed trains on all available history for its median best-checkpoint duration from the selected configuration's inner folds, rounded halves up with a minimum of one epoch. These refits do not hold back another election or monitor forecast outcomes.
 
 ## Data Sources and Acknowledgement
 
@@ -144,61 +135,3 @@ These cover source loading, model selection, model preprocessing, conditional XG
 | 1992 notional results | Rallings and Thrasher BBC Media Guide | Previous-election information across boundary changes |
 | Historical national polling | Mark Pack's PollBase | Pre-election Conservative, Labour and Liberal Democrat polling |
 | Scottish boundary changes | Electoral Calculus | Approximate mapping across the 2005 Scottish boundary changes |
-
-### Second-party vote shares
-
-The election cleaners calculate `second_party_vote_share` as the second-highest available share among the same party categories used for `winning_party_vote_share`. Ties occupy separate ranking positions. Historical and 1992 notional results include the aggregate other-party category; the 2005 and 2019 notional cleaners use their existing four main-party categories, while 2024 uses its broader party list. This therefore measures the second-ranked available category, which may differ from an individual runner-up candidate. The 2001 notional data retains the historical share when remapping constituencies.
-
-Fewer than two non-missing shares give a missing second share. The 1992 cleaner retains its existing convention of treating missing votes and zero-total shares as zero. SQL carries the feature into the final datasets and joins the matched actual or notional comparison as `previous_second_party_last_election_vote_share`; an unmatched previous result remains missing. Regenerate the train/test CSVs through the pipeline to populate these new columns. Current-election shares are outcome information; only the previous-election feature is suitable as a pre-election predictor. Existing model feature lists are unchanged.
-
-SQL step `5_further_feature_engineering.sql` adds `previous_margin_1st_2nd` as `previous_winning_party_last_election_vote_share - previous_second_party_last_election_vote_share`. The margin uses the same proportion scale as the shares and remains missing if either share is missing. Step `6_reading_into_testtrain.sql` then splits the enriched data into training elections and the 2024 test election.
-
-### Conditional two-stage XGBoost
-
-`Models/conditional_xgboost_model.py` adds **Conditional XGBoost** as one selection
-candidate. It follows `06_xgboost_changed_extended_multilayer.ipynb`: one classifier
-estimates seat change and a second learns the winning challenger role using changed
-seats only. Predictions assign the incumbent `1 - P(change)` and each challenger
-`P(change) * P(role | change)`. Both classifiers belong to one `custom_model` wrapper;
-retraining repeats both searches. Each stage independently searches depths 2–5 and
-25/50/100/200 trees at learning rate 0.05, with seed 42, `hist`, and one thread.
-Expanding election folds are weighted equally by accuracy; ties retain grid order.
-`search_results` stores parameters and per-election scores for both stages.
-
-Unlike the notebook's eligibility filter, prediction retains every input row.
-Named challengers are ranked by previous shares; `oth` is always last unless it
-is incumbent, in which case all four named parties are challengers. Missing
-previous winners use the preceding available election's majority winner class; missing ranking shares use training
-medians. Numeric role features use median imputation and standardisation;
-categories use a missing marker and one-hot encoding with unknowns ignored,
-following NN01. Entirely missing numeric columns use zero. All mapping and
-preprocessing are fitted within each training fold. Missing outcomes are excluded
-from training, not prediction. Training needs at least two elections, at least
-one known previous winner in each fold, and at least one changed seat overall.
-Single-class stages produce constant probabilities; destination folds without
-training or validation changes are skipped. If no destination fold is usable,
-the first grid configuration is used and its validation score remains unavailable.
-
-All candidates are compared on every validation row with a known winner.
-The pipeline notebook predicts all test rows and scores those with known winners. Run focused checks with:
-
-```bash
-python -m unittest Tests.test_conditional_xgboost Tests.test_automated_model_selection
-```
-
-### Missing predictors after SQL
-
-All model families now apply `Models/missing_data.py` during fitting, after SQL
-joins. Missing previous winners use the party with the most wins in the preceding
-available training election (ties use sorted party order). For the earliest
-training election, the known previous-winner mode for that election is used,
-with the pooled previous-winner mode as a last resort. Prediction outcomes are
-never read. For neural networks, the holdout election's winner distribution is
-registered only after model selection, for forecasting later elections.
-
-Missing numeric inputs, including `previous_lib_share` and `projected_lib_share`,
-use medians fitted on training rows inside each validation fold. Entirely missing
-numeric columns use zero. Other missing categories receive a missing marker.
-The raw CSVs and SQL are unchanged. Election year is required as prediction
-metadata; it is not passed to the estimator as a predictor. Only missing winners
-are excluded from accuracy scoring; missing predictors no longer remove rows.

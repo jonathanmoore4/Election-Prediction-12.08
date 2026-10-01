@@ -67,7 +67,7 @@ The first concrete deliverable is a reusable historical prediction dataset, whic
 ## References
 
 - [Current automated selector](Run%20Pipeline/additional_funcs/automated_model_selection.py)
-- [Current XGBoost implementation](Models/xgboost_model.py)
+- [Current XGBoost implementation](Models/model_candidates/xgboost_model.py)
 - [Shared model contract](Models/custom_model.py)
 - [Existing neural study](Analysis%20and%20model%20development/05_nn_first_development/README.md)
 - [Sklearn stacking documentation](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.StackingClassifier.html)

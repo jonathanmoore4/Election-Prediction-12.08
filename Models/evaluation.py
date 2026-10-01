@@ -295,8 +295,10 @@ class HistoricalEvaluator:
                 self._inner_years(frame.loc[frame.election < e], e)
             self._inner_years(frame, forecast_election)
             source = sha256()
-            for path in sorted(Path(__file__).parent.glob('*.py')):
-                source.update(path.name.encode()); source.update(path.read_bytes())
+            model_root = Path(__file__).parent
+            for path in sorted(model_root.rglob('*.py')):
+                source.update(path.relative_to(model_root).as_posix().encode())
+                source.update(path.read_bytes())
             versions = {}
             for package in ('numpy', 'pandas', 'scikit-learn', 'xgboost', 'torch'):
                 try:

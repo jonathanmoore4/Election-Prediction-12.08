@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 
-from Models import conditional_xgboost_model as conditional
+from Models.model_candidates import conditional_xgboost_model as conditional
 
 
 def sample():

@@ -3,7 +3,7 @@
 Uses the shared implementation in NN01_model without changing its configuration.
 See Analysis and model development/05_nn_first_development/.
 """
-from Models.NN01_model import NeuralNetworkModel as BaseNeuralNetworkModel
+from Models.model_candidates.NN01_model import NeuralNetworkModel as BaseNeuralNetworkModel
 
 HIDDEN_SIZES = (64, 32)
 LEARNING_RATES = (0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0)

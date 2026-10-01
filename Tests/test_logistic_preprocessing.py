@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 import pandas as pd
-from Models.logistic_regression import (
+from Models.model_candidates.logistic_regression import (
     LogisticRegressionModel, FEATURE_COLUMNS, NUMERIC_COLUMNS,
 )
 

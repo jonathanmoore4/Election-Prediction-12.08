@@ -31,10 +31,14 @@ class CandidateSpec:
 
 def default_candidates():
     # Lazy imports let tests and lightweight custom registries avoid torch/XGBoost.
-    from Models import logistic_regression as lr, random_forest as rf
-    from Models import xgboost_model as xgb, xgboost_expanded_model as expanded
-    from Models import conditional_xgboost_model as conditional
-    from Models import NN01_model as nn1, NN02_model as nn2, NN03_model as nn3
+    from Models.model_candidates import logistic_regression as lr
+    from Models.model_candidates import random_forest as rf
+    from Models.model_candidates import xgboost_model as xgb
+    from Models.model_candidates import xgboost_expanded_model as expanded
+    from Models.model_candidates import conditional_xgboost_model as conditional
+    from Models.model_candidates import NN01_model as nn1
+    from Models.model_candidates import NN02_model as nn2
+    from Models.model_candidates import NN03_model as nn3
     from Models.boosting import BOOST_DEFAULTS
     boost_search = {'n_estimators': [20, 35, 50, 100], 'max_depth': [2, 3, 4, 5]}
     specs = [
