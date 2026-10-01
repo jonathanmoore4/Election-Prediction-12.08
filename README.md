@@ -56,7 +56,7 @@ For Python callers, `run_pipeline(output_dir=...)` controls the model accuracy o
 | Location | Contents |
 |---|---|
 | `Run Pipeline/run_pipeline.py` | End-to-end workflow and CSV output handling |
-| `Run Pipeline/additional_funcs/` | Source loading, cleaning coordination, model selection and tests |
+| `Run Pipeline/additional_funcs/` | Source loading, cleaning coordination and model selection |
 | `Current Data Preparation/` | Election, polling and boundary-change cleaning functions |
 | `SQL/` | Five ordered feature-building queries, executed in an in-memory DuckDB database |
 | `Models/` | Logistic regression, random forest, XGBoost and three neural-network variants |
@@ -68,6 +68,7 @@ For Python callers, `run_pipeline(output_dir=...)` controls the model accuracy o
 | `Analysis and model development/05_nn_first_development/` | Neural-network study, input snapshot, results, reports and reproduction scripts |
 | `data/manual/` | Checksum-verified local workbook and provenance notes |
 | `TEST_TRAIN/` | Existing data exports and default output location for direct Python calls |
+| `Tests/` | Automated tests for models, source loading, selection and SQL feature engineering |
 
 ## Data and predictors
 
@@ -123,11 +124,10 @@ Model-family selection uses one validation election. XGBoost's internal folds mi
 From the repository root:
 
 ```bash
-python -m unittest discover -s "Run Pipeline/additional_funcs" -p "test_*.py"
-python -m unittest discover -s Models -p "test_*.py"
+python -m unittest discover -s Tests -t . -p "test_*.py"
 ```
 
-These cover source loading, model selection and neural-network training/retraining behaviour. They do not replace a full pipeline run against the remote data sources.
+These cover source loading, model selection, model preprocessing, conditional XGBoost and SQL feature engineering. They do not replace a full pipeline run against the remote data sources.
 
 ## Data Sources and Acknowledgement
 
@@ -178,8 +178,7 @@ All candidates are compared on every validation row with a known winner.
 The pipeline notebook predicts all test rows and scores those with known winners. Run focused checks with:
 
 ```bash
-python -m unittest Models.test_conditional_xgboost
-python -m unittest discover -s "Run Pipeline/additional_funcs" -p "test_automated_model_selection.py"
+python -m unittest Tests.test_conditional_xgboost Tests.test_automated_model_selection
 ```
 
 ### Missing predictors after SQL

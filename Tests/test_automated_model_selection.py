@@ -9,7 +9,9 @@ from unittest.mock import Mock, patch
 
 import pandas as pd
 
-import automated_model_selection as selection
+from importlib import import_module
+
+selection = import_module("Run Pipeline.additional_funcs.automated_model_selection")
 
 
 class ChangedSeatAccuracyTests(unittest.TestCase):

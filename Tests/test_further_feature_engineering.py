@@ -26,8 +26,8 @@ class FurtherFeaturesTests(unittest.TestCase):
         rows = [dict(row, row_id=i) for i, row in enumerate(rows)]
         with duckdb.connect() as con:
             con.register('with_polling', pd.DataFrame(rows))
-            con.execute(Path(__file__).with_name('4_projected_polling.sql').read_text())
-            con.execute(Path(__file__).with_name('5_further_feature_engineering.sql').read_text())
+            con.execute((Path(__file__).resolve().parents[1] / 'SQL' / '4_projected_polling.sql').read_text())
+            con.execute((Path(__file__).resolve().parents[1] / 'SQL' / '5_further_feature_engineering.sql').read_text())
             result = con.sql('SELECT * FROM further_model_data ORDER BY row_id').df()
         self.assertEqual(len(result), len(rows))
         self.assertAlmostEqual(result.loc[0, 'projected_con_share'], .35)

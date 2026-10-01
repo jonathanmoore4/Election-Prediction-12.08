@@ -6,7 +6,9 @@ from unittest.mock import patch
 
 import pandas as pd
 
-import read_in_raw
+from importlib import import_module
+
+read_in_raw = import_module("Run Pipeline.additional_funcs.read_in_raw")
 
 
 class LocalSourceTests(unittest.TestCase):
