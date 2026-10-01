@@ -1,19 +1,21 @@
 """Two conditional XGBoost stages exposed as one pipeline candidate.
 
-Adapted from 06_xgboost_changed_extended_multilayer.ipynb. Both stages use
-independent chronological accuracy searches. Role mapping and preprocessing are
+Adapted from 06_xgboost_changed_extended_multilayer.ipynb. The evaluator
+selects the pair of stage configurations by combined winner accuracy. Role mapping and preprocessing are
 fitted on earlier rows only, including when constructing fold-specific targets.
 """
+from hashlib import sha256
+
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import ParameterGrid
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from xgboost import XGBClassifier
 
-from Models.custom_model import custom_model
+from Models.custom_model import custom_model, FitContext, validate_fit
+from Models.boosting import BOOST_DEFAULTS
 from Models.missing_data import ElectionImputer
 
 PARTIES = ('con', 'lib', 'lab', 'natSW', 'oth')
@@ -118,8 +120,7 @@ class Stage:
             objective = ({'objective': 'binary:logistic', 'eval_metric': 'logloss'}
                          if len(self.classes_) == 2 else
                          {'objective': 'multi:softprob', 'eval_metric': 'mlogloss', 'num_class': len(self.classes_)})
-            self.model = XGBClassifier(**params, **objective, learning_rate=0.05,
-                                       tree_method='hist', n_jobs=1, random_state=42)
+            self.model = XGBClassifier(**{**BOOST_DEFAULTS, **params}, **objective)
             self.model.fit(matrix, self.encoder.transform(labels))
         return self
 
@@ -139,62 +140,49 @@ class ConditionalXGBoostModel(custom_model):
     Missing previous winners use the preceding election's majority class. Missing ranking shares use
     training medians (zero for an entirely missing column, as in NN01). No
     prediction rows are filtered. Unlabelled training rows cannot supply targets.
-    Retraining repeats both independent searches on the newly supplied elections.
+    One train call fits one supplied pair of stage configurations.
     """
 
     def __init__(self):
         super().__init__('Conditional XGBoost')
-        self.classes_ = np.asarray(PARTIES)
         self.mapper = None
 
-    def train(self, data):
-        training = data.dropna(subset=['winner']).reset_index(drop=True)
-        if training.empty:
-            raise ValueError('Training requires known winners.')
-        years = pd.to_numeric(training.election, errors='raise').to_numpy()
-        if not np.isfinite(years).all():
-            raise ValueError('Training requires valid election years.')
-        folds = []
-        for year in sorted(np.unique(years))[1:]:
-            earlier, later = training.loc[years < year], training.loc[years == year]
-            mapper = RoleMapper().fit(earlier)
-            fit_X, fit_roles = mapper.transform(earlier)
-            valid_X, valid_roles = mapper.transform(later)
-            folds.append((year, fit_X, targets(earlier, fit_roles),
-                          valid_X, targets(later, valid_roles)))
-        if not folds:
-            raise ValueError('Chronological tuning requires at least two elections.')
-        mapper = RoleMapper().fit(training)
-        features, roles = mapper.transform(training)
-        labels = targets(training, roles)
-        fitted, reports, parameters = {}, {}, {}
-        for stage_index, name in enumerate(('change', 'destination')):
-            records = []
-            for params in ParameterGrid(PARAM_GRID):
-                scores = {}
-                for year, fit_X, fit_y, valid_X, valid_y in folds:
-                    fit_mask = np.ones(len(fit_X), dtype=bool) if stage_index == 0 else fit_y[0].astype(bool)
-                    valid_mask = np.ones(len(valid_X), dtype=bool) if stage_index == 0 else valid_y[0].astype(bool)
-                    if not fit_mask.any() or not valid_mask.any():
-                        continue
-                    stage = Stage().fit(fit_X.loc[fit_mask], fit_y[stage_index][fit_mask], params)
-                    scores[year] = float(np.mean(stage.predict(valid_X.loc[valid_mask]) == valid_y[stage_index][valid_mask]))
-                records.append({**params, 'mean_accuracy': np.mean(list(scores.values())) if scores else np.nan,
-                                'fold_scores': scores})
-            report = pd.DataFrame(records)
-            # If no changed-seat fold is available, use the first grid candidate.
-            best = report.mean_accuracy.idxmax() if report.mean_accuracy.notna().any() else 0
-            params = {key: int(report.loc[best, key]) for key in PARAM_GRID}
-            mask = np.ones(len(features), dtype=bool) if stage_index == 0 else labels[0].astype(bool)
-            if not mask.any():
-                raise ValueError('Destination training requires at least one changed seat.')
-            fitted[name] = Stage().fit(features.loc[mask], labels[stage_index][mask], params)
-            reports[name], parameters[name] = report, params
+    def train(self, data, configuration=None, fit_context=None):
+        context = fit_context or FitContext()
+        validate_fit(data, context)
+        training = data.reset_index(drop=True)
+        configuration = configuration or {}
+        # The cache belongs to exactly this fold, not to the model or global state.
+        cache = context.cache
+        signature = sha256(pd.util.hash_pandas_object(
+            training[FEATURE_COLUMNS + ['election', 'winner']], index=True).values.tobytes()).hexdigest()
+        if cache.get('training_signature', signature) != signature:
+            raise ValueError('FitContext cache cannot be shared across different training data.')
+        cache['training_signature'] = signature
+        if 'role_data' not in cache:
+            mapper = RoleMapper().fit(training)
+            features, roles = mapper.transform(training)
+            cache['role_data'] = (mapper, features, targets(training, roles))
+        mapper, features, labels = cache['role_data']
+        if not labels[0].any():
+            raise ValueError('Conditional XGBoost requires changed-seat training rows.')
+        fitted, parameters = {}, {}
+        for stage_index, name in enumerate(('change', 'challenger')):
+            params = {**BOOST_DEFAULTS, 'n_estimators': 25, 'max_depth': 2,
+                      **{key: value for key, value in configuration.items() if '.' not in key}}
+            params.update({key.split('.', 1)[1]: value for key, value in configuration.items()
+                           if key.startswith(name + '.')})
+            key = (name, tuple(sorted(params.items())))
+            if key not in cache:
+                mask = (np.ones(len(features), dtype=bool) if stage_index == 0
+                        else labels[0].astype(bool))
+                cache[key] = Stage().fit(features.loc[mask], labels[stage_index][mask], params)
+            fitted[name] = cache[key]
+            parameters.update({f'{name}.{key}': value for key, value in params.items()})
         self.mapper = mapper
-        self.change_model, self.destination_model = fitted['change'], fitted['destination']
-        self.search_results = reports
-        self.hyperparameters = {'stages': parameters, 'learning_rate': 0.05,
-                                'random_state': 42, 'tree_method': 'hist'}
+        self.change_model = fitted['change']
+        self.destination_model = fitted['challenger']
+        return self._record(data, parameters, context)
 
     def predict_proba(self, data):
         if self.mapper is None:
@@ -212,7 +200,7 @@ class ConditionalXGBoostModel(custom_model):
         for column, role in enumerate(self.destination_model.classes_):
             combined[rows, roles[:, int(role)]] = change * destination[:, column]
         combined[rows, roles[:, 0]] = 1 - change
-        return combined
+        return self._align_probabilities(combined, PARTIES)
 
     def predict(self, data):
         return self.classes_[self.predict_proba(data).argmax(axis=1)]

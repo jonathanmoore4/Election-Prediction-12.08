@@ -1,4 +1,4 @@
-"""NN03: 16 units fixed rate 0.3. Ten seeds; latest whole election held out; patience 20.
+"""NN03: 16 units fixed rate 0.3. Ten seeds; evaluator-supplied validation; patience 20.
 
 Uses the shared implementation in NN01_model without changing its configuration.
 See Analysis and model development/05_nn_first_development/.

@@ -21,12 +21,13 @@ from predictor_guide import write_predictor_guide
 from SQL.apply_SQL_queries import apply_sql_queries
 
 
-def run_pipeline(output_dir: str | Path | None = None):
+def run_pipeline(output_dir: str | Path | None = None, *, candidates=None, forecast_election=2024):
     """Run the workflow, saving train/test CSVs only in PROJECT_ROOT/TEST_TRAIN.
 
-    output_dir controls model scores only (default: TEST_TRAIN).
+    output_dir controls evaluation reports (default: TEST_TRAIN).
     Relative score output paths are resolved from the caller's working directory.
-    Returns [fitted_model, model_name].
+    Returns SelectionResult with the fitted model and full evaluation report.
+    Legacy model, model_name unpacking is supported. candidates overrides the registry.
     """
     train_test_dir = PROJECT_ROOT / "TEST_TRAIN"
     train_test_dir.mkdir(parents=True, exist_ok=True)
@@ -48,6 +49,7 @@ def run_pipeline(output_dir: str | Path | None = None):
 
     trained_model = automated_model_selection(
         train_test_data["train"], scores_path=output_dir / "model_accuracies.csv",
+        candidates=candidates, forecast_election=forecast_election,
     )
 
     return trained_model

@@ -1,4 +1,4 @@
-"""NN02: 64/32 validation-selected rate. Ten seeds; latest whole election held out; patience 20.
+"""NN02: 64/32 validation-selected rate. Ten seeds; evaluator-supplied validation; patience 20.
 
 Uses the shared implementation in NN01_model without changing its configuration.
 See Analysis and model development/05_nn_first_development/.

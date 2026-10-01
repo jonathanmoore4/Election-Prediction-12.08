@@ -34,6 +34,7 @@ class ConditionalTests(unittest.TestCase):
         model = conditional.ConditionalXGBoostModel()
         model.mapper = conditional.RoleMapper().fit(data)
         _, roles = model.mapper.transform(data)
+        roles = pd.Index(model.classes_).get_indexer(np.asarray(conditional.PARTIES)[roles].ravel()).reshape(roles.shape)
         model.change_model = Mock(classes_=np.array([0, 1]))
         model.change_model.predict_proba.return_value = np.tile([0.7, 0.3], (30, 1))
         model.destination_model = Mock(classes_=np.array([1, 4]))
@@ -56,11 +57,12 @@ class ConditionalTests(unittest.TestCase):
             fits.append(sorted(frame.election.unique().tolist()))
             return original_fit(mapper, frame)
 
-        with patch.object(conditional, 'PARAM_GRID', {'max_depth': [2], 'n_estimators': [2]}), patch.object(conditional.RoleMapper, 'fit', tracked_fit):
-            model.train(data[data.election < 2017])
-            self.assertEqual(fits, [[2010], [2010, 2015]])
-            model.retrain(data)
-        self.assertEqual(fits[-3:], [[2010], [2010, 2015], [2010, 2015, 2017]])
+        with patch.object(conditional.RoleMapper, 'fit', tracked_fit):
+            model.train(data[data.election < 2017], {'n_estimators': 2, 'max_depth': 2})
+            self.assertEqual(fits, [[2010, 2015]])
+            model = conditional.ConditionalXGBoostModel()
+            model.train(data, {'n_estimators': 2, 'max_depth': 2})
+        self.assertEqual(fits, [[2010, 2015], [2010, 2015, 2017]])
         predict_data = data.drop(columns=['winner']).copy()
         predict_data.loc[predict_data.index[:2], conditional.FEATURE_COLUMNS] = np.nan
         predict_data.loc[predict_data.index[2], 'country/region'] = 'unseen'

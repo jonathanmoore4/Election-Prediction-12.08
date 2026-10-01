@@ -1,12 +1,9 @@
 """Train multinomial logistic regression; nothing runs on import."""
 
-from typing import Any
-
 import numpy as np
 import pandas as pd
-from numpy.typing import NDArray
 
-from Models.custom_model import custom_model
+from Models.pipeline_model import PipelineModel
 from Models.missing_data import ElectionImputer
 
 from sklearn.compose import ColumnTransformer
@@ -50,25 +47,24 @@ def normalise_predictors(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def filter_logistic_regression_data(data: pd.DataFrame) -> pd.DataFrame:
-    """Keep labelled rows without 'oth' in winner or previous_winner."""
+    """Legacy notebook helper; the shared evaluator does not apply this filter."""
     # Modelling rationale: 'oth' observations are highly influential, so remove
     # rows where either the current winner or previous winner is 'oth'.
     eligible = data.loc[~data[["winner", "previous_winner"]].eq("oth").any(axis=1)]
     return eligible.dropna(subset=["winner"]).copy()
 
 
-def train_logistic_regression(data: pd.DataFrame) -> Pipeline:
-    """Return a fitted Pipeline excluding 'oth' outcomes and previous winners.
-
-    Pool all supplied elections, excluding election itself as a predictor.
-    Drop rows with 'oth' in winner or previous_winner, or missing a winner.
-    Impute missing predictors using training-fitted values after SQL.
-    The numeric predictors are considered approximately linear in the log odds,
-    so no major issues with this assumption are expected. This assumption does
-    not apply to categorical predictors, which are one-hot encoded.
-    Numeric predictors are scaled to help convergence. Prediction data may contain missing predictors. The input dataframe is not modified.
-    """
-    training = filter_logistic_regression_data(data)
+def train_logistic_regression(data: pd.DataFrame, configuration=None) -> Pipeline:
+    """Fit one configuration on all labelled rows, including the oth class."""
+    training = data.dropna(subset=['winner']).copy()
+    parameters = {**LOGISTIC_DEFAULTS, **(configuration or {})}
+    estimator_parameters = parameters.copy()
+    api_parameters = LogisticRegression().get_params()
+    # sklearn >= 1.8 expresses L2 through l1_ratio; older versions use penalty.
+    if estimator_parameters.get('penalty') == 'l2' and (
+            'penalty' not in api_parameters or api_parameters['penalty'] == 'deprecated'):
+        estimator_parameters.pop('penalty')
+        estimator_parameters['l1_ratio'] = 0.0
     preprocessing = ColumnTransformer([
         ("categorical", Pipeline([
             ("impute", SimpleImputer(strategy="constant", fill_value="__MISSING__", keep_empty_features=True)),
@@ -83,25 +79,30 @@ def train_logistic_regression(data: pd.DataFrame) -> Pipeline:
         ("normalise", FunctionTransformer(normalise_predictors, validate=False)),
         ("missing_data", ElectionImputer()),
         ("preprocessing", preprocessing),
-        ("classifier", LogisticRegression(solver="lbfgs", max_iter=1000)),
+        ("classifier", LogisticRegression(**estimator_parameters)),
     ])
-    model.fit(training[FEATURE_COLUMNS + ["election"]], training["winner"])
+    # A one-class history is a declared constant-probability fallback.
+    if training.winner.nunique() == 1:
+        from sklearn.dummy import DummyClassifier
+        model.set_params(classifier=DummyClassifier(strategy='prior'))
+    import warnings
+    from sklearn.exceptions import ConvergenceWarning
+    with warnings.catch_warnings():
+        warnings.simplefilter('error', ConvergenceWarning)
+        model.fit(training[FEATURE_COLUMNS + ["election"]], training["winner"])
     return model
 
 
-class LogisticRegressionModel(custom_model):
-    """Own the fitted pipeline; retraining repeats the existing training procedure."""
+LOGISTIC_DEFAULTS = dict(C=1.0, penalty='l2', solver='lbfgs', max_iter=1000,
+                         tol=0.0001, class_weight=None)
 
-    def __init__(self) -> None:
-        super().__init__("Logistic Regression")
-        self.pipeline: Pipeline | None = None
 
-    def train(self, data: pd.DataFrame) -> None:
-        """Replace the fitted pipeline using this model's original training routine."""
-        self.pipeline = train_logistic_regression(data)
+class LogisticRegressionModel(PipelineModel):
+    feature_columns = FEATURE_COLUMNS
+    defaults = LOGISTIC_DEFAULTS
 
-    def predict(self, data: pd.DataFrame) -> NDArray[Any]:
-        """Select this model's predictors and return the original party labels."""
-        if self.pipeline is None:
-            raise RuntimeError("Call train() before predict().")
-        return self.pipeline.predict(data[FEATURE_COLUMNS + ["election"]])
+    def __init__(self):
+        super().__init__('Logistic Regression')
+
+    def fit_pipeline(self, data, parameters):
+        return train_logistic_regression(data, parameters)

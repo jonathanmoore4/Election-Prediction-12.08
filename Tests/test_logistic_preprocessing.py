@@ -41,7 +41,7 @@ class LogisticPreprocessingTests(unittest.TestCase):
             transformed = transformed.toarray()
         self.assertTrue(np.isfinite(transformed).all())
         pd.testing.assert_frame_equal(data, original)
-        model.retrain(data)
+        model.train(data)
         self.assertEqual(len(model.predict(future)), len(future))
 
 

@@ -1,11 +1,8 @@
 """Train a random forest on pooled election data; nothing runs on import."""
 
-from typing import Any
-
 import pandas as pd
-from numpy.typing import NDArray
 
-from Models.custom_model import custom_model
+from Models.pipeline_model import PipelineModel
 from Models.missing_data import ElectionImputer
 
 from sklearn.compose import ColumnTransformer
@@ -36,7 +33,7 @@ NUMERIC_COLUMNS = [
 ]
 
 
-def train_random_forest(data: pd.DataFrame) -> Pipeline:
+def train_random_forest(data: pd.DataFrame, configuration=None) -> Pipeline:
     """Return a fitted Pipeline predicting winner labels, including 'oth'.
 
     Election is metadata, not a predictor. Rows without a winner are dropped;
@@ -55,25 +52,23 @@ def train_random_forest(data: pd.DataFrame) -> Pipeline:
     model = Pipeline([
         ("missing_data", ElectionImputer()),
         ("preprocessing", preprocessing),
-        ("classifier", RandomForestClassifier(random_state=42, n_jobs=-1)),
+        ("classifier", RandomForestClassifier(**{**FOREST_DEFAULTS, **(configuration or {})})),
     ])
     model.fit(training[FEATURE_COLUMNS + ["election"]], training["winner"])
     return model
 
 
-class RandomForestModel(custom_model):
-    """Own the fitted pipeline; retraining repeats the existing training procedure."""
+FOREST_DEFAULTS = dict(n_estimators=300, max_depth=None, min_samples_leaf=1,
+                       max_features='sqrt', min_samples_split=2, bootstrap=True,
+                       criterion='gini', class_weight=None, random_state=42, n_jobs=1)
 
-    def __init__(self) -> None:
-        super().__init__("Random Forest")
-        self.pipeline: Pipeline | None = None
 
-    def train(self, data: pd.DataFrame) -> None:
-        """Replace the fitted pipeline using this model's original training routine."""
-        self.pipeline = train_random_forest(data)
+class RandomForestModel(PipelineModel):
+    feature_columns = FEATURE_COLUMNS
+    defaults = FOREST_DEFAULTS
 
-    def predict(self, data: pd.DataFrame) -> NDArray[Any]:
-        """Select this model's predictors and return the original party labels."""
-        if self.pipeline is None:
-            raise RuntimeError("Call train() before predict().")
-        return self.pipeline.predict(data[FEATURE_COLUMNS + ["election"]])
+    def __init__(self):
+        super().__init__('Random Forest')
+
+    def fit_pipeline(self, data, parameters):
+        return train_random_forest(data, parameters)
