@@ -27,29 +27,34 @@ jupyter lab
 
 On Windows, activate the environment with `.venv\Scripts\activate` instead.
 
-Open [00_run_pipeline.IPYNB](Analysis%20and%20model%20development/00_pipeline/00_run_pipeline.IPYNB) and run all cells. Start Jupyter from the repository root or a directory within it. The pipeline downloads the configured sources, checks the supplied local workbook, prepares features, compares models on 2019 and retrains the selected model. The notebook then evaluates it on complete 2024 rows and displays a confusion matrix.
+Open [00_run_pipeline.IPYNB](00_pipeline/00_run_pipeline.IPYNB) and run all cells. Start Jupyter from the repository root or a directory within it. The pipeline downloads the configured sources, checks the supplied local workbook, prepares features, compares models on 2019 and retrains the selected model. The notebook then evaluates it on complete 2024 rows and displays a confusion matrix.
 
 Training includes XGBoost grid search and neural-network ensembles, so a full run can take time. Internet access is required for ingestion. Most dependency versions are not pinned, and remote inputs can change.
 
 ## Outputs
 
-Train and test CSVs are saved only in `TEST_TRAIN/`. Model accuracies are saved alongside the pipeline notebook:
+All generated datasets, the predictor guide and historical evaluation reports are saved in `00_pipeline/outputs/`:
 
 ```text
-TEST_TRAIN/
+00_pipeline/outputs/
 ├── train.csv
 ├── test.csv
-└── predictor_descriptions.md
-Analysis and model development/00_pipeline/
-├── 00_run_pipeline.IPYNB
-└── model_accuracies.csv
+├── predictor_descriptions.md
+├── model_accuracies.csv
+├── model_accuracies_elections.csv
+├── model_accuracies_predictions.csv
+├── model_accuracies_report.json
+├── test_predictions.csv
+├── test_metrics.json
+├── test_confusion_matrix.csv
+└── test_confusion_matrix.png
 ```
 
-The CSVs and `TEST_TRAIN/predictor_descriptions.md` are created or overwritten when the notebook runs. The guide describes every exported column, distinguishes predictors from outcomes and metadata, and documents units and missing values. `model_accuracies.csv` records each candidate's initial 2019 accuracy, changed-seat accuracy, evaluation row counts and combined selection score. These are validation results before retraining, not 2024 test scores. Accuracies are stored as fractions.
+Reruns overwrite these files. The predictor guide describes exported columns, units and missing values. The reports record candidate scores, election-level metrics, historical predictions and tuning details. CSV accuracies are fractions.
 
-The fitted model remains in memory; the confusion matrix and printed test results appear in the notebook. No model file or separate plot file is currently exported. Save the notebook to retain its displayed outputs.
+The fitted model remains in memory. The notebook exports final test predictions, metrics and the confusion matrix to the same output directory, and also displays the results. These final test exports are produced when its evaluation cell runs.
 
-For Python callers, `run_pipeline(output_dir=...)` controls the model accuracy output directory and returns `[fitted_model, model_name]`. Train and test always go to the project's `TEST_TRAIN/` directory. Without an argument, model accuracies also go to `TEST_TRAIN/`. Relative score output paths are resolved against the caller's working directory.
+For Python callers, `run_pipeline(output_dir=...)` redirects all exports to one directory and returns a `SelectionResult` containing the fitted model and evaluation report. Without an argument, it uses the project's `00_pipeline/outputs/`. Relative paths resolve against the caller's working directory. Analysis notebooks read the default shared datasets; when using a custom directory, update their input paths accordingly.
 
 ## Repository guide
 
@@ -60,14 +65,14 @@ For Python callers, `run_pipeline(output_dir=...)` controls the model accuracy o
 | `Current Data Preparation/` | Election, polling and boundary-change cleaning functions |
 | `SQL/` | Five ordered feature-building queries, executed in an in-memory DuckDB database |
 | `Models/` | Logistic regression, random forest, XGBoost and three neural-network variants |
-| `Analysis and model development/00_pipeline/` | Pipeline notebook and its generated CSVs |
+| `00_pipeline/` | Pipeline notebook |
 | `Analysis and model development/01_initial_overview/` | Initial data overview notebook |
 | `Analysis and model development/02_baseline_models/` | Baseline comparison notebook |
 | `Analysis and model development/03_XGboost/` | XGBoost analysis notebook |
 | `Analysis and model development/04_logistic_regression_improvement/` | Logistic-regression diagnostics notebook |
 | `Analysis and model development/05_nn_first_development/` | Neural-network study, input snapshot, results, reports and reproduction scripts |
 | `data/manual/` | Checksum-verified local workbook and provenance notes |
-| `TEST_TRAIN/` | Existing data exports and default output location for direct Python calls |
+| `00_pipeline/outputs/` | All generated datasets, predictor guide and evaluation reports |
 | `Tests/` | Automated tests for models, source loading, selection and SQL feature engineering |
 
 ## Data and predictors

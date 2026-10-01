@@ -22,16 +22,16 @@ from SQL.apply_SQL_queries import apply_sql_queries
 
 
 def run_pipeline(output_dir: str | Path | None = None, *, candidates=None, forecast_election=2024):
-    """Run the workflow, saving train/test CSVs only in PROJECT_ROOT/TEST_TRAIN.
+    """Run the workflow and save all exports in one directory.
 
-    output_dir controls evaluation reports (default: TEST_TRAIN).
-    Relative score output paths are resolved from the caller's working directory.
+    Defaults to PROJECT_ROOT/00_pipeline/outputs. output_dir overrides the
+    destination for datasets, the predictor guide and all evaluation reports.
+    Relative paths are resolved from the caller's working directory.
     Returns SelectionResult with the fitted model and full evaluation report.
     Legacy model, model_name unpacking is supported. candidates overrides the registry.
     """
-    train_test_dir = PROJECT_ROOT / "TEST_TRAIN"
-    train_test_dir.mkdir(parents=True, exist_ok=True)
-    output_dir = Path(output_dir) if output_dir is not None else train_test_dir
+    output_dir = (Path(output_dir) if output_dir is not None
+                  else PROJECT_ROOT / "00_pipeline" / "outputs")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Read the configured internet sources and checksum-verified local inputs.
@@ -43,9 +43,9 @@ def run_pipeline(output_dir: str | Path | None = None, *, candidates=None, forec
     # Run the SQL feature-building files and write the train/test CSV files.
     train_test_data = apply_sql_queries(cleaned_data)
 
-    train_test_data["train"].to_csv(train_test_dir / "train.csv", index=False)
-    train_test_data["test"].to_csv(train_test_dir / "test.csv", index=False)
-    write_predictor_guide(train_test_data, train_test_dir / "predictor_descriptions.md")
+    train_test_data["train"].to_csv(output_dir / "train.csv", index=False)
+    train_test_data["test"].to_csv(output_dir / "test.csv", index=False)
+    write_predictor_guide(train_test_data, output_dir / "predictor_descriptions.md")
 
     trained_model = automated_model_selection(
         train_test_data["train"], scores_path=output_dir / "model_accuracies.csv",
