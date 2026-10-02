@@ -25,3 +25,8 @@ Thumbs.db
 
 # Resumable neural-network experiment checkpoints (workspace-persistent)
 .nn_study_cache/
+
+# Python distribution artifacts
+build/
+dist/
+*.egg-info/

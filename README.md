@@ -17,45 +17,61 @@ Use Python 3.11 or newer and install the dependencies in a virtual environment:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
+python -m pip install -e ".[notebooks,dev]"
 jupyter lab
 ```
 
 On Windows, activate the environment with `.venv\Scripts\activate` instead.
 
-Open [00_run_pipeline.IPYNB](00_pipeline/00_run_pipeline.IPYNB) and run all cells. Start Jupyter from the repository root or a directory within it. The notebook downloads the configured sources, checks the supplied local workbook, prepares features, compares all candidates and fits the selected procedure for 2024. It then predicts every test row, scores rows with known winners and displays a confusion matrix.
+Open [00_run_pipeline.ipynb](notebooks/00_run_pipeline.ipynb) and run all cells. Start Jupyter from the repository root or a directory within it. The notebook downloads the configured sources, checks the supplied local workbook, prepares features, compares all candidates and fits the selected procedure for 2024. It then predicts every test row, scores rows with known winners and displays a confusion matrix.
 
 A full run includes nested searches and ten-network ensembles and can take substantial time. Internet access is required for ingestion. Most dependency versions are not pinned, and remote inputs can change.
+
+## Package and development
+
+The project follows the [Python Packaging User Guide](https://packaging.python.org/en/latest/tutorials/packaging-projects/#creating-the-package-files) with a `src/` layout and regular packages marked by `__init__.py`. `pyproject.toml` defines the build backend, project metadata and dependencies. Core installation uses `python -m pip install -e .`, so the pipeline runs directly from `src/`; the `notebooks` extra adds notebook/report tools and `dev` adds testing tools.
+
+Import project modules explicitly so calls show their origin:
+
+```python
+from election.pipeline import run_pipeline
+
+selection = run_pipeline.run_pipeline(output_dir="notebooks/outputs")
+```
+
+Run tests with `python -m pytest`. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `notebooks/outputs/`; use `output_dir` to choose another location.
+
+Python modules and project-owned files use lowercase snake case; package directories use lowercase names. Standard filenames such as `README.md` and `__init__.py` retain their conventional spelling. Analysis notebooks remain separate from the installable package.
 
 ## Outputs
 
 | Location | Output |
 |---|---|
-| `00_pipeline/outputs/train.csv`, `test.csv` | Prepared historical training data and 2024 test data |
-| `00_pipeline/outputs/predictor_descriptions.md` | Guide to exported columns, units and missing values |
-| `00_pipeline/outputs/model_accuracies.csv` | Candidate scorecard across five historical elections |
-| `00_pipeline/outputs/model_accuracies_elections.csv` | Metrics and selected settings for each candidate and election |
-| `00_pipeline/outputs/model_accuracies_predictions.csv` | Historical constituency predictions and party probabilities |
-| `00_pipeline/outputs/model_accuracies_report.json` | Tuning records, final-fit details and run status |
-| `00_pipeline/outputs/test_predictions.csv` | Final test rows with predicted winners, exported by the notebook |
-| `00_pipeline/outputs/test_metrics.json` | Final test accuracy and evaluation row counts, exported by the notebook |
-| `00_pipeline/outputs/test_confusion_matrix.csv`, `test_confusion_matrix.png` | Final confusion matrix as data and an image, exported by the notebook |
+| `notebooks/outputs/train.csv`, `test.csv` | Prepared historical training data and 2024 test data |
+| `notebooks/outputs/predictor_descriptions.md` | Guide to exported columns, units and missing values |
+| `notebooks/outputs/model_accuracies.csv` | Candidate scorecard across five historical elections |
+| `notebooks/outputs/model_accuracies_elections.csv` | Metrics and selected settings for each candidate and election |
+| `notebooks/outputs/model_accuracies_predictions.csv` | Historical constituency predictions and party probabilities |
+| `notebooks/outputs/model_accuracies_report.json` | Tuning records, final-fit details and run status |
+| `notebooks/outputs/test_predictions.csv` | Final test rows with predicted winners, exported by the notebook |
+| `notebooks/outputs/test_metrics.json` | Final test accuracy and evaluation row counts, exported by the notebook |
+| `notebooks/outputs/test_confusion_matrix.csv`, `test_confusion_matrix.png` | Final confusion matrix as data and an image, exported by the notebook |
 
-All exports default to `00_pipeline/outputs/`. `run_pipeline(output_dir=...)` redirects every export to the specified directory; relative paths resolve from the caller's working directory. Reruns overwrite data exports and reports. CSV accuracies are fractions. The fitted model remains in memory.
+All exports default to `notebooks/outputs/`. `run_pipeline(output_dir=...)` redirects every export to the specified directory; relative paths resolve from the caller's working directory. Reruns overwrite data exports and reports. CSV accuracies are fractions. The fitted model remains in memory.
 
 ## Repository guide
 
 | Directory | Purpose |
 |---|---|
-| `00_pipeline/` | Notebook for running the complete pipeline |
-| `Run Pipeline/` | Coordinates source loading, data preparation, exports and model selection |
-| `Current Data Preparation/` | Cleans election, polling and boundary-change data |
-| `SQL/` | Builds predictors and separates training and test data in DuckDB |
-| `Models/` | Model candidates, preprocessing, training and historical evaluation |
-| `Analysis and model development/` | Development notebooks and experiments, retained for reference; this directory is not used to run the project |
-| `data/manual/` | Local source workbook and provenance notes |
-| `00_pipeline/outputs/` | All generated datasets, predictor guide and evaluation reports |
-| `Tests/` | Automated checks for the pipeline and models |
+| `notebooks/` | Notebook for running the complete pipeline |
+| `src/election/pipeline/` | Coordinates source loading, data preparation, exports and model selection |
+| `src/election/preparation/` | Cleans election, polling and boundary-change data |
+| `src/election/sql/` | Builds predictors and separates training and test data in DuckDB |
+| `src/election/models/` | Model candidates, preprocessing, training and historical evaluation |
+| `analysis/` | Development notebooks and experiments, retained for reference; this directory is not used to run the project |
+| `src/election/data/` | Packaged local source workbook |
+| `notebooks/outputs/` | All generated datasets, predictor guide and evaluation reports |
+| `tests/` | Automated checks for the pipeline and models |
 
 ## Data and predictors
 
