@@ -48,6 +48,18 @@ def test_pipeline_notebook_code_compiles_and_uses_root_output_directory():
     )
 
 
+def test_pipeline_notebook_imports_callable_entry_point():
+    path = Path(__file__).resolve().parents[1]/'notebooks/00_run_pipeline.ipynb'
+    notebook = json.loads(path.read_text())
+    setup = next(cell for cell in notebook['cells']
+                 if cell['cell_type'] == 'code')
+    namespace = {}
+    exec(''.join(setup['source']), namespace)
+    assert callable(namespace['run_pipeline'])
+    assert namespace['run_pipeline'] is import_module(
+        'election.pipeline.run_pipeline').run_pipeline
+
+
 def test_all_notebooks_compile_and_use_current_pipeline_paths():
     root = Path(__file__).resolve().parents[1]
     for path in root.rglob('*'):

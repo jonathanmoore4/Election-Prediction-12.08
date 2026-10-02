@@ -1,0 +1,14 @@
+{
+  "model": "Conditional XGBoost",
+  "accuracy": 0.7626582278481012,
+  "test_rows": 632,
+  "evaluated_rows": 632,
+  "excluded_rows": 0,
+  "party_labels": [
+    "con",
+    "lab",
+    "lib",
+    "natSW",
+    "oth"
+  ]
+}
