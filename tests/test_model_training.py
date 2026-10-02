@@ -72,21 +72,24 @@ def test_every_adapter_exposes_aligned_probabilities_and_keeps_rows(index):
     assert record.training_years == (1987, 1992)
 
 
-def test_synthetic_end_to_end_all_adapters_without_running_pipeline():
+def test_synthetic_end_to_end_all_adapters_without_running_pipeline(tracked_evaluation):
     torch.set_num_threads(1)
     specs = [small_spec(s) for s in candidates_module.default_candidates()]
     result = evaluation_module.HistoricalEvaluator(specs, verbose=False).evaluate(sample())
     assert result.report.status == 'complete'
     assert len(result.report.outer_results) == 40
-    assert len(result.report.predictions) == 200
     assert len(result.report.scorecard()) == 8
-    assert result.report.final_fit['fit_record']['training_years'][-1] == 2019
-    for row in result.report.outer_results:
-        assert max(row['fit_record']['training_years']) < row['election']
-        if row['candidate'].startswith('NN'):
-            assert row['fit_record']['validation_year'] is None
-            assert row['fit_record']['runs'][0]['duration'] <= 2
-            assert row['fit_record']['runs'][0]['best_epoch'] is None
+    assert result.report.final_fit['training_years'][-1] == 2019
+    import json
+    from pathlib import Path
+    tracking = result.report.tracking
+    for name, run_id in tracking.candidate_ids.items():
+        for run in tracking.children(run_id, 'election'):
+            selected = json.loads(Path(tracking.client.download_artifacts(run.info.run_id, 'selected_configuration.json')).read_text())
+            assert max(selected['training_years']) < int(run.data.tags['election'])
+            assert 'fit_record' not in selected
+            if name.startswith('NN'):
+                assert selected['refit_durations'] == {'1': 2} or selected['refit_durations'] == {'1': 1}
 
 
 def test_early_stopping_restores_independent_best_checkpoint_and_no_validation_updates():

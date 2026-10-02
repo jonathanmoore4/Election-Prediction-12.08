@@ -4,6 +4,7 @@ from importlib import import_module
 import json
 from pathlib import Path
 from unittest.mock import Mock
+from contextlib import nullcontext
 
 import pandas as pd
 import pytest
@@ -24,10 +25,15 @@ def test_pipeline_forwards_registry_and_returns_report_without_real_pipeline_wor
     select = Mock(return_value=result)
     monkeypatch.setattr(pipeline.automated_model_selection, 'automated_model_selection', select)
     registry = [object()]
+    from election.models import tracking as tracking_module
+    tracker = Mock()
+    tracker.execution.return_value = nullcontext(tracker)
+    monkeypatch.setattr(tracking_module, 'ExecutionTracking', Mock(return_value=tracker))
     output_dir = tmp_path/'reports' if custom_output else tmp_path/'notebooks'/'outputs'
     assert pipeline.run_pipeline(output_dir if custom_output else None, candidates=registry) is result
-    select.assert_called_once_with(frames['train'], scores_path=output_dir/'model_accuracies.csv',
-                                   candidates=registry, forecast_election=2024)
+    select.assert_called_once_with(frames['train'], test_data=frames['test'], output_dir=output_dir,
+                                   predictor_guide=output_dir/'predictor_descriptions.md',
+                                   candidates=tuple(registry), forecast_election=2024, tracking=tracker)
     pipeline.clean_data_all.clean_all_data.assert_called_once_with(raw)
     pipeline.apply_sql_queries.apply_sql_queries.assert_called_once_with(cleaned)
     assert (output_dir/'train.csv').exists()

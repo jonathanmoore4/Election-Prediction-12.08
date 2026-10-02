@@ -13,6 +13,8 @@ import election.models.custom_model as custom_model_module
 import election.models.evaluation as evaluation_module
 import election.models.training_policy as training_policy_module
 
+pytestmark = pytest.mark.usefixtures('tracked_evaluation')
+
 selection = import_module('election.pipeline.helpers.automated_model_selection')
 
 
@@ -62,22 +64,18 @@ def test_five_elections_equal_weights_fresh_objects_and_probability_audit():
     original = data.copy(deep=True)
     specs = [constant_spec('usually correct', ['con']), constant_spec('2019 specialist', ['lab'])]
     with TemporaryDirectory() as directory:
-        result = selection.automated_model_selection(data, Path(directory)/'scores.csv',
-                                                    candidates=specs, verbose=False)
+        result = selection.automated_model_selection(data, test_data=data.query('election == 2019').assign(election=2024),
+                                                    output_dir=directory, candidates=specs, verbose=False)
         assert result.model.name == 'usually correct'
         card = result.report.scorecard()
         assert card.mean_accuracy.tolist() == [0.8, 0.2]
         assert len(result.report.outer_results) == 10
-        assert len(result.report.predictions) == 2 * len(data[data.election.isin(evaluation_module.OUTER_ELECTIONS)])
-        saved = pd.read_csv(Path(directory)/'scores_predictions.csv')
-        np.testing.assert_allclose(saved.filter(like='probability_').sum(axis=1), 1)
-        import json
-        audit = json.loads((Path(directory)/'scores_report.json').read_text())
-        assert audit['status'] == 'complete'
-        assert audit['metadata']['data_version']
-        assert audit['metadata']['code_version']
-        assert result.report.final_fit['fit_record']['training_years'][-1] == 2019
-        assert any(r['reused'] for r in result.report.inner_results)
+        assert not (Path(directory)/'scores_predictions.csv').exists()
+        assert not (Path(directory)/'scores_report.json').exists()
+        assert (Path(directory)/'test_predictions.csv').exists()
+        assert result.report.status == 'complete'
+        assert result.report.final_fit['training_years'][-1] == 2019
+        assert not hasattr(result.report, 'inner_results')
     pd.testing.assert_frame_equal(data, original)
     assert all(m.calls == 1 for m in ConstantModel.instances)
     assert result.model is ConstantModel.instances[-1]
@@ -91,11 +89,14 @@ def test_config_selected_by_inner_accuracy_and_outer_changes_cannot_change_earli
     before = evaluation_module.HistoricalEvaluator([spec], verbose=False).evaluate(data)
     data.loc[data.election == 2019, 'winner'] = 'con'
     after = evaluation_module.HistoricalEvaluator([spec], verbose=False).evaluate(data)
-    assert all(r['configuration']['party'] == 'con' for r in before.report.outer_results)
-    assert [r['configuration'] for r in before.report.outer_results] == [r['configuration'] for r in after.report.outer_results]
-    assert all(
-        a['predicted_winner'] == b['predicted_winner']
-        for a, b in zip(before.report.predictions, after.report.predictions))
+    def settings(result):
+        import json
+        tracking = result.report.tracking
+        return [json.loads(Path(tracking.client.download_artifacts(r.info.run_id, 'selected_configuration.json')).read_text())
+                for r in tracking.children(tracking.candidate_ids['search'], 'election')]
+    before_settings, after_settings = settings(before), settings(after)
+    assert all(r['configuration']['party'] == 'con' for r in before_settings)
+    assert before_settings == after_settings
 
 
 def test_ties_use_registry_and_configuration_order():
@@ -126,13 +127,13 @@ def test_failed_fit_does_not_select_or_average_incomplete_results():
             return super().train(data, configuration, fit_context)
     spec = candidates_module.CandidateSpec('broken', lambda: BrokenModel('broken'), {'party': ['con']})
     with TemporaryDirectory() as directory:
-        evaluator = evaluation_module.HistoricalEvaluator([spec], scores_path=Path(directory)/'scores.csv', verbose=False)
+        evaluator = evaluation_module.HistoricalEvaluator([spec], verbose=False)
         with pytest.raises(RuntimeError, match='deliberate failure'):
             evaluator.evaluate(history())
         assert evaluator.report.status == 'failed'
         assert evaluator.report.selected_candidate is None
         assert evaluator.report.scorecard().empty
-        assert (Path(directory)/'scores_report.json').exists()
+        assert evaluator.report.tracking.client.get_run(evaluator.report.execution_id).info.status == 'FAILED'
 
 
 def test_metrics_keep_unknown_previous_winner_and_empty_slices_explicit():
@@ -191,7 +192,7 @@ def test_invalid_probabilities_abort_comparison():
     with pytest.raises(ValueError, match='sum to one'):
         evaluator.evaluate(history())
     assert evaluator.report.status == 'failed'
-    assert evaluator.report.metadata['active_fit']['validation_election'] == 1997
+    assert evaluator.report.tracking.client.get_run(evaluator.report.execution_id).info.status == 'FAILED'
 
 
 def test_inner_accuracy_selects_only_that_configurations_duration_records():

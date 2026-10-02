@@ -30,3 +30,8 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+
+# Persistent local PostgreSQL, MLflow artifacts, credentials, logs and backups
+.mlflow/
+.mlflow-demo/
+.env.mlflow
