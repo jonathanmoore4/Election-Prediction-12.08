@@ -13,7 +13,6 @@ dependencies = [
     "mlflow>=3.5,<4",
     "psycopg2-binary>=2.9,<3",
     "matplotlib",
-    "duckdb",
     "openpyxl",
     "xlrd==2.0.2",
     "lxml",

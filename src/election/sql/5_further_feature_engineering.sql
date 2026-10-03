@@ -7,8 +7,8 @@ WITH national_changes AS (
         lab_polling - previous_lab_national_vote_share AS lab_national_change,
         lib_polling - previous_lib_national_vote_share AS lib_national_change,
         -- There is no polling source for these categories; do not invent zeroes.
-        CAST(NULL AS DOUBLE) AS natSW_national_change,
-        CAST(NULL AS DOUBLE) AS oth_national_change,
+        CAST(NULL AS DOUBLE PRECISION) AS "natSW_national_change",
+        CAST(NULL AS DOUBLE PRECISION) AS oth_national_change,
         previous_winning_party_last_election_vote_share
             - previous_second_party_last_election_vote_share AS previous_margin_1st_2nd
     FROM model_data
@@ -39,7 +39,7 @@ LEFT JOIN LATERAL (
         ('con', previous_con_share, con_polling, con_national_change, 1),
         ('lib', previous_lib_share, lib_polling, lib_national_change, 2),
         ('lab', previous_lab_share, lab_polling, lab_national_change, 3),
-        ('natSW', previous_natSW_share, NULL, natSW_national_change, 4)
+        ('"natSW"', "previous_natSW_share", NULL, "natSW_national_change", 4)
     ) AS candidate(party, vote_share, polling, national_change, tie_order)
     WHERE candidate.party <> previous_winner
         AND candidate.vote_share = previous_second_party_last_election_vote_share

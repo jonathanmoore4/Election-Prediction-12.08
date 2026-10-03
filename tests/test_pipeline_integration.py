@@ -17,6 +17,8 @@ def test_pipeline_forwards_registry_and_returns_report_without_real_pipeline_wor
     raw, cleaned = object(), object()
     frames = {'train': pd.DataFrame({'election':[2019]}),
               'test': pd.DataFrame({'election':[2024]})}
+    if custom_output:
+        frames['train'].attrs['database_schema'] = 'run_example'
     monkeypatch.setattr(pipeline.read_in_raw, 'read_raw_data', Mock(return_value=raw))
     monkeypatch.setattr(pipeline.clean_data_all, 'clean_all_data', Mock(return_value=cleaned))
     monkeypatch.setattr(pipeline.apply_sql_queries, 'apply_sql_queries', Mock(return_value=frames))
@@ -36,6 +38,8 @@ def test_pipeline_forwards_registry_and_returns_report_without_real_pipeline_wor
                                    candidates=tuple(registry), forecast_election=2024, tracking=tracker)
     pipeline.clean_data_all.clean_all_data.assert_called_once_with(raw)
     pipeline.apply_sql_queries.apply_sql_queries.assert_called_once_with(cleaned)
+    if custom_output:
+        tracker.client.set_tag.assert_called_once_with(tracker.parent_id, 'database_schema', 'run_example')
     assert (output_dir/'train.csv').exists()
     assert (output_dir/'test.csv').exists()
 

@@ -5,12 +5,12 @@ Paths are relative to the project root.
 | Directory | Purpose |
 |---|---|
 | `docs/` | MLflow setup instructions and example configuration. |
-| `scripts/` | Starts local MLflow services and validates experiment tracking. |
+| `scripts/` | Sets up PostgreSQL databases, starts MLflow and validates tracking. |
 | `src/` | Installable Python source code. |
 | `src/election/` | Main election prediction package and shared path utilities. |
 | `src/election/data/` | Bundled historical election workbook and data notes. |
 | `src/election/preparation/` | Cleans historical results, boundary-adjusted results and polling. |
-| `src/election/sql/` | DuckDB queries for feature engineering and train/test datasets. |
+| `src/election/sql/` | PostgreSQL queries for feature engineering and train/test datasets. |
 | `src/election/pipeline/` | Coordinates the full data preparation and modelling workflow. |
 | `src/election/pipeline/helpers/` | Supports data loading, cleaning, predictor documentation and model selection. |
 | `src/election/models/` | Model definitions, training, evaluation and MLflow tracking. |

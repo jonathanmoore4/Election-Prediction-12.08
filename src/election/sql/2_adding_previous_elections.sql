@@ -19,7 +19,7 @@ SELECT
     con_share,
     lib_share,
     lab_share,
-    natSW_share,
+    "natSW_share",
     previous_election
 FROM historical
 -- Append every 2024 row. UNION ALL preserves duplicates and matches columns
@@ -38,7 +38,7 @@ SELECT
     con_share,
     lib_share,
     lab_share,
-    natSW_share,
+    "natSW_share",
     previous_election
 FROM results_2024;
 
@@ -57,27 +57,27 @@ SELECT
     lib_share,
     lab_share,
     -- Replace a missing nationalist vote share with zero in this lookup only.
-    COALESCE(natSW_share, 0) AS natSW_share,
+    COALESCE("natSW_share", 0) AS "natSW_share",
     constituency_name
 FROM actual_results
 -- Add 1992 votes on 1997-2001 boundaries for comparison with 1997.
 -- A typed NULL fills the ID position without inventing a constituency ID.
 UNION ALL
 SELECT election, winning_party_vote_share, second_party_vote_share, winner, CAST(NULL AS VARCHAR) AS constituency_id,
-       con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
+       con_share, lib_share, lab_share, COALESCE("natSW_share", 0), constituency_name
 FROM notional_1992
 -- Add 2001 votes expressed on 2005 boundaries for comparison with 2005.
 UNION ALL
-SELECT election, winning_party_vote_share, second_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
+SELECT election, winning_party_vote_share, second_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE("natSW_share", 0), constituency_name
 FROM notional_2001
 -- Add 2005 notional votes for comparison with the 2010 election.
 UNION ALL
-SELECT election, winning_party_vote_share, second_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
+SELECT election, winning_party_vote_share, second_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE("natSW_share", 0), constituency_name
 FROM notional_2005
 -- Add 2019 votes expressed on the new boundaries for comparison with 2024.
 -- Each notional SELECT also replaces missing nationalist shares with zero.
 UNION ALL
-SELECT election, winning_party_vote_share, second_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE(natSW_share, 0), constituency_name
+SELECT election, winning_party_vote_share, second_party_vote_share, winner, constituency_id, con_share, lib_share, lab_share, COALESCE("natSW_share", 0), constituency_name
 FROM notional_2019;
 
 -- National shares are independent of constituency boundaries. One row per
@@ -85,7 +85,7 @@ FROM notional_2019;
 CREATE OR REPLACE VIEW national_result_lookup AS
 SELECT DISTINCT election,
     con_national_vote_share, lab_national_vote_share, lib_national_vote_share,
-    natSW_national_vote_share, oth_national_vote_share
+    "natSW_national_vote_share", oth_national_vote_share
 FROM historical;
 
 -- Step 3: attach the selected previous election's results to each actual result.
@@ -104,7 +104,7 @@ SELECT
     current_results.con_share,
     current_results.lib_share,
     current_results.lab_share,
-    current_results.natSW_share,
+    current_results."natSW_share",
     current_results.previous_election,
     current_national.con_national_vote_share,
     previous_national.con_national_vote_share AS previous_con_national_vote_share,
@@ -112,8 +112,8 @@ SELECT
     previous_national.lab_national_vote_share AS previous_lab_national_vote_share,
     current_national.lib_national_vote_share,
     previous_national.lib_national_vote_share AS previous_lib_national_vote_share,
-    current_national.natSW_national_vote_share,
-    previous_national.natSW_national_vote_share AS previous_natSW_national_vote_share,
+    current_national."natSW_national_vote_share",
+    previous_national."natSW_national_vote_share" AS "previous_natSW_national_vote_share",
     current_national.oth_national_vote_share,
     previous_national.oth_national_vote_share AS previous_oth_national_vote_share,
 
@@ -125,7 +125,7 @@ SELECT
     previous_results.con_share AS previous_con_share,
     previous_results.lib_share AS previous_lib_share,
     previous_results.lab_share AS previous_lab_share,
-    previous_results.natSW_share AS previous_natSW_share
+    previous_results."natSW_share" AS "previous_natSW_share"
 -- Aliases distinguish the current result from its comparison result.
 FROM actual_results AS current_results
 -- A LEFT JOIN keeps current rows even when no previous result matches;

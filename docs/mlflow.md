@@ -107,3 +107,7 @@ scripts/mlflow-services.sh start
 Restore artifacts to the **original absolute artifact path** recorded in the backed-up database. If recovering into a differently named workspace, recreate that original directory under /workspaces and configure MLFLOW_ARTIFACT_ROOT accordingly before starting services. Do not use an archive from an untrusted source. Verify a known execution and download its selected_configuration.json in the UI before resuming training. Use a matching MLflow version for restore, then perform supported schema upgrades with a fresh backup. pg_dump covers the dedicated database; initialization recreates its one local role, so cluster-wide roles are not a separate required export here.
 
 References: [MLflow tracking server configuration](https://mlflow.org/docs/latest/self-hosting/architecture/tracking-server/), [MLflow client API](https://mlflow.org/docs/latest/api_reference/python_api/mlflow.client.html), [PostgreSQL pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html), [PostgreSQL pg_restore](https://www.postgresql.org/docs/16/app-pgrestore.html).
+
+## Election pipeline database
+
+MLflow stores experiment metadata in the `mlflow` database. Election inputs and feature snapshots use the separate `election_prediction` database and `ELECTION_DATABASE_URL`. See [PostgreSQL setup](postgresql.md). Source both configuration files before starting Jupyter or running the complete test suite.

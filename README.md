@@ -2,7 +2,7 @@
 
 Constituency identifiers can improve predictive accuracy but may reduce a model's ability to generalise across boundary reviews and changing electoral landscapes. This project investigates whether constituency winners can instead be predicted using information that remains meaningful across elections: previous party vote shares, national polling, the governing party and country or region.
 
-The project combines historical election results and polling in an end-to-end Python and SQL pipeline. The current iteration compares **eight modelling procedures across five historical elections**, tuning each procedure using only earlier elections. The selected procedure is then tuned again on pre-2024 history and evaluated retrospectively on the 2024 General Election.
+The project combines historical election results and polling in an end-to-end Python and PostgreSQL pipeline. The current iteration compares **eight modelling procedures across five historical elections**, tuning each procedure using only earlier elections. The selected procedure is then tuned again on pre-2024 history and evaluated retrospectively on the 2024 General Election.
 
 The saved complete comparison selects **Conditional XGBoost**, with **88.85% mean historical accuracy** across 2005, 2010, 2015, 2017 and 2019. The saved pipeline notebook reports **75.00% accuracy on all 632 Great Britain constituencies in 2024** (474 correct predictions). On the same constituencies, predicting the previous winner achieves **52.37%** (331 correct), predicting Labour everywhere achieves **65.03%** (411 correct), and predicting Conservative everywhere achieves **19.15%** (121 correct).  These are recorded results; rerunning with different inputs or dependencies may change them.
 
@@ -18,10 +18,14 @@ Use Python 3.11 or newer and install the dependencies in a virtual environment:
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[notebooks,dev]"
+scripts/mlflow-services.sh init  # First-time local PostgreSQL and MLflow setup
+scripts/election-database.sh    # Create the separate election database
+source .mlflow/config.env
+source .env.election
 jupyter lab
 ```
 
-On Windows, activate the environment with `.venv\Scripts\activate` instead.
+The service scripts target the Linux Codespace. For another machine, use an existing PostgreSQL server and MLflow server as described in [the PostgreSQL guide](docs/postgresql.md). On Windows, activate the environment with `.venv\Scripts\activate` instead.
 
 Open [00_run_pipeline.ipynb](notebooks/00_run_pipeline.ipynb) and run all cells. Start Jupyter from the repository root or a directory within it. The notebook downloads the configured sources, checks the supplied local workbook, prepares features, compares all candidates and fits the selected procedure for 2024. It then predicts every test row, scores rows with known winners and displays a confusion matrix.
 
@@ -39,7 +43,7 @@ from election.pipeline import run_pipeline
 selection = run_pipeline.run_pipeline(output_dir="notebooks/outputs")
 ```
 
-Run tests with `python -m pytest`. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `notebooks/outputs/`; use `output_dir` to choose another location.
+Run tests with `python -m pytest` after sourcing the database and MLflow configuration; PostgreSQL integration tests skip when their connection settings are absent. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `notebooks/outputs/`; use `output_dir` to choose another location.
 
 Python modules and project-owned files use lowercase snake case; package directories use lowercase names. Standard filenames such as `README.md` and `__init__.py` retain their conventional spelling. Analysis notebooks remain separate from the installable package.
 
@@ -66,12 +70,14 @@ All exports default to `notebooks/outputs/`. `run_pipeline(output_dir=...)` redi
 | `notebooks/` | Notebook for running the complete pipeline |
 | `src/election/pipeline/` | Coordinates source loading, data preparation, exports and model selection |
 | `src/election/preparation/` | Cleans election, polling and boundary-change data |
-| `src/election/sql/` | Builds predictors and separates training and test data in DuckDB |
+| `src/election/sql/` | Builds predictors and separates training and test data in PostgreSQL |
 | `src/election/models/` | Model candidates, preprocessing, training and historical evaluation |
-| `analysis/` | Development notebooks and experiments, retained for reference; this directory is not used to run the project |
+| `notebooks/analysis/` | Development notebooks and experiments, retained for reference; this directory is not used to run the project |
 | `src/election/data/` | Packaged local source workbook |
 | `notebooks/outputs/` | All generated datasets, predictor guide and evaluation reports |
 | `tests/` | Automated checks for the pipeline and models |
+
+The SQL pipeline retains each successful run in a separate PostgreSQL schema. Cleaned inputs, feature views and row counts remain available for inspection, and MLflow records the schema name. Failed SQL runs roll back completely. See [PostgreSQL setup and inspection](docs/postgresql.md).
 
 ## Data and predictors
 

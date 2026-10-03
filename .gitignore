@@ -35,3 +35,6 @@ dist/
 .mlflow/
 .mlflow-demo/
 .env.mlflow
+
+# Private election database connection
+.env.election

@@ -239,7 +239,7 @@ def execution_metadata(*, inner_elections, outer_elections, classes, forecast_el
             return None
     status = git('status', '--porcelain')
     versions = {}
-    for package in ('numpy', 'pandas', 'scikit-learn', 'xgboost', 'torch', 'mlflow', 'psycopg2-binary', 'duckdb'):
+    for package in ('numpy', 'pandas', 'scikit-learn', 'xgboost', 'torch', 'mlflow', 'psycopg2-binary'):
         try:
             versions[package] = importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError:

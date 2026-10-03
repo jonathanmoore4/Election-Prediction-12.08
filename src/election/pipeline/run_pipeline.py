@@ -38,6 +38,10 @@ def run_pipeline(output_dir: str | Path | None = None, *, candidates=None, forec
         # Run the SQL feature-building files and write the train/test CSV files.
         train_test_data = apply_sql_queries.apply_sql_queries(cleaned_data)
 
+        schema = train_test_data["train"].attrs.get('database_schema')
+        if schema:
+            tracking.client.set_tag(tracking.parent_id, 'database_schema', schema)
+
         train_test_data["train"].to_csv(output_dir / "train.csv", index=False)
         train_test_data["test"].to_csv(output_dir / "test.csv", index=False)
         predictor_guide.write_predictor_guide(train_test_data, output_dir / "predictor_descriptions.md")
