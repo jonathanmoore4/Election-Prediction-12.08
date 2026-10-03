@@ -26,7 +26,7 @@ def clean(value):
 
 class ExecutionTracking:
     def __init__(self, *, tracking_uri=None, experiment_name=None):
-        uri = tracking_uri or os.environ.get('MLFLOW_TRACKING_URI')
+        uri = tracking_uri or os.environ.get('MLFLOW_TRACKING_URI') or 'http://127.0.0.1:5000'
         if not uri or not uri.startswith(('http://', 'https://')):
             raise ValueError('Set MLFLOW_TRACKING_URI to the PostgreSQL-backed tracking server; file/SQLite tracking is not supported.')
         self.client = MlflowClient(tracking_uri=uri)
