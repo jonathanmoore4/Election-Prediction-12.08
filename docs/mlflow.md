@@ -1,6 +1,9 @@
 # Election experiment tracking in a Codespace
 
-The complete pipeline compares the registry's eight candidates on five outer elections, selects from the current execution's recorded mean accuracies, retunes/refits the winner using pre-2024 history, and evaluates 2024. Only after final outputs and required logging succeed does its parent run finish successfully. No full experiment is launched by setup or validation.
+Preparation, historical evaluation, comparison and final 2024 evaluation run
+independently. The full pipeline connects those same functions. MLflow retains
+one compact run per completed model evaluation, not a hierarchy of execution,
+candidate and election runs. No full experiment is launched by setup or validation.
 
 ## Install and start
 
@@ -24,7 +27,7 @@ source .mlflow/config.env
 .venv/bin/python -c 'from election.pipeline.run_pipeline import run_pipeline; run_pipeline()'
 ```
 
-This second command runs the full, expensive experiment; use it only when ready. Restart the notebook kernel/server if it was launched before setting the environment. There is no SQLite or file-store fallback. Database/logging failures abort the execution. If the server becomes unreachable, runs can remain RUNNING because failure status could not be written; inspect the exception notes and treat them as incomplete, never successful. No autologging is enabled. Use a fresh kernel without externally enabled autologging.
+This second command runs the full, expensive experiment; use it only when ready. Restart the notebook kernel/server if it was launched before setting the environment. There is no SQLite or file-store fallback. Database/logging failures abort the execution. If the server becomes unreachable, runs can remain RUNNING because failure status could not be written; inspect the exception notes and treat them as incomplete, never successful. No autologging is enabled. Tracked evaluation explicitly disables autologging, including in a reused notebook kernel.
 
 ## Everyday services and persistent storage
 
@@ -42,17 +45,73 @@ To choose another persistent directory before first initialization, set ELECTION
 
 ## Viewing the retained records
 
-Select the election-prediction experiment in MLflow. Each execution has a parent; its eight candidate children each have five election children. A ninth child is the winner's final-test run. Changing the registry/schedule explicitly changes the expected candidate/election list; default executions retain eight and five.
+Select the `election-prediction` experiment in MLflow. A historical model run has
+`purpose=model_comparison`, five `accuracy_YEAR` metrics and `mean_outer_accuracy`.
+A final run has `purpose=final_evaluation`, `accuracy_2024` and
+`mean_outer_accuracy` (the same score because this schedule has one outer election).
+Eight model comparisons followed by one final evaluation create nine runs.
 
-The parent records expected evaluations, shared split and environment references, Git commit and dirty state, the winner, criterion and tie decision. MLflow supplies run identifiers and start/end timestamps. Candidate artifacts give the adapter and policy references, fixed configuration and relevant neural or two-stage structure. Election and final artifacts contain only actual selected settings, training years and per-seed refit durations. Final runs reference the winning candidate specification.
+Each run has one `evaluation.json`. It contains the candidate grid, full schedule,
+selected parameters and winning inner-election scores for each outer election,
+training years and per-seed neural refit durations. Metadata includes model and
+architecture identifiers, fixed training settings and protocol, feature columns,
+target/scoring definitions, data identity and prepared-data/schema references.
+MLflow supplies completion time and run identity. Final metadata references the
+historical selection run and, for the full pipeline, all comparison source runs.
 
-Only accuracy, changed-seat accuracy, retained-seat accuracy, macro F1 and log loss are persisted as score metrics. Candidate metrics are their equal-election means, with undefined subgroup elections omitted exactly as before; the number contributing to each mean is stored as a parameter. Election and final scores carry evaluation and subgroup counts. Missing previous winners are excluded from changed/retained groups, not from total accuracy. Undefined subgroup scores have an explicit undefined tag and no numeric metric; they are never zero. Macro F1 retains the complete declared party list and zero_division=0. Counts are parameters, so they do not duplicate score metrics across levels.
+There are no child runs, candidate-fit records, epoch histories, package inventories,
+dataset rows, fitted weights or constituency predictions in MLflow. Explicit
+logging is used; autologging and system metrics are not enabled by this project.
+Tracked evaluation explicitly disables autologging, including in a reused notebook kernel.
 
-Comparison and selection query only the current execution's candidate and election runs and require complete, valid records. Exact ties use registry order, and inner configuration ties retain grid order. Final outcomes never enter tuning or selection. Successfully finished children remain available if later work fails. Subsequent executions create separate histories.
+All required elections must have valid results before recording starts. The run is
+marked complete only after its compact artifact and metrics are written, and
+logging failures abort the calling stage. A partially written or failed run cannot
+enter comparison. If termination could not be written because the server became
+unreachable, treat RUNNING records as incomplete.
 
-The notebook displays MLflow-backed comparisons and the returned final scores; it no longer evaluates 2024 separately. Prepared train/test CSVs, the existing predictor guide, final test_predictions.csv, and test_confusion_matrix.csv/.png remain local pipeline outputs. Historical score CSVs, historical per-seat predictions, exhaustive tuning JSON and redundant final test_metrics.json are no longer generated. Existing saved files are left untouched. There was no separate model-saving implementation to change.
+`compare_recorded` reads the preparation manifest and MLflow, without loading data
+rows or importing model implementations. It selects the most recently completed
+compatible historical run per requested model by MLflow end time, then ranks these
+runs by mean outer accuracy. Compatibility requires identical data identity, full
+schedule, target, scoring and evaluation protocol. Exact model ties follow the
+requested model order; configuration ties preserve ParameterGrid order. Missing
+or excluded records are returned with reasons. The full pipeline refuses to select
+from a partial set of requested models. Final evaluations never enter comparison.
 
-The recorded information supports **recreating the procedure and retraining**, not restoring a fitted model. No learned weights, model objects, checkpoints, inner trials, epoch histories, datasets, source copies or per-observation predictions are uploaded. Source, dependency and predictor references point to the existing project; predictor documentation is not duplicated. Seeds do not guarantee identical learned weights or predictions. A dirty Git working tree must be retained/committed by you if its exact source is needed later; no commit is created automatically.
+The neural procedure is unchanged: inner scoring elections select checkpoints;
+outer/final refits train on all eligible history for each seed's median best inner
+epoch, rounded halves up, without validation monitoring. Outer/final outcomes do
+not enter checkpoint selection. The protocol is documented in
+`src/election/models/adapters/nn01_model.py` and recorded in the summary.
+
+Prepared datasets are retained in content-identified
+`notebooks/outputs/datasets/<snapshot>/` folders. The preparation manifest records
+train/test locations and hashes; a later preparation does not overwrite a previous
+snapshot. `latest_prepared.json` points to the latest snapshot. A hash does not
+preserve the dataset: keep the corresponding files and/or retained SQL schema.
+Final prediction CSVs and confusion matrices remain local optional outputs.
+
+Existing hierarchical runs and old local outputs are not deleted or relabelled.
+They remain inspectable, but the new comparison and result reader only use
+`record_type=evaluation-v1` compact runs. Rerun the desired historical models once
+to populate the new comparison format. No migration is needed for tracking storage.
+
+## Independent stages
+
+```bash
+python -m election.pipeline.run_pipeline prepare
+python -m election.pipeline.run_pipeline evaluate --model logistic_regression
+python -m election.pipeline.run_pipeline evaluate --model all
+python -m election.pipeline.run_pipeline compare
+python -m election.pipeline.run_pipeline final --selection-run HISTORICAL_RUN_ID
+python -m election.pipeline.run_pipeline all --data-dir notebooks/outputs --reuse-evaluations
+```
+
+For Python usage and optional output/data directories, see [README](../README.md).
+The final stage accepts a completed historical run, verifies its compatibility,
+reuses its candidate grid and fixed settings, tunes again through 2019 and scores
+2024. It returns a dictionary, not a fitted model.
 
 ## Small validation demonstration
 
@@ -63,7 +122,17 @@ source .mlflow/config.env
 .venv/bin/python scripts/validate_mlflow.py
 ```
 
-The demonstration uses tiny synthetic data and cheap adapters, not election data or the full training grid. Its clearly named validation experiment is separate from production. It checks two executions, the hierarchy, compact records, failure handling, final output availability, and reads the first history/artifact again after restarting services. It leaves validation history available for inspection. Unit/integration tests can be run with pytest; PostgreSQL-backed tests require the same configured server.
+This uses tiny synthetic data and inexpensive functions in a separate, uniquely
+named validation experiment. It checks the independent preparation/evaluation/
+comparison/final pipeline wiring, nine compact runs per execution, latest-compatible
+selection, final local outputs and reading retained results with a new client.
+It does not train real election models or restart the user's services.
+
+Unit tests use small synthetic datasets and reduced fitting budgets. Real MLflow
+integration checks require `MLFLOW_TRACKING_URI`; PostgreSQL data checks also
+require `ELECTION_DATABASE_URL`. Source both configuration files before pytest to
+include those checks. The recorded settings support retraining the procedure,
+not restoring fitted weights; seeds alone do not guarantee identical predictions.
 
 ## Backup both stores
 
@@ -104,7 +173,7 @@ tar -xzf /path/to/backup-artifacts.tar.gz -C "$MLFLOW_ARTIFACT_ROOT"
 scripts/mlflow-services.sh start
 ```
 
-Restore artifacts to the **original absolute artifact path** recorded in the backed-up database. If recovering into a differently named workspace, recreate that original directory under /workspaces and configure MLFLOW_ARTIFACT_ROOT accordingly before starting services. Do not use an archive from an untrusted source. Verify a known execution and download its selected_configuration.json in the UI before resuming training. Use a matching MLflow version for restore, then perform supported schema upgrades with a fresh backup. pg_dump covers the dedicated database; initialization recreates its one local role, so cluster-wide roles are not a separate required export here.
+Restore artifacts to the **original absolute artifact path** recorded in the backed-up database. If recovering into a differently named workspace, recreate that original directory under /workspaces and configure MLFLOW_ARTIFACT_ROOT accordingly before starting services. Do not use an archive from an untrusted source. Verify a known execution and download its evaluation.json (or selected_configuration.json for an old hierarchical run) in the UI before resuming training. Use a matching MLflow version for restore, then perform supported schema upgrades with a fresh backup. pg_dump covers the dedicated database; initialization recreates its one local role, so cluster-wide roles are not a separate required export here.
 
 References: [MLflow tracking server configuration](https://mlflow.org/docs/latest/self-hosting/architecture/tracking-server/), [MLflow client API](https://mlflow.org/docs/latest/api_reference/python_api/mlflow.client.html), [PostgreSQL pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html), [PostgreSQL pg_restore](https://www.postgresql.org/docs/16/app-pgrestore.html).
 

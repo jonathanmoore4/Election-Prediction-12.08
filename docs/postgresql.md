@@ -41,7 +41,7 @@ Each SQL run creates a unique schema named `run_<UTC timestamp>_<random suffix>`
 - `train_data` and `test_data` expose the prepared datasets.
 - `snapshot_info` records completion time, input/output row counts and the SQL used.
 
-All these changes commit in one transaction. SQL failures roll back the entire new schema. Concurrent runs use different schemas. Earlier snapshots are retained, and the pipeline's MLflow execution receives a `database_schema` tag linking its model results to the snapshot. Returned DataFrames also carry that name in `attrs['database_schema']`.
+All these changes commit in one transaction. SQL failures roll back the entire new schema. Concurrent runs use different schemas. Earlier snapshots are retained, and each model's compact MLflow summary includes `metadata.prepared_data.database_schema`, linking its results to the snapshot. Returned DataFrames also carry that name in `attrs['database_schema']`.
 
 Feature views calculate from the retained inputs when queried; they are not materialized feature tables. Historical snapshots should be treated as read-only by users, although the database owner can modify them. This is run-based snapshotting, rather than incremental updates or a live progress dashboard. The loader logs stages through Python logging; enable INFO logging if you want console progress:
 

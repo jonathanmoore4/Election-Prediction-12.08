@@ -1,6 +1,5 @@
 """Small real fits and controlled checkpoint tests for the new adapter contract."""
 from copy import deepcopy
-from dataclasses import replace
 from unittest.mock import patch
 
 import numpy as np
@@ -8,88 +7,97 @@ import pandas as pd
 import pytest
 import torch
 
-import election.models.candidates as candidates_module
 import election.models.custom_model as custom_model_module
 import election.models.evaluation as evaluation_module
+from election.pipeline.run_pipeline import MODEL_MODULES, model_functions
+from importlib import import_module
 from election.models.adapters import nn01_model as neural
-import election.models.training_policy as training_policy_module
+
+
+def model_spec(index):
+    model_id = list(MODEL_MODULES)[index]
+    function, candidates, metadata = model_functions(model_id)
+    module = import_module('election.models.adapters.' + MODEL_MODULES[model_id][0])
+    factory_name = ('NeuralNetworkModel' if model_id.startswith('nn') else {
+        'xgboost': 'XGBoostModel', 'random_forest': 'RandomForestModel',
+        'logistic_regression': 'LogisticRegressionModel',
+        'xgboost_expanded': 'XGBoostExpandedModel',
+        'conditional_xgboost': 'ConditionalXGBoostModel'}[model_id])
+    return dict(model_id=model_id, function=function, candidates=candidates,
+                metadata=metadata, factory=getattr(module, factory_name))
 
 
 def sample():
-    specs = candidates_module.default_candidates()
-    columns = set(c for s in specs for c in s.feature_columns)
+    columns = set(c for i in range(8) for c in model_spec(i)['metadata']['features'])
     rows = []
-    for year in [1987, 1992, 1997, 2001, 2005, 2010, 2015, 2017, 2019]:
+    for year in [1987,1992,1997,2001,2005,2010,2015,2017,2019]:
         for i, party in enumerate(custom_model_module.PARTIES):
-            rows.append({**{c: .1 + .02*i for c in columns}, 'election': year,
-                         'winner': party, 'previous_winner': custom_model_module.PARTIES[(i+1)%5],
-                         'country/region': 'England', 'incumbent': 'con',
-                         'constituency_id': f'{year}-{i}'})
+            rows.append({**{c:.1+.02*i for c in columns}, 'election':year,
+                'winner':party, 'previous_winner':custom_model_module.PARTIES[(i+1)%5],
+                'country/region':'England', 'incumbent':'con', 'constituency_id':f'{year}-{i}'})
     return pd.DataFrame(rows)
 
 
 def small_spec(spec):
-    if isinstance(spec.training_policy, training_policy_module.NeuralTrainingPolicy):
-        config = {**spec.configurations()[0], 'max_epochs': 2, 'patience': 1,
-                  'seeds': (1,), 'learning_rate': .01}
-    elif spec.name == 'Conditional XGBoost':
-        config = {**spec.configurations()[0], 'change.n_estimators': 2,
-                  'challenger.n_estimators': 2}
-    else:
-        config = spec.configurations()[0]
-        if 'n_estimators' in config:
-            config['n_estimators'] = 2
-    return replace(spec, search_space={}, fixed_settings=config)
+    config = {**spec['metadata']['fixed_settings'],
+              **evaluation_module.parameter_combinations(spec['candidates'])[0]}
+    if spec['model_id'].startswith('nn'):
+        config.update(max_epochs=2, patience=1, seeds=(1,), learning_rate=.01)
+    elif spec['model_id'] == 'conditional_xgboost':
+        config.update({'change.n_estimators':2,'challenger.n_estimators':2})
+    elif 'n_estimators' in config:
+        config['n_estimators'] = 2
+    return {**spec, 'configuration':config}
 
 
-def test_registry_search_sizes_match_plan():
-    assert [len(s.configurations()) for s in candidates_module.default_candidates()] == [16,18,4,4,8,1,16,256]
+def test_search_sizes_match_original_procedures():
+    assert [len(evaluation_module.parameter_combinations(model_spec(i)['candidates']))
+            for i in range(8)] == [16,18,4,4,8,1,16,256]
 
 
 @pytest.mark.parametrize('index', range(8))
 def test_every_adapter_exposes_aligned_probabilities_and_keeps_rows(index):
     torch.set_num_threads(1)
-    spec = small_spec(candidates_module.default_candidates()[index])
-    data = sample()
-    training = data[data.election < 1997]
-    validation = data[data.election == 1997]
+    spec = small_spec(model_spec(index)); data = sample()
+    training, validation = data[data.election < 1997], data[data.election == 1997]
     original = training.copy(deep=True)
-    model = spec.create_model()
-    record = model.train(training, spec.configurations()[0],
-                         spec.training_policy.inner_context(validation, custom_model_module.PARTIES, {}))
+    context = custom_model_module.fit_context(
+        validation=validation if spec['model_id'].startswith('nn') else None)
+    model = spec['factory']()
+    record = model.train(training, spec['configuration'], context)
     predictions = validation.drop(columns='winner').copy()
-    predictions.loc[predictions.index[0], list(spec.feature_columns)] = np.nan
-    if 'country/region' in predictions:
-        predictions.loc[predictions.index[1], 'country/region'] = 'unseen'
+    predictions.loc[predictions.index[0], spec['metadata']['features']] = np.nan
+    predictions.loc[predictions.index[1], 'country/region'] = 'unseen'
     probabilities = model.predict_proba(predictions)
     assert probabilities.shape == (5,5)
     assert tuple(model.classes_) == custom_model_module.PARTIES
     assert np.isfinite(probabilities).all()
-    np.testing.assert_allclose(probabilities.sum(axis=1), 1, atol=1e-6)
-    assert len(model.predict(predictions)) == 5
+    np.testing.assert_allclose(probabilities.sum(axis=1),1,atol=1e-6)
     assert model.predict(predictions.iloc[:0]).shape == (0,)
-    pd.testing.assert_frame_equal(training, original)
-    assert record.training_years == (1987, 1992)
+    pd.testing.assert_frame_equal(training,original)
+    assert record['training_years'] == (1987,1992)
 
 
-def test_synthetic_end_to_end_all_adapters_without_running_pipeline(tracked_evaluation):
+@pytest.mark.parametrize('index', range(8))
+def test_all_model_functions_run_nested_cv_without_logging_or_fitted_result_objects(index):
     torch.set_num_threads(1)
-    specs = [small_spec(s) for s in candidates_module.default_candidates()]
-    result = evaluation_module.HistoricalEvaluator(specs, verbose=False).evaluate(sample())
-    assert result.report.status == 'complete'
-    assert len(result.report.outer_results) == 40
-    assert len(result.report.scorecard()) == 8
-    assert result.report.final_fit['training_years'][-1] == 2019
-    import json
-    from pathlib import Path
-    tracking = result.report.tracking
-    for name, run_id in tracking.candidate_ids.items():
-        for run in tracking.children(run_id, 'election'):
-            selected = json.loads(Path(tracking.client.download_artifacts(run.info.run_id, 'selected_configuration.json')).read_text())
-            assert max(selected['training_years']) < int(run.data.tags['election'])
-            assert 'fit_record' not in selected
-            if name.startswith('NN'):
-                assert selected['refit_durations'] == {'1': 2} or selected['refit_durations'] == {'1': 1}
+    spec = small_spec(model_spec(index)); data = sample()
+    result = evaluation_module.nested_cv(spec['function'], {}, data,
+        model_id=spec['model_id'], metadata={**spec['metadata'], 'fixed_settings':spec['configuration']},
+        verbose=False)
+    assert result['status'] == 'complete'
+    assert len(result['outer_results']) == 5
+    assert result['run_id'] is None
+    assert all(max(fold['training_years']) < year for year,fold in result['outer_results'].items())
+    if spec['model_id'].startswith('nn'):
+        assert all(fold['refit_durations'] in ({1:1},{1:2}) for fold in result['outer_results'].values())
+
+
+@pytest.mark.parametrize('index', range(8))
+def test_model_functions_reject_unknown_hyperparameters(index):
+    spec = model_spec(index); data = sample()
+    with pytest.raises(ValueError,match='unsupported hyperparameters'):
+        spec['function'](data[data.election<1997],data[data.election==1997],{'misspelt_parameter':1})
 
 
 def test_early_stopping_restores_independent_best_checkpoint_and_no_validation_updates():
@@ -130,9 +138,9 @@ def test_neural_refit_uses_all_history_and_exact_per_seed_durations():
     data = sample().query('election <= 2001')
     model = neural.NeuralNetworkModel()
     config = dict(seeds=(1,2), hidden_sizes=(4,), learning_rate=.01)
-    record = model.train(data, config, custom_model_module.FitContext(durations={1:2, 2:3}))
-    assert [r['stopping_epoch'] for r in record.runs] == [2,3]
-    assert all(r['best_epoch'] is None for r in record.runs)
+    record = model.train(data, config, custom_model_module.fit_context(durations={1:2, 2:3}))
+    assert [r['stopping_epoch'] for r in record['runs']] == [2,3]
+    assert all(r['best_epoch'] is None for r in record['runs'])
     assert all(set(p.named_steps['missing_data'].winner_modes_) == {1987,1992,1997,2001}
                for p in model.preprocessors)
     before = deepcopy(record)
@@ -145,24 +153,24 @@ def test_neural_refit_uses_all_history_and_exact_per_seed_durations():
 def test_validation_boundary_is_enforced_before_neural_fit():
     data = sample().query('election <= 2001')
     with pytest.raises(ValueError, match='precede validation'):
-        neural.NeuralNetworkModel().train(data, {}, custom_model_module.FitContext(validation=data.query('election == 1997')))
+        neural.NeuralNetworkModel().train(data, {}, custom_model_module.fit_context(validation=data.query('election == 1997')))
 
 
 def test_conditional_reuses_stages_only_inside_same_fold():
     import election.models.adapters.conditional_xgboost_model as conditional_xgboost_model_module
-    spec = small_spec(candidates_module.default_candidates()[-1])
+    spec = small_spec(model_spec(7))
     data = sample().query('election < 1997')
-    config = spec.configurations()[0]
-    context = custom_model_module.FitContext()
+    config = spec['configuration']
+    context = custom_model_module.fit_context()
     fits = []
     original = conditional_xgboost_model_module.Stage.fit
     def tracked(stage, features, labels, params):
         fits.append(params.copy())
         return original(stage, features, labels, params)
     with patch.object(conditional_xgboost_model_module.Stage, 'fit', tracked):
-        first = spec.create_model(); first.train(data, config, context)
-        second = spec.create_model(); second.train(data, {**config, 'challenger.max_depth': 3}, context)
-        third = spec.create_model(); third.train(data, config, custom_model_module.FitContext())
+        first = spec['factory'](); first.train(data, config, context)
+        second = spec['factory'](); second.train(data, {**config, 'challenger.max_depth': 3}, context)
+        third = spec['factory'](); third.train(data, config, custom_model_module.fit_context())
     assert len(fits) == 5  # 2 initial, 1 changed stage, 2 in a fresh fold.
     assert first.change_model is second.change_model
     assert first.destination_model is not second.destination_model
@@ -170,20 +178,71 @@ def test_conditional_reuses_stages_only_inside_same_fold():
 
 
 def test_stage_cache_rejects_a_different_training_dataset():
-    spec = small_spec(candidates_module.default_candidates()[-1])
+    spec = small_spec(model_spec(7))
     data = sample().query('election < 1997')
-    context = custom_model_module.FitContext()
-    spec.create_model().train(data, spec.configurations()[0], context)
+    context = custom_model_module.fit_context()
+    spec['factory']().train(data, spec['configuration'], context)
     with pytest.raises(ValueError, match='different training data'):
-        spec.create_model().train(data.assign(con_polling=.8), spec.configurations()[0], context)
+        spec['factory']().train(data.assign(con_polling=.8), spec['configuration'], context)
 
 
 @pytest.mark.parametrize('index', [0,1,2,6])
 def test_ordinary_models_align_absent_classes_and_single_class_history(index):
-    spec = small_spec(candidates_module.default_candidates()[index])
+    spec = small_spec(model_spec(index))
     data = sample().query('election < 1997').assign(winner='lab')
-    model = spec.create_model()
-    model.train(data, spec.configurations()[0])
+    model = spec['factory']()
+    model.train(data, spec['configuration'])
     result = model.predict_proba(data.drop(columns='winner'))
     expected = np.zeros((len(data),5)); expected[:,1] = 1
     np.testing.assert_allclose(result, expected)
+
+
+def test_neural_outer_2017_keeps_original_inner_validation_and_median_refit(monkeypatch):
+    torch.set_num_threads(1)
+    spec = small_spec(model_spec(3)); data = sample()
+    calls = []
+    original = neural.NeuralNetworkModel.train
+    def train(model, rows, configuration=None, fit_context=None):
+        record = original(model, rows, configuration, fit_context)
+        calls.append(dict(training_years=record['training_years'],
+                          validation_year=record['validation_year'],
+                          durations=deepcopy(fit_context['durations']), runs=record['runs']))
+        return record
+    monkeypatch.setattr(neural.NeuralNetworkModel, 'train', train)
+    schedule = dict(name='2017-regression', purpose='model_comparison',
+        outer_elections=[2017], inner_elections={2017:[1997,2001,2005,2010,2015]},
+        training_cutoff=None)
+    result = evaluation_module.nested_cv(spec['function'], {}, data, model_id='nn01',
+        metadata={**spec['metadata'],'fixed_settings':spec['configuration']},
+        schedule=schedule, verbose=False)
+    inner, outer = calls[:-1], calls[-1]
+    assert [call['validation_year'] for call in inner] == [1997,2001,2005,2010,2015]
+    assert all(max(call['training_years']) < call['validation_year'] for call in inner)
+    assert outer['validation_year'] is None
+    assert outer['training_years'][-1] == 2015
+    expected = neural.median_refit_durations([{'runs':call['runs']} for call in inner])
+    assert outer['durations'] == result['outer_results'][2017]['refit_durations'] == expected
+    assert outer['runs'][0]['duration'] == expected[1]
+
+
+def test_neural_final_outcomes_never_enter_training_or_change_refit_duration(monkeypatch):
+    from election.models.config import FINAL_EVALUATION_SCHEDULE
+    torch.set_num_threads(1)
+    spec = small_spec(model_spec(3)); data = sample()
+    test = data.query('election == 2019').assign(election=2024)
+    final_a = pd.concat([data,test],ignore_index=True)
+    final_b = final_a.copy(); final_b.loc[final_b.election==2024,'winner']='con'
+    calls=[]; original=neural.NeuralNetworkModel.train
+    def train(model,rows,configuration=None,fit_context=None):
+        assert rows.election.max() <= 2019
+        if fit_context['validation'] is not None:
+            assert fit_context['validation'].election.max() <= 2019
+        calls.append(fit_context['validation'] is None)
+        return original(model,rows,configuration,fit_context)
+    monkeypatch.setattr(neural.NeuralNetworkModel,'train',train)
+    results=[evaluation_module.nested_cv(spec['function'],{},frame,model_id='nn01',
+        metadata={**spec['metadata'],'fixed_settings':spec['configuration']},
+        schedule=FINAL_EVALUATION_SCHEDULE,verbose=False) for frame in (final_a,final_b)]
+    assert calls.count(True)==2
+    assert results[0]['outer_results'][2024]['refit_durations']==results[1]['outer_results'][2024]['refit_durations']
+    assert results[0]['outer_results'][2024]['hyperparameters']==results[1]['outer_results'][2024]['hyperparameters']

@@ -40,28 +40,80 @@ Import project modules explicitly so calls show their origin:
 ```python
 from election.pipeline import run_pipeline
 
-selection = run_pipeline.run_pipeline(output_dir="notebooks/outputs")
+result = run_pipeline.run_pipeline(output_dir="notebooks/outputs")
+print(result["comparison"]["winner_model_id"])
+print(result["final_evaluation"]["run_id"])
 ```
 
 Run tests with `python -m pytest` after sourcing the database and MLflow configuration; PostgreSQL integration tests skip when their connection settings are absent. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `notebooks/outputs/`; use `output_dir` to choose another location.
 
 Python modules and project-owned files use lowercase snake case; package directories use lowercase names. Standard filenames such as `README.md` and `__init__.py` retain their conventional spelling. Analysis notebooks remain separate from the installable package.
 
+## Run stages independently
+
+After preparation, evaluation and comparison reuse existing data/results. No stage
+implicitly reruns an earlier stage.
+
+```bash
+python -m election.pipeline.run_pipeline prepare
+python -m election.pipeline.run_pipeline evaluate --model logistic_regression
+python -m election.pipeline.run_pipeline evaluate --model all
+python -m election.pipeline.run_pipeline compare
+python -m election.pipeline.run_pipeline final --selection-run HISTORICAL_RUN_ID
+python -m election.pipeline.run_pipeline all
+```
+
+`--data-dir` accepts a prepared snapshot folder, its `prepared_data.json`, or the
+outputs folder containing `latest_prepared.json`. `--output-dir` chooses where
+preparation snapshots and optional final reports are written. Without `--data-dir`,
+independent stages read `notebooks/outputs/latest_prepared.json`; `all` runs preparation.
+Use `--model logistic_regression random_forest` to evaluate/compare a subset.
+`--skip-final` stops the full pipeline after comparison. `--quiet` hides fit progress.
+
+```python
+from election.pipeline.preparation import run_preparation
+from election.pipeline.run_pipeline import evaluate_models, compare_recorded, run_pipeline
+
+prepared = run_preparation({"output_dir": "notebooks/outputs"})
+results = evaluate_models(prepared, model_ids=["logistic_regression", "random_forest"])
+comparison = compare_recorded(prepared, model_ids=["logistic_regression", "random_forest"])
+# Reuse both preparation and completed historical MLflow records:
+result = run_pipeline(prepared_data=prepared, reuse_evaluations=True,
+                      model_ids=["logistic_regression", "random_forest"])
+```
+
+The pipeline returns dictionaries, including prepared locations, evaluations,
+comparison and final evaluation. It does not return a fitted model. Existing CSVs
+can also be reused by supplying `prepared_data={"train_path": ..., "test_path": ...}`
+to evaluation/pipeline; evaluation computes their content identity. For comparison
+alone, include that `data_id` or use the generated manifest.
+
 ## Outputs
 
 | Location | Output |
 |---|---|
-| `notebooks/outputs/train.csv`, `test.csv` | Prepared historical training data and 2024 test data |
-| `notebooks/outputs/predictor_descriptions.md` | Guide to exported columns, units and missing values |
-| `notebooks/outputs/model_accuracies.csv` | Candidate scorecard across five historical elections |
-| `notebooks/outputs/model_accuracies_elections.csv` | Metrics and selected settings for each candidate and election |
-| `notebooks/outputs/model_accuracies_predictions.csv` | Historical constituency predictions and party probabilities |
-| `notebooks/outputs/model_accuracies_report.json` | Tuning records, final-fit details and run status |
-| `notebooks/outputs/test_predictions.csv` | Final test rows with predicted winners, exported by the notebook |
-| `notebooks/outputs/test_metrics.json` | Final test accuracy and evaluation row counts, exported by the notebook |
-| `notebooks/outputs/test_confusion_matrix.csv`, `test_confusion_matrix.png` | Final confusion matrix as data and an image, exported by the notebook |
+| `notebooks/outputs/datasets/<snapshot>/train.csv`, `test.csv` | Prepared historical and final datasets; existing snapshots are preserved |
+| Same folder: `prepared_data.json`, `predictor_descriptions.md` | Content identities, retained SQL schema and predictor guide |
+| `notebooks/outputs/latest_prepared.json` | Locations of the most recently prepared snapshot |
+| MLflow: one historical run per model | Five outer accuracies, their unweighted mean and one compact `evaluation.json` |
+| MLflow: separate final run | 2024 accuracy, selected configuration, refit durations and historical selection reference |
+| `notebooks/outputs/test_predictions.csv` | Optional final constituency predictions, stored locally |
+| `notebooks/outputs/test_confusion_matrix.csv`, `.png` | Optional final confusion matrix, stored locally |
 
-All exports default to `notebooks/outputs/`. `run_pipeline(output_dir=...)` redirects every export to the specified directory; relative paths resolve from the caller's working directory. Reruns overwrite data exports and reports. CSV accuracies are fractions. The fitted model remains in memory.
+MLflow does not receive datasets, constituency predictions, fitted models, every
+candidate's scores, epoch histories or package inventories. Eight historical model
+evaluations plus the selected final evaluation create nine runs. Comparison ranks
+the most recently completed compatible historical run for each requested model,
+rather than each model's highest-ever score. The full pipeline requires a complete
+comparison across its requested models before final evaluation.
+
+Old outputs and old hierarchical MLflow runs remain untouched. The new result
+reader uses compact runs; previous runs remain inspectable in the MLflow UI.
+Final CSV/image reports are overwritten when a final stage is rerun; dataset
+snapshots and MLflow evaluations remain separate histories.
+Reused snapshot contents are checked against their recorded identities. Final
+evaluation reuses the selected run's search space and fixed settings, and rejects
+changes to its architecture, training protocol or feature list.
 
 ## Repository guide
 
@@ -77,7 +129,7 @@ All exports default to `notebooks/outputs/`. `run_pipeline(output_dir=...)` redi
 | `notebooks/outputs/` | All generated datasets, predictor guide and evaluation reports |
 | `tests/` | Automated checks for the pipeline and models |
 
-The SQL pipeline retains each successful run in a separate PostgreSQL schema. Cleaned inputs, feature views and row counts remain available for inspection, and MLflow records the schema name. Failed SQL runs roll back completely. See [PostgreSQL setup and inspection](docs/postgresql.md).
+The SQL pipeline retains each successful run in a separate PostgreSQL schema. Cleaned inputs, feature views and row counts remain available for inspection, and MLflow records the schema reference in its compact summary. Failed SQL runs roll back completely. See [PostgreSQL setup and inspection](docs/postgresql.md).
 
 ## Data and predictors
 
@@ -124,9 +176,9 @@ The shared evaluator implements **nested walk-forward validation**: tuning happe
 | 2017 | 1997, 2001, 2005, 2010, 2015 | 1987–2015 |
 | 2019 | 1997, 2001, 2005, 2010, 2015, 2017 | 1987–2017 |
 
-For each configuration and inner election, fit a fresh model using only earlier elections. Select settings by mean inner-election accuracy, giving elections equal weight. Refit a fresh model on all history before the outer election and save its predictions. Outer outcomes do not determine preprocessing, settings or training duration.
+For each configuration and inner election, fit a fresh model using only earlier elections. Select settings by mean inner-election accuracy, giving elections equal weight. Refit a fresh model on all history before the outer election and retain its accuracy. Outer outcomes do not determine preprocessing, settings or training duration.
 
-Candidate selection uses **mean accuracy across the five outer elections**, with equal election weights. Changed-seat accuracy is a diagnostic and receives no extra selection weight. Exact ties follow registry order; configuration ties follow configuration order.
+Candidate selection uses **mean accuracy across the five outer elections**, with equal election weights. Changed-seat accuracy is a diagnostic and receives no extra selection weight. Exact model ties follow requested model order; configuration ties follow configuration order.
 
 After selection, tune the winning procedure again using inner elections from 1997 through 2019, then fit a fresh model on pre-2024 history. Historical fitted models and settings are not averaged into the final model.
 
@@ -145,7 +197,7 @@ After selection, tune the winning procedure again using inner elections from 199
 
 Conditional XGBoost assigns the previous winner `P(no change)` and each challenger `P(change) × P(challenger wins | change)`. Its challenger stage trains on changed seats. Both stages form one candidate and their combined winner predictions determine tuning scores.
 
-Each neural candidate averages probabilities from ten networks with predefined seeds. Inner fits select each seed's checkpoint by validation log loss, while learning rates are ranked by mean inner-election accuracy. For the outer and final refits, each seed trains on all available history for its median best-checkpoint duration from the selected configuration's inner folds, rounded halves up with a minimum of one epoch. These refits do not hold back another election or monitor forecast outcomes.
+Each neural candidate averages probabilities from ten networks with predefined seeds. Early stopping is unchanged: each inner scoring election also selects checkpoints, while outer and final outcomes never influence checkpoint selection. Inner fits select each seed's checkpoint by validation log loss, while learning rates are ranked by mean inner-election accuracy. For the outer and final refits, each seed trains on all available history for its median best-checkpoint duration from the selected configuration's inner folds, rounded halves up with a minimum of one epoch. These refits do not hold back another election or monitor forecast outcomes.
 
 ## Data Sources and Acknowledgement
 

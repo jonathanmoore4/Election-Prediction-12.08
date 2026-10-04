@@ -1,182 +1,161 @@
-"""Failure, isolation and final neural policy checks against PostgreSQL."""
+"""Compact MLflow records, completion failures and newest-compatible selection."""
+from copy import deepcopy
 import json
-from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from election.models.evaluation import HistoricalEvaluator
-from election.models.tracking import ExecutionTracking, CORE_METRICS
-from tests.test_automated_model_selection import history, constant_spec
-from tests.test_model_training import sample, small_spec
-from election.models.candidates import default_candidates
-
-pytestmark = pytest.mark.usefixtures('tracked_evaluation')
+from election.models import tracking
+from election.models.compare_models import compare_models
+from tests.test_automated_model_selection import evaluated
 
 
-def artifact(tracker, run_id, name):
-    return json.loads(Path(tracker.client.download_artifacts(run_id, name)).read_text())
+class MemoryClient:
+    """Native MLflow call surface; deterministic failures without a server."""
+    def __init__(self, directory):
+        self.directory=directory; self.runs={}; self.clock=0; self.fail=None
+    def create_run(self, experiment_id, tags):
+        run_id=f'{len(self.runs)+1:032x}'
+        run=SimpleNamespace(info=SimpleNamespace(run_id=run_id,status='RUNNING',end_time=None),
+                            data=SimpleNamespace(tags=dict(tags),metrics={},params={}))
+        self.runs[run_id]=run
+        return run
+    def log_dict(self, run_id, value, filename):
+        if self.fail == 'artifact': raise RuntimeError('artifact unavailable')
+        directory=self.directory/run_id; directory.mkdir()
+        (directory/filename).write_text(json.dumps(value,allow_nan=False))
+    def log_metric(self, run_id, key, value):
+        if self.fail == 'metric': raise RuntimeError('metric unavailable')
+        self.runs[run_id].data.metrics[key]=value
+    def log_param(self,run_id,key,value): self.runs[run_id].data.params[key]=str(value)
+    def set_tag(self,run_id,key,value): self.runs[run_id].data.tags[key]=value
+    def set_terminated(self,run_id,status):
+        if self.fail == 'finish' and status == 'FINISHED': raise RuntimeError('finish unavailable')
+        self.clock+=1; self.runs[run_id].info.status=status; self.runs[run_id].info.end_time=self.clock
+    def get_run(self,run_id): return self.runs[run_id]
+    def download_artifacts(self,run_id,filename): return str(self.directory/run_id/filename)
+    def search_runs(self,*args,**kwargs):
+        class Page(list): token=None
+        return Page(sorted(self.runs.values(),key=lambda r:-(r.info.end_time or 0)))
 
 
-def test_two_executions_keep_hierarchy_and_compact_artifacts():
-    specs = [constant_spec(str(i), ['con']) for i in range(8)]
-    first = HistoricalEvaluator(specs, verbose=False).evaluate(history()).report
-    second = HistoricalEvaluator(specs, verbose=False).evaluate(history()).report
-    assert first.execution_id != second.execution_id
-    assert len(first.tracking.client.search_runs([first.tracking.experiment_id], max_results=1000)) == 100
-    t = first.tracking
-    assert t.client.get_run(first.execution_id).info.status == 'FINISHED'
-    assert len(t.children(first.execution_id, 'candidate')) == 8
-    assert len(t.children(first.execution_id, 'final_test')) == 1
-    assert not t.client.get_run(first.execution_id).data.metrics
-    for name, run_id in t.candidate_ids.items():
-        summary = t.client.get_run(run_id)
-        assert set(summary.data.metrics) == {f'mean_{m}' for m in CORE_METRICS}
-        assert summary.data.metrics['mean_accuracy'] == .8
-        assert len(t.children(run_id, 'election')) == 5
-        assert [a.path for a in t.client.list_artifacts(run_id)] == ['candidate_specification.json']
-        for r in t.children(run_id, 'election'):
-            assert set(r.data.metrics) <= set(CORE_METRICS)
-            assert r.data.tags['execution_id'] == first.execution_id
-            assert [a.path for a in t.client.list_artifacts(r.info.run_id)] == ['selected_configuration.json']
-            selected = artifact(t, r.info.run_id, 'selected_configuration.json')
-            assert 'fit_record' not in selected
-            assert selected['configuration'] == {'party': 'con'}
-    assert first.scorecard().mean_accuracy.tolist() == second.scorecard().mean_accuracy.tolist()
+@pytest.fixture
+def client(tmp_path,monkeypatch):
+    client=MemoryClient(tmp_path)
+    monkeypatch.setattr(tracking,'_client',lambda settings:(client,'experiment'))
+    return client
 
 
-@pytest.mark.parametrize('failure', ['final_evaluation', 'final_logging', 'output'])
-def test_final_failure_keeps_outer_results_and_fails_parent(failure, monkeypatch):
-    evaluator = HistoricalEvaluator([constant_spec('one', ['con'])], verbose=False)
-    t = ExecutionTracking()
-    if failure == 'final_evaluation':
-        monkeypatch.setattr(evaluator, '_final_evaluation', lambda *a: (_ for _ in ()).throw(RuntimeError('final failure')))
-    elif failure == 'final_logging':
-        original = t.scores
-        def fail(run_id, values, **kw):
-            if 'test_rows' in values:
-                raise RuntimeError('final failure')
-            return original(run_id, values, **kw)
-        monkeypatch.setattr(t, 'scores', fail)
-    else:
-        monkeypatch.setattr('matplotlib.figure.Figure.savefig', lambda *a, **k: (_ for _ in ()).throw(RuntimeError('final failure')))
-    with pytest.raises(RuntimeError, match='final failure'):
-        evaluator.evaluate(history(), tracking=t)
-    assert evaluator.report.status == 'failed'
-    assert t.client.get_run(t.parent_id).info.status == 'FAILED'
-    assert t.client.get_run(t.parent_id).data.tags['execution_status'] == 'failed'
-    assert len(t.election_scores()) == 5
-    assert t.children(t.parent_id, 'candidate')[0].info.status == 'FINISHED'
-    assert t.children(t.parent_id, 'final_test')[0].info.status == 'FAILED'
+def record(result,client):
+    run_id=tracking.log_evaluation_result(result,tracking={})
+    return client.get_run(run_id)
 
 
-@pytest.mark.parametrize('corruption', ['missing', 'nonfinite', 'incomplete', 'out_of_range'])
-def test_invalid_current_summary_cannot_select(corruption, monkeypatch):
-    t = ExecutionTracking()
-    original = t.finish
-    def finish(run_id):
-        original(run_id)
-        run = t.client.get_run(run_id)
-        if run.data.tags['kind'] == 'candidate':
-            if corruption == 'missing':
-                # A client response with a required metric absent.
-                pass
-            elif corruption == 'incomplete':
-                t.client.set_terminated(run_id, 'FAILED')
-            else:
-                t.client.log_metric(run_id, 'mean_accuracy', float('nan') if corruption == 'nonfinite' else 2)
-    monkeypatch.setattr(t, 'finish', finish)
-    original_children = t.children
-    calls = 0
-    def children(parent, kind):
-        nonlocal calls
-        records = original_children(parent, kind)
-        if kind == 'candidate':
-            calls += 1
-            if corruption == 'missing' and calls == 2:
-                records[0].data.metrics.pop('mean_accuracy')
-        return records
-    monkeypatch.setattr(t, 'children', children)
-    evaluator = HistoricalEvaluator([constant_spec('one', ['con'])], verbose=False)
-    with pytest.raises(RuntimeError, match='Invalid selection|Incomplete MLflow'):
-        evaluator.evaluate(history(), tracking=t)
-    assert evaluator.report.selected_candidate is None
-    assert t.client.get_run(t.parent_id).info.status == 'FAILED'
-    assert not t.children(t.parent_id, 'final_test')
+def compatibility(result): return tracking.compatibility_fields(result['metadata'],result['schedule'])
 
 
-def test_missing_outer_record_cannot_produce_winner(monkeypatch):
-    t = ExecutionTracking()
-    original = t.children
-    def missing(parent, kind):
-        records = original(parent, kind)
-        return records[:-1] if kind == 'election' else records
-    monkeypatch.setattr(t, 'children', missing)
-    evaluator = HistoricalEvaluator([constant_spec('one', ['con'])], verbose=False)
-    with pytest.raises(RuntimeError, match='Incomplete outer'):
-        evaluator.evaluate(history(), tracking=t)
-    assert evaluator.report.selected_candidate is None
-    assert t.client.get_run(t.parent_id).info.status == 'FAILED'
+def test_one_run_six_metrics_one_small_summary_and_no_observations(client):
+    result=evaluated(); run=record(result,client)
+    assert len(client.runs)==1
+    assert run.info.status=='FINISHED'
+    assert len(run.data.metrics)==6
+    path=client.directory/run.info.run_id/'evaluation.json'
+    artifact=json.loads(path.read_text())
+    assert path.stat().st_size < 15000
+    assert list((client.directory/run.info.run_id).iterdir())==[path]
+    assert artifact['outer_results']['2019']['accuracy']==0
+    assert 'fit_records' not in path.read_text()
+    assert 'constituency_id' not in path.read_text()
+    assert 'mlflow.parentRunId' not in run.data.tags
+    assert tracking.read_evaluation(run.info.run_id,tracking={})['mean_outer_accuracy']==.8
 
 
-def test_final_outcomes_cannot_change_selection_or_settings():
-    specs = [constant_spec('con', ['con', 'lab']), constant_spec('lab', ['lab'])]
-    test = history().query('election == 2019').assign(election=2024)
-    a = HistoricalEvaluator(specs, verbose=False).evaluate(history(), test_data=test)
-    b = HistoricalEvaluator(specs, verbose=False).evaluate(history(), test_data=test.assign(winner='con'))
-    assert a.model_name == b.model_name == 'con'
-    assert a.report.final_fit == b.report.final_fit
-    assert a.report.final_metrics['accuracy'] == 0
-    assert b.report.final_metrics['accuracy'] == 1
+@pytest.mark.parametrize('failure',['artifact','metric','finish'])
+def test_logging_failure_marks_run_failed_and_ineligible(client,failure):
+    result=evaluated(); client.fail=failure
+    with pytest.raises(RuntimeError,match='unavailable'): record(result,client)
+    run=next(iter(client.runs.values()))
+    assert run.info.status=='FAILED'
+    assert run.data.tags['record_complete']=='false'
+    comparison=compare_models(model_ids=['constant'],compatibility=compatibility(result),tracking={})
+    assert comparison['winner_model_id'] is None
+    assert len(comparison['missing_results'])==1
 
 
-def test_real_neural_final_fit_has_same_implementation_and_refit_policy(monkeypatch):
-    import torch
-    torch.set_num_threads(1)
-    spec = small_spec(default_candidates()[3])
-    calls = []
-    model_class = spec.factory
-    original = model_class.train
-    def train(model, data, configuration=None, fit_context=None):
-        record = original(model, data, configuration, fit_context)
-        calls.append((type(model), configuration.copy(), fit_context, record))
-        return record
-    monkeypatch.setattr(model_class, 'train', train)
-    result = HistoricalEvaluator([spec], verbose=False).evaluate(sample())
-    refits = [c for c in calls if c[2].validation is None]
-    assert len(refits) == 6
-    assert all(c[0] is type(result.model) for c in calls)
-    assert all(c[1] == refits[0][1] for c in refits)
-    assert refits[-1][3].training_years[-1] == 2019
-    assert all(c[2].durations == {1: c[3].runs[0]['duration']} for c in refits)
-    t = result.report.tracking
-    final = t.children(t.parent_id, 'final_test')[0]
-    assert artifact(t, final.info.run_id, 'selected_configuration.json')['refit_durations'] == {str(k):v for k,v in refits[-1][2].durations.items()}
-    assert not hasattr(result.report, 'inner_results')
+def test_partial_evaluation_cannot_create_a_completed_record(client):
+    result=evaluated(); result['outer_results'].pop(2019)
+    with pytest.raises(ValueError,match='Incomplete evaluation'): record(result,client)
+    assert not client.runs
 
 
-def test_logging_failure_at_outer_boundary_prevents_selection(monkeypatch):
-    t = ExecutionTracking()
-    def fail(*a, **kw):
-        raise RuntimeError('logging unavailable')
-    monkeypatch.setattr(t, 'scores', fail)
-    evaluator = HistoricalEvaluator([constant_spec('one', ['con'])], verbose=False)
-    with pytest.raises(RuntimeError, match='logging unavailable'):
-        evaluator.evaluate(history(), tracking=t)
-    assert evaluator.report.selected_candidate is None
-    assert t.client.get_run(t.parent_id).info.status == 'FAILED'
-    assert t.children(t.parent_id, 'election') == []
-    assert t.children(t.candidate_ids['one'], 'election')[0].info.status == 'FAILED'
+def test_latest_compatible_run_wins_over_historically_highest_score(client):
+    result=evaluated(); old=record(result,client)
+    newer=deepcopy(result)
+    for fold in newer['outer_results'].values(): fold['accuracy']=.2
+    newer['mean_outer_accuracy']=.2
+    latest=record(newer,client)
+    comparison=compare_models(model_ids=['constant'],compatibility=compatibility(result),tracking={})
+    assert comparison['source_run_ids']=={'constant':latest.info.run_id}
+    assert comparison['ranked_results'][0]['mean_outer_accuracy']==.2
+    assert old.info.run_id != latest.info.run_id
 
 
-def test_undefined_subgroup_is_explicit_and_omitted_from_mean():
-    data = history().assign(winner='con', previous_winner=None)
-    result = HistoricalEvaluator([constant_spec('one', ['con'])], verbose=False).evaluate(data)
-    t = result.report.tracking
-    summary = t.client.get_run(t.candidate_ids['one'])
-    assert 'mean_changed_seat_accuracy' not in summary.data.metrics
-    assert summary.data.tags['undefined.mean_changed_seat_accuracy'] == 'true'
-    assert summary.data.params['changed_seat_accuracy_elections'] == '0'
-    for run in t.children(summary.info.run_id, 'election'):
-        assert run.data.params['changed_seat_evaluation_rows'] == '0'
-        assert run.data.tags['undefined.changed_seat_accuracy'] == 'true'
-        assert 'changed_seat_accuracy' not in run.data.metrics
+def test_incompatible_and_final_runs_do_not_replace_latest_historical_result(client):
+    result=evaluated(); valid=record(result,client)
+    other=deepcopy(result); other['metadata']['data_id']='different'; other['data_id']='different'
+    record(other,client)
+    final=record(result,client); final.data.tags['purpose']='final_evaluation'
+    comparison=compare_models(model_ids=['constant','missing'],compatibility=compatibility(result),tracking={})
+    assert comparison['source_run_ids']=={'constant':valid.info.run_id}
+    assert len(comparison['excluded_results'])==2
+    assert comparison['missing_results'][0]['model_id']=='missing'
+
+
+@pytest.mark.parametrize('corruption',['missing_metric','nonfinite','artifact_mean','artifact_run_id','artifact_schedule'])
+def test_invalid_latest_summary_is_excluded_and_previous_valid_run_is_used(client,corruption):
+    result=evaluated(); previous=record(result,client); run=record(result,client)
+    path=client.directory/run.info.run_id/'evaluation.json'
+    artifact=json.loads(path.read_text())
+    if corruption=='missing_metric': run.data.metrics.pop('accuracy_2019')
+    elif corruption=='nonfinite': run.data.metrics['mean_outer_accuracy']=float('nan')
+    elif corruption=='artifact_mean': artifact['mean_outer_accuracy']=.99
+    elif corruption=='artifact_run_id': artifact['run_id']='another'
+    else: artifact['schedule']['name']='another'
+    path.write_text(json.dumps(artifact))
+    comparison=compare_models(model_ids=['constant'],compatibility=compatibility(result),tracking={})
+    assert comparison['source_run_ids']['constant']==previous.info.run_id
+    assert comparison['excluded_results']
+
+
+def test_model_ties_follow_requested_model_order(client):
+    first=evaluated('first'); second=evaluated('second')
+    record(first,client); record(second,client)
+    comparison=compare_models(model_ids=['second','first'],compatibility=compatibility(first),tracking={})
+    assert comparison['winner_model_id']=='second'
+
+
+def test_pagination_does_not_omit_requested_models(client,monkeypatch):
+    result=evaluated(); valid=record(result,client)
+    other=evaluated('other'); irrelevant=record(other,client)
+    class Page(list): pass
+    def pages(*args,**kwargs):
+        if kwargs['page_token'] is None:
+            page=Page([irrelevant]); page.token='next'
+        else:
+            page=Page([valid]); page.token=None
+        return page
+    monkeypatch.setattr(client,'search_runs',pages)
+    records=tracking.latest_completed_evaluations(model_ids=['constant'],compatibility=compatibility(result),tracking={})
+    assert records['evaluations']['constant']['run_id']==valid.info.run_id
+
+
+def test_real_server_records_and_reads_compact_evaluation(tracking_settings):
+    result=evaluated(tracking=tracking_settings)
+    client,_=tracking._client(tracking_settings)
+    run=client.get_run(result['run_id'])
+    assert run.info.status=='FINISHED'
+    assert len(run.data.metrics)==6
+    assert [a.path for a in client.list_artifacts(result['run_id'])]==['evaluation.json']
+    assert tracking.read_evaluation(result['run_id'],tracking=tracking_settings)['mean_outer_accuracy']==.8
+    comparison=compare_models(model_ids=['constant'],compatibility=compatibility(result),tracking=tracking_settings)
+    assert comparison['winner_model_id']=='constant'

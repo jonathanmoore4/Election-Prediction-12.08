@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 
+import election.models.custom_model as custom_model_module
 import election.models.pipeline_model as pipeline_model_module
 import election.models.missing_data as missing_data_module
 
@@ -106,3 +107,24 @@ class LogisticRegressionModel(pipeline_model_module.PipelineModel):
 
     def fit_pipeline(self, data, parameters):
         return train_logistic_regression(data, parameters)
+
+
+logreghyperparameters = {'C': [0.01, 0.1, 1, 10]}
+TRAINING_METADATA = {
+    'model_id': 'logistic_regression',
+    'architecture_id': 'logistic_regression-v1',
+    'training_protocol': 'full-history-v1',
+    'fixed_settings': dict(LOGISTIC_DEFAULTS),
+    'features': list(FEATURE_COLUMNS),
+    'supported_hyperparameters': sorted(set(LOGISTIC_DEFAULTS) | set(logreghyperparameters)),
+}
+
+
+def LogReg(train_data, test_data, hyperparameters, *, fit_records=None,
+           cache=None, return_details=False, output_dir=None):
+    """Fit one configuration and score known winners; no MLflow operations."""
+    from election.models.model_function import evaluate_fit
+    return evaluate_fit(LogisticRegressionModel, train_data, test_data, hyperparameters,
+                        metadata=TRAINING_METADATA,
+                        context=custom_model_module.fit_context(cache=cache),
+                        return_details=return_details, output_dir=output_dir)

@@ -12,7 +12,7 @@ Paths are relative to the project root.
 | `src/election/preparation/` | Cleans historical results, boundary-adjusted results and polling. |
 | `src/election/sql/` | PostgreSQL queries for feature engineering and train/test datasets. |
 | `src/election/pipeline/` | Coordinates the full data preparation and modelling workflow. |
-| `src/election/pipeline/helpers/` | Supports data loading, cleaning, predictor documentation and model selection. |
+| `src/election/pipeline/helpers/` | Supports data loading, cleaning and predictor documentation. |
 | `src/election/models/` | Model definitions, training, evaluation and MLflow tracking. |
 | `src/election/models/adapters/` | Gives individual model implementations a common interface. |
 | `tests/` | Automated checks for data processing, models and pipeline integration. |

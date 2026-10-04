@@ -11,7 +11,7 @@ class PipelineModel(custom_model_module.custom_model):
         self.pipeline = None
 
     def train(self, data, configuration=None, fit_context=None):
-        context = fit_context or custom_model_module.FitContext()
+        context = fit_context or custom_model_module.fit_context()
         custom_model_module.validate_fit(data, context)
         parameters = {**self.defaults, **(configuration or {})}
         self.pipeline = self.fit_pipeline(data, parameters)

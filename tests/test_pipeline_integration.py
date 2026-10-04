@@ -10,42 +10,82 @@ import pandas as pd
 import pytest
 
 
-@pytest.mark.parametrize("custom_output", [False, True])
-def test_pipeline_forwards_registry_and_returns_report_without_real_pipeline_work(tmp_path, monkeypatch, custom_output):
-    pipeline = import_module('election.pipeline.run_pipeline')
-    monkeypatch.setattr(pipeline, 'PROJECT_ROOT', tmp_path)
-    raw, cleaned = object(), object()
-    frames = {'train': pd.DataFrame({'election':[2019]}),
-              'test': pd.DataFrame({'election':[2024]})}
-    if custom_output:
-        frames['train'].attrs['database_schema'] = 'run_example'
-    monkeypatch.setattr(pipeline.read_in_raw, 'read_raw_data', Mock(return_value=raw))
-    monkeypatch.setattr(pipeline.clean_data_all, 'clean_all_data', Mock(return_value=cleaned))
-    monkeypatch.setattr(pipeline.apply_sql_queries, 'apply_sql_queries', Mock(return_value=frames))
-    monkeypatch.setattr(pipeline.predictor_guide, 'write_predictor_guide', Mock())
-    result = object()
-    select = Mock(return_value=result)
-    monkeypatch.setattr(pipeline.automated_model_selection, 'automated_model_selection', select)
-    registry = [object()]
-    from election.models import tracking as tracking_module
-    tracker = Mock()
-    tracker.execution.return_value = nullcontext(tracker)
-    monkeypatch.setattr(tracking_module, 'ExecutionTracking', Mock(return_value=tracker))
-    output_dir = tmp_path/'reports' if custom_output else tmp_path/'notebooks'/'outputs'
-    assert pipeline.run_pipeline(output_dir if custom_output else None, candidates=registry) is result
-    select.assert_called_once_with(frames['train'], test_data=frames['test'], output_dir=output_dir,
-                                   predictor_guide=output_dir/'predictor_descriptions.md',
-                                   candidates=tuple(registry), forecast_election=2024, tracking=tracker)
-    pipeline.clean_data_all.clean_all_data.assert_called_once_with(raw)
-    pipeline.apply_sql_queries.apply_sql_queries.assert_called_once_with(cleaned)
-    if custom_output:
-        tracker.client.set_tag.assert_called_once_with(tracker.parent_id, 'database_schema', 'run_example')
-    assert (output_dir/'train.csv').exists()
-    assert (output_dir/'test.csv').exists()
+def test_pipeline_reuses_prepared_data_and_evaluations_without_preparation_or_training(tmp_path,monkeypatch):
+    pipeline=import_module('election.pipeline.run_pipeline')
+    prepared={'data_id':'id','train_path':'train.csv','test_path':'test.csv'}
+    comparison={'winner_model_id':'logistic_regression','source_run_ids':{'logistic_regression':'run'},'missing_results':[]}
+    prepare=Mock(); evaluate=Mock(); final=Mock(return_value={'status':'complete'})
+    monkeypatch.setattr(pipeline,'run_preparation',prepare)
+    monkeypatch.setattr(pipeline,'evaluate_models',evaluate)
+    monkeypatch.setattr(pipeline,'compare_recorded',Mock(return_value=comparison))
+    monkeypatch.setattr(pipeline,'evaluate_final',final)
+    result=pipeline.run_pipeline(output_dir=tmp_path,prepared_data=prepared,reuse_evaluations=True,
+                                 model_ids=['logistic_regression'])
+    assert result['status']=='complete'
+    prepare.assert_not_called(); evaluate.assert_not_called()
+    assert final.call_args.kwargs['selection_run_id']=='run'
 
-    pipeline.predictor_guide.write_predictor_guide.assert_called_once_with(
-        frames, output_dir/'predictor_descriptions.md')
-    assert not (tmp_path/'TEST_TRAIN').exists()
+
+def test_complete_pipeline_calls_the_same_independent_stages(tmp_path,monkeypatch):
+    pipeline=import_module('election.pipeline.run_pipeline')
+    prepared={'data_id':'id'}
+    prepare=Mock(return_value=prepared); evaluate=Mock(return_value={'logistic_regression':{}})
+    compare=Mock(return_value={'winner_model_id':'logistic_regression','source_run_ids':{'logistic_regression':'run'},'missing_results':[]})
+    final=Mock(return_value={'status':'complete'})
+    for name,call in [('run_preparation',prepare),('evaluate_models',evaluate),('compare_recorded',compare),('evaluate_final',final)]:
+        monkeypatch.setattr(pipeline,name,call)
+    result=pipeline.run_pipeline(output_dir=tmp_path,model_ids=['logistic_regression'])
+    assert result['prepared_data'] is prepared
+    assert prepare.call_count==evaluate.call_count==compare.call_count==final.call_count==1
+
+
+def test_preparation_preserves_existing_steps_and_snapshot_files(tmp_path,monkeypatch):
+    preparation=import_module('election.pipeline.preparation')
+    raw,cleaned=object(),object()
+    frames={'train':pd.DataFrame({'election':[2019],'winner':['con']}),
+            'test':pd.DataFrame({'election':[2024],'winner':['lab']})}
+    frames['train'].attrs['database_schema']='run_example'
+    read=Mock(return_value=raw); clean=Mock(return_value=cleaned); sql=Mock(return_value=frames)
+    monkeypatch.setattr(preparation.read_in_raw,'read_raw_data',read)
+    monkeypatch.setattr(preparation.clean_data_all,'clean_all_data',clean)
+    monkeypatch.setattr(preparation.apply_sql_queries,'apply_sql_queries',sql)
+    monkeypatch.setattr(preparation.predictor_guide,'write_predictor_guide',lambda frames,path:path.write_text('guide'))
+    a=preparation.run_preparation({'output_dir':tmp_path})
+    clean.assert_called_once_with(raw); sql.assert_called_once_with(cleaned)
+    old_content=Path(a['train_path']).read_text()
+    frames['train'].loc[0,'winner']='lab'
+    b=preparation.run_preparation({'output_dir':tmp_path})
+    assert a['data_id']!=b['data_id']
+    assert Path(a['train_path']).read_text()==old_content
+    assert json.loads((tmp_path/'latest_prepared.json').read_text())==b
+    assert a['database_schema']=='run_example'
+
+
+def test_changed_prepared_data_fails_before_evaluation(tmp_path):
+    from election.pipeline.preparation import load_prepared
+    path=tmp_path/'train.csv'; pd.DataFrame({'election':[2019],'winner':['con']}).to_csv(path,index=False)
+    with pytest.raises(ValueError,match='changed'):
+        load_prepared({'data_id':'wrong','train_path':str(path)})
+
+
+def test_comparison_does_not_import_models_or_load_data(monkeypatch):
+    pipeline=import_module('election.pipeline.run_pipeline')
+    monkeypatch.setattr(pipeline,'model_functions',Mock(side_effect=AssertionError('imported models')))
+    monkeypatch.setattr(pipeline,'load_prepared',Mock(side_effect=AssertionError('loaded data')))
+    compare=Mock(return_value={'winner_model_id':None})
+    monkeypatch.setattr(pipeline,'compare_models',compare)
+    pipeline.compare_recorded({'data_id':'id'},model_ids=['logistic_regression'])
+    assert compare.call_count==1
+
+
+def test_missing_models_prevent_automatic_final_evaluation(tmp_path,monkeypatch):
+    pipeline=import_module('election.pipeline.run_pipeline')
+    monkeypatch.setattr(pipeline,'compare_recorded',Mock(return_value={'missing_results':[{'model_id':'nn01'}]}))
+    final=Mock(); monkeypatch.setattr(pipeline,'evaluate_final',final)
+    with pytest.raises(ValueError,match='requires all requested'):
+        pipeline.run_pipeline(output_dir=tmp_path,prepared_data={'data_id':'id'},reuse_evaluations=True)
+    final.assert_not_called()
+
 
 def test_pipeline_notebook_code_compiles_and_uses_root_output_directory():
     path = Path(__file__).resolve().parents[1]/'notebooks/00_run_pipeline.ipynb'
@@ -81,3 +121,63 @@ def test_all_notebooks_compile_and_use_current_pipeline_paths():
             assert 'TEST_TRAIN' not in source, str(path)
             if cell['cell_type'] == 'code':
                 ast.parse(source, filename=str(path))
+
+
+def test_final_uses_recorded_grid_and_fixed_settings_and_checks_compatibility(tmp_path,monkeypatch):
+    from election.models.config import MODEL_COMPARISON_SCHEDULE
+    from election.models.evaluation import json_value
+    pipeline=import_module('election.pipeline.run_pipeline')
+    train=pd.DataFrame({'election':[2019],'winner':['con']})
+    test=pd.DataFrame({'election':[2024],'winner':['lab']})
+    train_path=tmp_path/'train.csv'; test_path=tmp_path/'test.csv'
+    train.to_csv(train_path,index=False); test.to_csv(test_path,index=False)
+    prepared={'train_path':str(train_path),'test_path':str(test_path)}
+    _,locations=pipeline.load_prepared(prepared)
+    function,candidates,metadata=pipeline.model_functions('logistic_regression')
+    selected={'model_id':'logistic_regression','schedule':json_value(MODEL_COMPARISON_SCHEDULE),
+        'metadata':{**metadata,**pipeline._data_metadata(locations),'fixed_settings':{'max_iter':23}},
+        'hyperparameter_candidates':{'C':[.123]}}
+    monkeypatch.setattr(pipeline,'read_evaluation',Mock(return_value=selected))
+    nested=Mock(return_value={'status':'complete'}); monkeypatch.setattr(pipeline,'nested_cv',nested)
+    pipeline.evaluate_final(prepared,selection_run_id='historical')
+    assert nested.call_args.args[1]=={'C':[.123]}
+    assert nested.call_args.kwargs['metadata']['fixed_settings']=={'max_iter':23}
+    assert nested.call_args.kwargs['metadata']['selection_run_id']=='historical'
+    selected['metadata']['architecture_id']='incompatible'
+    with pytest.raises(ValueError,match='architecture_id'):
+        pipeline.evaluate_final(prepared,selection_run_id='historical')
+    selected['metadata']['architecture_id']=metadata['architecture_id']
+    selected['metadata']['features']=['different_feature']
+    nested.reset_mock()
+    with pytest.raises(ValueError,match='features'):
+        pipeline.evaluate_final(prepared,selection_run_id='historical')
+    nested.assert_not_called()
+
+
+def test_preparation_rejects_corrupt_existing_snapshot(tmp_path, monkeypatch):
+    preparation=import_module('election.pipeline.preparation')
+    frames={'train':pd.DataFrame({'election':[2019],'winner':['con']}),
+            'test':pd.DataFrame({'election':[2024],'winner':['lab']})}
+    monkeypatch.setattr(preparation.read_in_raw,'read_raw_data',Mock(return_value={}))
+    monkeypatch.setattr(preparation.clean_data_all,'clean_all_data',Mock(return_value={}))
+    monkeypatch.setattr(preparation.apply_sql_queries,'apply_sql_queries',Mock(return_value=frames))
+    monkeypatch.setattr(preparation.predictor_guide,'write_predictor_guide',lambda frames,path:path.write_text('guide'))
+    prepared=preparation.run_preparation({'output_dir':tmp_path})
+    path=Path(prepared['train_path'])
+    path.write_text('election,winner\n2019,lab\n')
+    with pytest.raises(ValueError,match='changed'):
+        preparation.run_preparation({'output_dir':tmp_path})
+    assert path.read_text()=='election,winner\n2019,lab\n'
+
+
+def test_pipeline_accepts_existing_csv_paths_without_a_manifest(tmp_path,monkeypatch):
+    pipeline=import_module('election.pipeline.run_pipeline')
+    train_path=tmp_path/'train.csv'
+    pd.DataFrame({'election':[2019],'winner':['con']}).to_csv(train_path,index=False)
+    evaluate=Mock(return_value={})
+    monkeypatch.setattr(pipeline,'evaluate_models',evaluate)
+    monkeypatch.setattr(pipeline,'compare_recorded',Mock(return_value={'missing_results':[]}))
+    result=pipeline.run_pipeline(prepared_data={'train_path':str(train_path)},
+        model_ids=['logistic_regression'],final_evaluation=False)
+    assert result['prepared_data']['data_id']
+    assert evaluate.call_args.args[0]['data_id']==result['prepared_data']['data_id']

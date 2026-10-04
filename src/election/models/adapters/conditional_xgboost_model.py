@@ -148,16 +148,16 @@ class ConditionalXGBoostModel(custom_model_module.custom_model):
         self.mapper = None
 
     def train(self, data, configuration=None, fit_context=None):
-        context = fit_context or custom_model_module.FitContext()
+        context = fit_context or custom_model_module.fit_context()
         custom_model_module.validate_fit(data, context)
         training = data.reset_index(drop=True)
         configuration = configuration or {}
         # The cache belongs to exactly this fold, not to the model or global state.
-        cache = context.cache
+        cache = context['cache']
         signature = sha256(pd.util.hash_pandas_object(
             training[FEATURE_COLUMNS + ['election', 'winner']], index=True).values.tobytes()).hexdigest()
         if cache.get('training_signature', signature) != signature:
-            raise ValueError('FitContext cache cannot be shared across different training data.')
+            raise ValueError('Fit cache cannot be shared across different training data.')
         cache['training_signature'] = signature
         if 'role_data' not in cache:
             mapper = RoleMapper().fit(training)
@@ -204,3 +204,24 @@ class ConditionalXGBoostModel(custom_model_module.custom_model):
 
     def predict(self, data):
         return self.classes_[self.predict_proba(data).argmax(axis=1)]
+
+
+conditionalxgboosthyperparameters = {f'{stage}.{key}': list(values) for stage in ('change', 'challenger') for key, values in PARAM_GRID.items()}
+TRAINING_METADATA = {
+    'model_id': 'conditional_xgboost',
+    'architecture_id': 'conditional_xgboost_model-v1',
+    'training_protocol': 'full-history-v1',
+    'fixed_settings': dict(boosting_module.BOOST_DEFAULTS),
+    'features': list(FEATURE_COLUMNS),
+    'supported_hyperparameters': sorted(set(boosting_module.BOOST_DEFAULTS) | set(conditionalxgboosthyperparameters)),
+}
+
+
+def ConditionalXGBoost(train_data, test_data, hyperparameters, *, fit_records=None,
+           cache=None, return_details=False, output_dir=None):
+    """Fit one configuration and score known winners; no MLflow operations."""
+    from election.models.model_function import evaluate_fit
+    return evaluate_fit(ConditionalXGBoostModel, train_data, test_data, hyperparameters,
+                        metadata=TRAINING_METADATA,
+                        context=custom_model_module.fit_context(cache=cache),
+                        return_details=return_details, output_dir=output_dir)

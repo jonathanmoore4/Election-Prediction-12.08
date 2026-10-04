@@ -1,4 +1,5 @@
 """XGBoost: one configuration per fit; tuning is owned by the evaluator."""
+import election.models.custom_model as custom_model_module
 import election.models.pipeline_model as pipeline_model_module
 import election.models.boosting as boosting_module
 
@@ -39,3 +40,24 @@ class XGBoostModel(pipeline_model_module.PipelineModel):
 
     def fit_pipeline(self, data, parameters):
         return train_xgboost(data, parameters)
+
+
+xgboosthyperparameters = {'n_estimators': [20, 35, 50, 100], 'max_depth': [2, 3, 4, 5]}
+TRAINING_METADATA = {
+    'model_id': 'xgboost',
+    'architecture_id': 'xgboost_model-v1',
+    'training_protocol': 'full-history-v1',
+    'fixed_settings': dict(boosting_module.BOOST_DEFAULTS),
+    'features': list(FEATURE_COLUMNS),
+    'supported_hyperparameters': sorted(set(boosting_module.BOOST_DEFAULTS) | set(xgboosthyperparameters)),
+}
+
+
+def XGBoost(train_data, test_data, hyperparameters, *, fit_records=None,
+           cache=None, return_details=False, output_dir=None):
+    """Fit one configuration and score known winners; no MLflow operations."""
+    from election.models.model_function import evaluate_fit
+    return evaluate_fit(XGBoostModel, train_data, test_data, hyperparameters,
+                        metadata=TRAINING_METADATA,
+                        context=custom_model_module.fit_context(cache=cache),
+                        return_details=return_details, output_dir=output_dir)

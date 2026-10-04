@@ -1,233 +1,146 @@
-"""Exercise nested selection and leakage boundaries without expensive estimators."""
-from dataclasses import replace
-from importlib import import_module
-from pathlib import Path
-from tempfile import TemporaryDirectory
+"""Election boundaries and deterministic nested tuning without expensive fits."""
+from copy import deepcopy
 
 import numpy as np
 import pandas as pd
 import pytest
 
-import election.models.candidates as candidates_module
-import election.models.custom_model as custom_model_module
-import election.models.evaluation as evaluation_module
-import election.models.training_policy as training_policy_module
-
-pytestmark = pytest.mark.usefixtures('tracked_evaluation')
-
-selection = import_module('election.pipeline.helpers.automated_model_selection')
+from election.models.config import MODEL_COMPARISON_SCHEDULE, FINAL_EVALUATION_SCHEDULE
+from election.models import evaluation
+from election.models.adapters.nn01_model import median_refit_durations
 
 
 def history():
-    rows = []
-    for year in (1987, 1992, 1997, 2001, *evaluation_module.OUTER_ELECTIONS):
-        # 2019 has more seats, deliberately testing equal election weights.
-        for seat in range(20 if year == 2019 else 4):
-            rows.append(dict(election=year, winner='con' if year < 2019 else 'lab',
-                             previous_winner='con', constituency_id=f'{year}-{seat}'))
-    data = pd.DataFrame(rows)
-    data.index = np.arange(len(data)) * 3
-    return data
+    return pd.DataFrame([dict(election=year, winner='con' if year < 2019 else 'lab',
+                             previous_winner='con', constituency_id=f'{year}-{seat}')
+        for year in (1987, 1992, 1997, 2001, 2005, 2010, 2015, 2017, 2019)
+        for seat in range(20 if year == 2019 else 4)])
 
 
-class ConstantModel(custom_model_module.custom_model):
-    instances = []
-
-    def __init__(self, name='constant'):
-        super().__init__(name)
-        self.instances.append(self)
-        self.calls = 0
-
-    def train(self, data, configuration=None, fit_context=None):
-        self.calls += 1
-        assert self.calls == 1, 'Each fold must use a fresh object'
-        context = fit_context or custom_model_module.FitContext()
-        assert context.validation is None
-        self.training_data = data.copy()
-        return self._record(data, configuration, context)
-
-    def predict_proba(self, data):
-        assert 'winner' not in data
-        assert data.election.min() > self.training_data.election.max()
-        probabilities = np.zeros((len(data), len(self.classes_)))
-        probabilities[:, list(self.classes_).index(self.hyperparameters['party'])] = 1
-        return probabilities
+def constant(train, test, parameters):
+    assert train.election.max() < test.election.min()
+    return float(test.winner.eq(parameters['party']).mean())
 
 
-def constant_spec(name, parties):
-    return candidates_module.CandidateSpec(name, lambda: ConstantModel(name), {'party': parties})
+def evaluated(model_id='constant', candidates=None, **kwargs):
+    return evaluation.nested_cv(constant, candidates or {'party': ['con', 'lab']},
+        history(), model_id=model_id, verbose=False, **kwargs)
 
 
-def test_five_elections_equal_weights_fresh_objects_and_probability_audit():
-    ConstantModel.instances.clear()
+def test_nested_selection_is_equal_election_weighted_and_does_not_require_2024():
+    result = evaluated()
+    assert isinstance(result, dict)
+    assert result['mean_outer_accuracy'] == .8
+    assert result['run_id'] is None
+    assert len(result['outer_results']) == 5
+    assert all(fold['hyperparameters'] == {'party': 'con'} for fold in result['outer_results'].values())
+    assert result['outer_results'][2019]['accuracy'] == 0
+
+
+def test_every_fit_uses_earlier_data_and_selected_parameters_with_cached_inner_fits():
+    calls = []
+    def model(train, test, parameters, *, fit_records=None, return_details=False, cache=None):
+        calls.append((test.election.iloc[0], tuple(train.election.unique()), parameters.copy(), fit_records))
+        return constant(train, test, parameters)
+    result = evaluation.nested_cv(model, {'party': ['con', 'lab']}, history(),
+                                  model_id='test', verbose=False)
+    outer = [call for call in calls if call[3] is not None]
+    assert len(outer) == 5
+    assert outer[-1][:3] == (2019, (1987,1992,1997,2001,2005,2010,2015,2017), {'party':'con'})
+    inner = [call for call in calls if call[3] is None]
+    assert len(inner) == 12  # six distinct elections, two configurations
+    assert all(max(years) < year for year, years, _, _ in calls)
+    assert result['status'] == 'complete'
+
+
+def test_configuration_tie_keeps_existing_parametergrid_order():
+    tuned = evaluation.tune_hyperparameters(lambda *args: .5, {'party': ['lab', 'con']},
+        history(), [1997,2001], verbose=False)
+    assert tuned['best_hyperparameters'] == {'party':'lab'}
+    assert evaluation.parameter_combinations({}) == [{}]
+
+
+@pytest.mark.parametrize('score', [float('nan'), float('inf'), -1, 2, True, None])
+def test_invalid_scores_fail_instead_of_averaging_fewer_elections(score):
+    with pytest.raises(ValueError, match='finite accuracy'):
+        evaluation.nested_cv(lambda *args: score, {}, history(), model_id='bad', verbose=False)
+
+
+def test_model_failure_is_not_silently_omitted():
+    def broken(train, test, parameters):
+        if test.election.iloc[0] == 2001:
+            raise RuntimeError('training failed')
+        return .5
+    with pytest.raises(RuntimeError, match='training failed'):
+        evaluation.tune_hyperparameters(broken, {}, history(), [1997,2001], verbose=False)
+
+
+@pytest.mark.parametrize('change', ['missing_outer', 'missing_inner', 'future_inner', 'bad_cutoff', 'no_history'])
+def test_schedule_validation_rejects_invalid_boundaries(change):
+    data, schedule = history(), deepcopy(MODEL_COMPARISON_SCHEDULE)
+    if change == 'missing_outer': data = data[data.election != 2019]
+    if change == 'missing_inner': data = data[data.election != 1997]
+    if change == 'future_inner': schedule['inner_elections'][2005] = [1997, 2010]
+    if change == 'bad_cutoff': schedule['training_cutoff'] = 1992
+    if change == 'no_history': data = data[data.election >= 1997]
+    with pytest.raises(ValueError): evaluation.validate_schedule(data, schedule)
+
+
+def test_final_tunes_once_on_pre2019_history_and_outcomes_do_not_change_settings(monkeypatch):
+    original = evaluation.tune_hyperparameters
+    calls = []
+    def tune(*args, **kwargs):
+        calls.append(args[2].election.max())
+        return original(*args, **kwargs)
+    monkeypatch.setattr(evaluation, 'tune_hyperparameters', tune)
     data = history()
-    original = data.copy(deep=True)
-    specs = [constant_spec('usually correct', ['con']), constant_spec('2019 specialist', ['lab'])]
-    with TemporaryDirectory() as directory:
-        result = selection.automated_model_selection(data, test_data=data.query('election == 2019').assign(election=2024),
-                                                    output_dir=directory, candidates=specs, verbose=False)
-        assert result.model.name == 'usually correct'
-        card = result.report.scorecard()
-        assert card.mean_accuracy.tolist() == [0.8, 0.2]
-        assert len(result.report.outer_results) == 10
-        assert not (Path(directory)/'scores_predictions.csv').exists()
-        assert not (Path(directory)/'scores_report.json').exists()
-        assert (Path(directory)/'test_predictions.csv').exists()
-        assert result.report.status == 'complete'
-        assert result.report.final_fit['training_years'][-1] == 2019
-        assert not hasattr(result.report, 'inner_results')
-    pd.testing.assert_frame_equal(data, original)
-    assert all(m.calls == 1 for m in ConstantModel.instances)
-    assert result.model is ConstantModel.instances[-1]
-    legacy_model, legacy_name = result
-    assert legacy_model is result.model and legacy_name == 'usually correct'
+    a = pd.concat([data, data.query('election == 2019').assign(election=2024)], ignore_index=True)
+    b = a.copy(); b.loc[b.election == 2024, 'winner'] = 'con'
+    results = [evaluation.nested_cv(constant, {'party':['con','lab']}, frame,
+        model_id='constant', schedule=FINAL_EVALUATION_SCHEDULE, verbose=False) for frame in (a,b)]
+    assert calls == [2019,2019]
+    assert results[0]['outer_results'][2024]['hyperparameters'] == results[1]['outer_results'][2024]['hyperparameters']
+    assert results[0]['mean_outer_accuracy'] == 0
+    assert results[1]['mean_outer_accuracy'] == 1
+    assert results[0]['outer_results'][2024]['training_years'][-1] == 2019
 
 
-def test_config_selected_by_inner_accuracy_and_outer_changes_cannot_change_earlier_fit():
-    spec = constant_spec('search', ['lab', 'con'])
-    data = history()
-    before = evaluation_module.HistoricalEvaluator([spec], verbose=False).evaluate(data)
-    data.loc[data.election == 2019, 'winner'] = 'con'
-    after = evaluation_module.HistoricalEvaluator([spec], verbose=False).evaluate(data)
-    def settings(result):
-        import json
-        tracking = result.report.tracking
-        return [json.loads(Path(tracking.client.download_artifacts(r.info.run_id, 'selected_configuration.json')).read_text())
-                for r in tracking.children(tracking.candidate_ids['search'], 'election')]
-    before_settings, after_settings = settings(before), settings(after)
-    assert all(r['configuration']['party'] == 'con' for r in before_settings)
-    assert before_settings == after_settings
+def test_original_neural_median_rule_keeps_seed_specific_durations_and_half_up():
+    records = [dict(runs=[dict(seed=1,best_epoch=a),dict(seed=2,best_epoch=b)])
+               for a,b in [(2,4),(3,7)]]
+    assert median_refit_durations(records) == {1:3,2:6}
+    with pytest.raises(ValueError): median_refit_durations([])
+    with pytest.raises(ValueError): median_refit_durations([dict(runs=[dict(seed=1,best_epoch=0)])])
 
 
-def test_ties_use_registry_and_configuration_order():
-    # All validation winners are con; identical con searches tie exactly.
-    data = history().assign(winner='con')
-    specs = [constant_spec('first', ['con']), constant_spec('second', ['con'])]
-    result = evaluation_module.HistoricalEvaluator(specs, verbose=False).evaluate(data)
-    assert result.model.name == 'first'
+def test_current_outer_outcomes_cannot_change_its_inner_scores_or_parameters():
+    a = evaluated()
+    data = history(); data.loc[data.election == 2017,'winner'] = 'lab'
+    b = evaluation.nested_cv(constant, {'party':['con','lab']}, data, model_id='constant', verbose=False)
+    assert a['outer_results'][2017]['inner_accuracies'] == b['outer_results'][2017]['inner_accuracies']
+    assert a['outer_results'][2017]['hyperparameters'] == b['outer_results'][2017]['hyperparameters']
 
 
-def test_missing_elections_and_future_outcomes_fail_before_training():
-    ConstantModel.instances.clear()
-    evaluator = evaluation_module.HistoricalEvaluator([constant_spec('test', ['con'])], verbose=False)
-    with pytest.raises(ValueError, match='outer evaluation'):
-        evaluator.evaluate(history().query('election != 2010'))
-    assert not ConstantModel.instances
-    with pytest.raises(ValueError, match='forecast election'):
-        evaluator.evaluate(pd.concat([history(), history().iloc[:1].assign(election=2024)]))
-    with pytest.raises(ValueError, match='missing'):
-        evaluator.evaluate(history().query('election != 1997'))
+def test_no_mlflow_record_is_created_for_partial_evaluation(monkeypatch):
+    from election.models import tracking
+    calls=[]
+    monkeypatch.setattr(tracking,'log_evaluation_result',lambda *a,**kw: calls.append(a))
+    def broken(train,test,parameters):
+        if test.election.iloc[0] == 2019: raise RuntimeError('outer failure')
+        return .5
+    with pytest.raises(RuntimeError):
+        evaluation.nested_cv(broken,{},history(),model_id='bad',tracking={},verbose=False)
+    assert calls == []
 
 
-def test_failed_fit_does_not_select_or_average_incomplete_results():
-    class BrokenModel(ConstantModel):
-        def train(self, data, configuration=None, fit_context=None):
-            if data.election.max() >= 2005:
-                raise RuntimeError('deliberate failure')
-            return super().train(data, configuration, fit_context)
-    spec = candidates_module.CandidateSpec('broken', lambda: BrokenModel('broken'), {'party': ['con']})
-    with TemporaryDirectory() as directory:
-        evaluator = evaluation_module.HistoricalEvaluator([spec], verbose=False)
-        with pytest.raises(RuntimeError, match='deliberate failure'):
-            evaluator.evaluate(history())
-        assert evaluator.report.status == 'failed'
-        assert evaluator.report.selected_candidate is None
-        assert evaluator.report.scorecard().empty
-        assert evaluator.report.tracking.client.get_run(evaluator.report.execution_id).info.status == 'FAILED'
-
-
-def test_metrics_keep_unknown_previous_winner_and_empty_slices_explicit():
-    frame = pd.DataFrame(dict(winner=['con', 'lab'], previous_winner=['con', None]))
-    probs = np.zeros((2, 5)); probs[:, 0] = 1
-    result = evaluation_module.metrics(frame, probs, custom_model_module.PARTIES)
-    assert result['changed_seat_accuracy'] is None
-    assert result['changed_seat_evaluation_rows'] == 0
-    assert result['retained_seat_accuracy'] == 1
-    assert result['evaluation_rows'] == 2
-    assert result['previous_winner_accuracy'] == .5
-
-
-def test_median_uses_selected_checkpoint_epochs_per_seed_rounding_halves_up():
-    records = [custom_model_module.FitRecord((1987, 1992), {}, v, [
-        dict(seed=1, best_epoch=a, stopping_epoch=900),
-        dict(seed=2, best_epoch=b, stopping_epoch=900)])
-        for v, a, b in [(1997, 2, 10), (2001, 3, 40)]]
-    context = training_policy_module.NeuralTrainingPolicy().refit_context(records, custom_model_module.PARTIES)
-    assert context.validation is None
-    assert context.durations == {1: 3, 2: 25}
-    assert records[0].runs[0]['best_epoch'] == 2
-
-
-def test_retrain_compatibility_returns_new_object_without_mutating_old():
-    spec = constant_spec('test', ['con', 'lab'])
-    evaluator = evaluation_module.HistoricalEvaluator([spec], verbose=False)
-    old = evaluator.tune_and_refit(spec, history().query('election < 2019'))
-    before = old.training_data.copy(deep=True)
-    new = old.retrain(history(), spec=spec)
-    assert new is not old
-    pd.testing.assert_frame_equal(old.training_data, before)
-    assert new.training_data.election.max() == 2019
-
-
-def test_missing_latest_inner_election_cannot_be_silently_skipped():
-    spec = constant_spec('test', ['con'])
-    evaluator = evaluation_module.HistoricalEvaluator([spec], verbose=False)
-    with pytest.raises(ValueError, match='2017'):
-        evaluator.tune_and_refit(spec, history().query('election < 2017'), forecast_election=2019)
-
-
-def test_nullable_previous_winner_and_unknown_outcomes_do_not_drop_prediction_rows():
-    frame = pd.DataFrame(dict(winner=['con', 'lab'],
-                              previous_winner=pd.Series(['con', pd.NA], dtype='string')))
-    probabilities = np.zeros((2,5)); probabilities[:,0] = 1
-    assert evaluation_module.metrics(frame, probabilities, custom_model_module.PARTIES)['previous_winner_accuracy'] == .5
-
-
-def test_invalid_probabilities_abort_comparison():
-    class BadProbabilities(ConstantModel):
-        def predict_proba(self, data):
-            return np.full((len(data),5), .3)
-    spec = candidates_module.CandidateSpec('bad', lambda: BadProbabilities('bad'), {'party':['con']})
-    evaluator = evaluation_module.HistoricalEvaluator([spec], verbose=False)
-    with pytest.raises(ValueError, match='sum to one'):
-        evaluator.evaluate(history())
-    assert evaluator.report.status == 'failed'
-    assert evaluator.report.tracking.client.get_run(evaluator.report.execution_id).info.status == 'FAILED'
-
-
-def test_inner_accuracy_selects_only_that_configurations_duration_records():
-    contexts = []
-    class CheckpointModel(ConstantModel):
-        def train(self, data, configuration=None, fit_context=None):
-            self.calls += 1
-            assert self.calls == 1
-            self.training_data = data.copy()
-            if fit_context.validation is not None:
-                # Deliberately favour the WRONG configuration by loss.
-                right = configuration['party'] == 'con'
-                runs = [dict(seed=1, best_epoch=2 if right else 99,
-                             best_validation_loss=10 if right else .001)]
-            else:
-                contexts.append(deepcopy(fit_context.durations))
-                runs = []
-            return self._record(data, configuration, fit_context, runs)
-    from copy import deepcopy
-    spec = candidates_module.CandidateSpec('checkpoint', lambda: CheckpointModel('checkpoint'),
-                         {'party':['lab','con']}, training_policy=training_policy_module.NeuralTrainingPolicy())
-    result = evaluation_module.HistoricalEvaluator([spec], verbose=False).evaluate(history())
-    assert result.model.hyperparameters['party'] == 'con'
-    assert contexts == [{1:2}] * 6  # Five outer refits and the forecast refit.
-
-
-def test_no_outcome_or_identifier_columns_are_passed_as_predictors():
-    class StrictModel(ConstantModel):
-        def train(self, data, configuration=None, fit_context=None):
-            assert set(data) == {'election','winner'}
-            return super().train(data, configuration, fit_context)
-        def predict_proba(self, data):
-            assert set(data) == {'election'}
-            return super().predict_proba(data)
-    spec = candidates_module.CandidateSpec('strict', lambda: StrictModel('strict'), {'party':['con']})
-    result = evaluation_module.HistoricalEvaluator([spec], verbose=False).evaluate(
-        history().assign(winning_party_vote_share=.7, other_outcome=.6))
-    assert result.report.status == 'complete'
+def test_fixed_settings_are_applied_to_every_fit_and_recorded_once_in_metadata():
+    calls=[]
+    def model(train,test,parameters):
+        calls.append(dict(parameters))
+        assert parameters['random_state']==42
+        return constant(train,test,parameters)
+    result=evaluation.nested_cv(model,{'party':['con','lab']},history(),model_id='constant',
+        metadata={'fixed_settings':{'random_state':42}},verbose=False)
+    assert calls
+    assert result['metadata']['fixed_settings']=={'random_state':42}
+    assert all(fold['hyperparameters']=={'party':'con'} for fold in result['outer_results'].values())

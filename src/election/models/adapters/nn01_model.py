@@ -1,6 +1,6 @@
 """Neural ensemble adapter: one rate per fit, explicit validation or refit durations.
 
-Election splitting and rate selection belong to HistoricalEvaluator. Inner fits
+Election splitting and rate selection belong to the election evaluation functions. Inner fits
 restore each seed's best checkpoint; refits train fresh networks on all history.
 """
 
@@ -118,7 +118,7 @@ class NeuralNetworkModel(custom_model_module.custom_model):
         self.label_encoder = None
 
     def train(self, data, configuration=None, fit_context=None):
-        context = fit_context or custom_model_module.FitContext(classes=self.class_labels)
+        context = fit_context or custom_model_module.fit_context(classes=self.class_labels)
         custom_model_module.validate_fit(data, context)
         parameters = dict(hidden_sizes=self.hidden_sizes, learning_rate=self.learning_rates[0],
                           seeds=SEEDS, batch_size=BATCH_SIZE, max_epochs=MAX_EPOCHS,
@@ -127,24 +127,24 @@ class NeuralNetworkModel(custom_model_module.custom_model):
         seeds = tuple(parameters['seeds'])
         if not seeds or len(set(seeds)) != len(seeds):
             raise ValueError('Neural seeds must be nonempty and unique.')
-        if context.validation is None and set(context.durations) != set(seeds):
+        if context['validation'] is None and set(context['durations']) != set(seeds):
             raise ValueError('A neural refit requires a derived duration for every seed.')
-        if context.validation is not None and context.durations:
+        if context['validation'] is not None and context['durations']:
             raise ValueError('Supply validation OR refit durations, not both.')
-        encoder = LabelEncoder().fit(list(context.classes))
+        encoder = LabelEncoder().fit(list(context['classes']))
         networks, preprocessors, runs = [], [], []
         for seed in seeds:
-            epochs = (parameters['max_epochs'] if context.validation is not None
-                      else context.durations[seed])
+            epochs = (parameters['max_epochs'] if context['validation'] is not None
+                      else context['durations'][seed])
             if not isinstance(epochs, (int, np.integer)) or epochs < 1:
                 raise ValueError('Training duration must be a positive integer.')
             network, preprocessor, run = _train_network(
-                data, context.validation, encoder, seed, epochs, parameters['learning_rate'],
+                data, context['validation'], encoder, seed, epochs, parameters['learning_rate'],
                 hidden_sizes=tuple(parameters['hidden_sizes']),
                 batch_size=parameters['batch_size'], patience=parameters['patience'],
                 min_delta=parameters['min_delta'], momentum=parameters['momentum'],
                 weight_decay=parameters['weight_decay'])
-            if context.validation is None:
+            if context['validation'] is None:
                 run['duration'] = epochs
             networks.append(network)
             preprocessors.append(preprocessor)
@@ -260,3 +260,67 @@ def _train_network(
               "stopping_epoch": epoch,
               "best_validation_loss": best_loss if validation is not None else None}
     return network, preprocessor, record
+
+
+def median_refit_durations(records):
+    """Original per-seed median best epoch, rounded halves up (minimum one)."""
+    import math
+    import statistics
+    if not records:
+        raise ValueError('Neural refitting requires inner checkpoint records.')
+    seed_sets = [{run['seed'] for run in record['runs']} for record in records]
+    if not seed_sets[0] or any(seeds != seed_sets[0] for seeds in seed_sets):
+        raise ValueError('Every inner election must have the same neural seeds.')
+    durations = {}
+    for seed in sorted(seed_sets[0]):
+        epochs = []
+        for record in records:
+            runs = [run for run in record['runs'] if run['seed'] == seed]
+            if len(runs) != 1 or not runs[0]['best_epoch'] or runs[0]['best_epoch'] < 1:
+                raise ValueError('Expected one positive best epoch per fold and seed.')
+            epochs.append(runs[0]['best_epoch'])
+        durations[seed] = max(1, math.floor(statistics.median(epochs) + 0.5))
+    return durations
+
+
+def training_metadata(model_id, hidden_sizes):
+    """Fixed existing ensemble/checkpoint protocol, shared by the three NNs."""
+    settings = dict(hidden_sizes=hidden_sizes, seeds=SEEDS, batch_size=BATCH_SIZE,
+                    max_epochs=MAX_EPOCHS, patience=PATIENCE, min_delta=0.0,
+                    momentum=0.0, weight_decay=0.0)
+    return dict(model_id=model_id, architecture_id=f'{model_id}-v1',
+                training_protocol='per-seed-median-best-epoch-v1',
+                fixed_settings=settings,
+                features=list(logistic_regression_module.FEATURE_COLUMNS),
+                supported_hyperparameters=sorted(set(settings) | {'learning_rate'}),
+                early_stopping=dict(validation='inner scoring election',
+                    monitor='validation cross entropy', restore_best_weights=True,
+                    patience=PATIENCE, max_epochs=MAX_EPOCHS,
+                    refit='all history; per-seed median best inner epoch rounded halves up'))
+
+
+def evaluate_neural(factory, metadata, train_data, test_data, hyperparameters, *,
+                    fit_records=None, cache=None, return_details=False, output_dir=None):
+    """Inner test selects checkpoints; outer/final test never enters training."""
+    from election.models.model_function import evaluate_fit
+    if fit_records is None:
+        context = custom_model_module.fit_context(validation=test_data, cache=cache)
+    else:
+        context = custom_model_module.fit_context(
+            durations=median_refit_durations(fit_records), cache=cache)
+    return evaluate_fit(factory, train_data, test_data, hyperparameters,
+                        metadata=metadata, context=context,
+                        return_details=return_details, output_dir=output_dir)
+
+
+nn01hyperparameters = {'learning_rate': list(LEARNING_RATES)}
+TRAINING_METADATA = training_metadata('nn01', HIDDEN_SIZES)
+
+
+def NN01(train_data, test_data, hyperparameters, *, fit_records=None,
+          cache=None, return_details=False, output_dir=None):
+    """Preserve inner checkpoint selection and full-history median-duration refits."""
+    return evaluate_neural(
+        NeuralNetworkModel, TRAINING_METADATA, train_data, test_data, hyperparameters,
+        fit_records=fit_records, cache=cache,
+        return_details=return_details, output_dir=output_dir)
