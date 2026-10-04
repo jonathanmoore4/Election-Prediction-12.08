@@ -47,7 +47,7 @@ print(result["final_evaluation"]["run_id"])
 
 Run tests with `python -m pytest` after sourcing the database and MLflow configuration; PostgreSQL integration tests skip when their connection settings are absent. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `notebooks/outputs/`; use `output_dir` to choose another location.
 
-Python modules and project-owned files use lowercase snake case; package directories use lowercase names. Standard filenames such as `README.md` and `__init__.py` retain their conventional spelling. Analysis notebooks remain separate from the installable package.
+Python modules and project-owned files use lowercase snake case; package directories use lowercase names. Standard filenames such as `README.md` and `__init__.py` retain their conventional spelling. Pipeline notebooks remain separate from the installable package.
 
 ## Run stages independently
 
@@ -94,6 +94,7 @@ alone, include that `data_id` or use the generated manifest.
 |---|---|
 | `notebooks/outputs/datasets/<snapshot>/train.csv`, `test.csv` | Prepared historical and final datasets; existing snapshots are preserved |
 | Same folder: `prepared_data.json`, `predictor_descriptions.md` | Content identities, retained SQL schema and predictor guide |
+| `notebooks/notes/predictor_descriptions.md` | Retained reference copy of the predictor guide |
 | `notebooks/outputs/latest_prepared.json` | Locations of the most recently prepared snapshot |
 | MLflow: one historical run per model | Five outer accuracies, their unweighted mean and one compact `evaluation.json` |
 | MLflow: separate final run | 2024 accuracy, selected configuration, refit durations and historical selection reference |
@@ -124,7 +125,6 @@ changes to its architecture, training protocol or feature list.
 | `src/election/preparation/` | Cleans election, polling and boundary-change data |
 | `src/election/sql/` | Builds predictors and separates training and test data in PostgreSQL |
 | `src/election/models/` | Model candidates, preprocessing, training and historical evaluation |
-| `notebooks/analysis/` | Development notebooks and experiments, retained for reference; this directory is not used to run the project |
 | `src/election/data/` | Packaged local source workbook |
 | `notebooks/outputs/` | All generated datasets, predictor guide and evaluation reports |
 | `tests/` | Automated checks for the pipeline and models |

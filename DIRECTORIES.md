@@ -17,15 +17,7 @@ Paths are relative to the project root.
 | `src/election/models/adapters/` | Gives individual model implementations a common interface. |
 | `tests/` | Automated checks for data processing, models and pipeline integration. |
 | `notebooks/` | Notebook entry point for running the pipeline. |
-| `notebooks/analysis/` | Development notebooks exploring models and features. |
-| `notebooks/analysis/01_initial_overview/` | Initial data exploration. |
-| `notebooks/analysis/02_baseline_models/` | Baseline model experiments. |
-| `notebooks/analysis/03_xgboost/` | Initial XGBoost experiments. |
-| `notebooks/analysis/04_logistic_regression_improvement/` | Logistic regression refinements. |
-| `notebooks/analysis/05_nn_first_development/` | Reserved for initial neural network development; currently empty. |
-| `notebooks/analysis/06_exploring_multilayer_model/` | Multilayer neural network and extended XGBoost experiments. |
-| `notebooks/analysis/07_improving_feature_engineering/` | Feature engineering and expanded predictor experiments. |
-| `notebooks/notes/` | Detailed project description and proposed improvements. |
+| `notebooks/notes/` | Detailed project description, proposed improvements and retained predictor guide. |
 | `notebooks/outputs/` | Exported datasets, predictions, predictor descriptions and evaluation results. |
 
 Local tooling and generated directories are grouped below; their internal database, environment and cache folders are managed automatically.
