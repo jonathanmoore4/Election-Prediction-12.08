@@ -1,12 +1,11 @@
-"""Tiny synthetic demonstration of compact runs and independent pipeline stages."""
+"""Synthetic integration check of compact MLflow runs and pipeline stages."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from uuid import uuid4
 from unittest.mock import patch
 
 import pandas as pd
 
-from election.models.config import OUTER_ELECTIONS, PARTIES
+from election.models.config import OUTER_ELECTIONS
 from election.models.tracking import read_evaluation, _client
 from election.pipeline import run_pipeline as pipeline
 from election.pipeline.preparation import run_preparation
@@ -24,12 +23,13 @@ def demo_model(train, test, parameters, *, fit_records=None, return_details=Fals
                 evaluation_rows=len(test), excluded_rows=0) if return_details else accuracy
 
 
-def demonstration():
-    tracking = {'experiment_name':'mlflow-validation-' + uuid4().hex[:10]}
+def test_synthetic_pipeline_records_compact_runs(tracking_settings):
+    tracking = tracking_settings
     models = list(pipeline.MODEL_MODULES)
     train = pd.DataFrame([dict(election=year, winner='con', previous_winner='con')
         for year in (1987,1992,1997,2001,*OUTER_ELECTIONS) for _ in range(2)])
     test = train.query('election == 2019').assign(election=2024)
+    train.attrs['database_schema'] = 'synthetic_snapshot'
     def functions(model_id):
         return demo_model, {'party':['con','lab']}, dict(model_id=model_id,
             architecture_id='demo-v1', training_protocol='full-history-v1',
@@ -39,10 +39,12 @@ def demonstration():
         with patch('election.pipeline.preparation.read_in_raw.read_raw_data', return_value={}), \
              patch('election.pipeline.preparation.clean_data_all.clean_all_data', return_value={}), \
              patch('election.pipeline.preparation.apply_sql_queries.apply_sql_queries', return_value={'train':train,'test':test}), \
-             patch('election.pipeline.preparation.predictor_guide.write_predictor_guide', side_effect=lambda frames,path:path.write_text('synthetic data')):
+             patch('election.pipeline.preparation.predictor_guide.write_predictor_guide', side_effect=lambda frames,path:path.write_text('synthetic data')), \
+             patch('election.pipeline.preparation.apply_sql_queries.read_snapshot', return_value={'train':train,'test':test}):
             prepared = run_preparation({'output_dir':output})
         reports = []
-        with patch.object(pipeline, 'model_functions', side_effect=functions):
+        with patch.object(pipeline, 'model_functions', side_effect=functions), \
+             patch('election.pipeline.preparation.apply_sql_queries.read_snapshot', return_value={'train':train,'test':test}):
             for _ in range(2):
                 result = pipeline.run_pipeline(output_dir=output, prepared_data=prepared,
                                                tracking=tracking, verbose=False)
@@ -64,9 +66,3 @@ def demonstration():
         assert read_evaluation(original_id, tracking=tracking)['mean_outer_accuracy'] == 1
         for filename in ('test_predictions.csv','test_confusion_matrix.csv','test_confusion_matrix.png'):
             assert (output/filename).exists()
-        print(f'Validated two synthetic executions, nine compact runs each, in {tracking["experiment_name"]}.')
-        print('Final run IDs:', ', '.join(row['final_evaluation']['run_id'] for row in reports))
-
-
-if __name__ == '__main__':
-    demonstration()

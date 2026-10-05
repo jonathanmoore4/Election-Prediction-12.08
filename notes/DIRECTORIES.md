@@ -4,7 +4,7 @@ Paths are relative to the project root.
 
 | Directory | Purpose |
 |---|---|
-| `setup/` | Sets up PostgreSQL and MLflow, validates tracking and provides example configuration. |
+| `setup/` | Sets up PostgreSQL and MLflow. |
 | `src/` | Installable Python source code. |
 | `src/election/` | Main election prediction package and shared path utilities. |
 | `src/election/data/` | Bundled historical election workbook and data notes. |
@@ -17,7 +17,7 @@ Paths are relative to the project root.
 | `tests/` | Automated checks for data processing, models and pipeline integration. |
 | `notebooks/` | Notebook entry point for running the pipeline. |
 | `notes/` | Detailed project description, proposed improvements and retained predictor guide. |
-| `outputs/` | Exported datasets, predictions, predictor descriptions and evaluation results. |
+| `outputs/` | Dataset manifests, predictor descriptions and optional final reports. |
 
 Local tooling and generated directories are grouped below; their internal database, environment and cache folders are managed automatically.
 

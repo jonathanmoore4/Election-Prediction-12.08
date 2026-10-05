@@ -95,6 +95,11 @@ def test_snapshots_are_persistent_isolated_and_failed_runs_roll_back(monkeypatch
         assert first['test'].projected_con_share.iloc[0] == pytest.approx(.35)
         assert first['test'].natSW_national_change.isna().all()
         assert first['test'].natSW_national_change.dtype.kind == 'f'
+        history = database.read_snapshot(schemas[0])
+        assert set(history) == {'train'}
+        pd.testing.assert_frame_equal(history['train'], first['train'])
+        retained = database.read_snapshot(schemas[0], include_test=True)
+        pd.testing.assert_frame_equal(retained['test'], first['test'])
         changed = cleaned_inputs()
         changed['polling']['con_polling'] = .5
         second = database.apply_sql_queries(changed)

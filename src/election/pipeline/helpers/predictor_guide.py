@@ -43,8 +43,8 @@ def write_predictor_guide(train_test_data, path: Path):
         raise ValueError(f'Add predictor descriptions for new export columns: {sorted(missing)}')
     lines = [
         '# Train/test predictor guide', '',
-        'Generated with train.csv and test.csv. This lists every exported column; models use their own explicit feature lists, so exported predictors are not automatically selected.', '',
-        'Shares, polling and changes use fractions: 0.05 means five percentage points. National results exclude Ireland and Northern Ireland. Missing values export as empty CSV fields.', '',
+        'Generated from PostgreSQL train_data and test_data tables. This lists every prepared column; models use their own explicit feature lists, so prepared predictors are not automatically selected.', '',
+        'Shares, polling and changes use fractions: 0.05 means five percentage points. National results exclude Ireland and Northern Ireland. Missing values are stored as SQL NULL.', '',
         'Current outcomes and the target are not pre-election predictors. Election and identifiers are metadata. Party rankings follow the categories available in each cleaner; some notional sources rank only con, lib, lab and natSW.', '',
         'Holder means previous constituency winner; challenger means previous runner-up. Their previous vote shares reuse the existing winning/second-place columns. Polling is available only for con, lab and lib. For runner-up ties, eligible parties are checked in con, lib, lab, natSW order, excluding the holder. Unsupported or unmatched runner-up categories have missing polling/swing.', '',
         '| Column | Role | Description |', '| --- | --- | --- |',

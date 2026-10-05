@@ -124,3 +124,20 @@ def apply_sql_queries(cleaned_data, *, database_url=None):
         return result
     finally:
         connection.close()
+
+
+def read_snapshot(schema, *, include_test=False):
+    """Read retained prepared tables without rerunning ingestion or feature SQL."""
+    if not isinstance(schema, str) or not schema:
+        raise ValueError('Prepared data requires a nonempty database_schema.')
+    connection = connect_database()
+    try:
+        connection.set_session(readonly=True, isolation_level='REPEATABLE READ')
+        with connection:
+            with connection.cursor() as cursor:
+                return {name: read_dataframe(cursor, sql.SQL(
+                    'SELECT * FROM {}.{} ORDER BY election, constituency_id, constituency_name'
+                ).format(sql.Identifier(schema), sql.Identifier(name + '_data')))
+                    for name in (('train', 'test') if include_test else ('train',))}
+    finally:
+        connection.close()

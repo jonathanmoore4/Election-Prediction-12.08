@@ -1,8 +1,8 @@
 # Train/test predictor guide
 
-Generated with train.csv and test.csv. This lists every exported column; models use their own explicit feature lists, so exported predictors are not automatically selected.
+Generated from PostgreSQL train_data and test_data tables. This lists every prepared column; models use their own explicit feature lists, so prepared predictors are not automatically selected.
 
-Shares, polling and changes use fractions: 0.05 means five percentage points. National results exclude Ireland and Northern Ireland. Missing values export as empty CSV fields.
+Shares, polling and changes use fractions: 0.05 means five percentage points. National results exclude Ireland and Northern Ireland. Missing values are stored as SQL NULL.
 
 Current outcomes and the target are not pre-election predictors. Election and identifiers are metadata. Party rankings follow the categories available in each cleaner; some notional sources rank only con, lib, lab and natSW.
 

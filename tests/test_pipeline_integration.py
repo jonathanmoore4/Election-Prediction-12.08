@@ -39,7 +39,7 @@ def test_complete_pipeline_calls_the_same_independent_stages(tmp_path,monkeypatc
     assert prepare.call_count==evaluate.call_count==compare.call_count==final.call_count==1
 
 
-def test_preparation_preserves_existing_steps_and_snapshot_files(tmp_path,monkeypatch):
+def test_preparation_preserves_steps_and_stores_only_metadata(tmp_path,monkeypatch):
     preparation=import_module('election.pipeline.preparation')
     raw,cleaned=object(),object()
     frames={'train':pd.DataFrame({'election':[2019],'winner':['con']}),
@@ -50,13 +50,18 @@ def test_preparation_preserves_existing_steps_and_snapshot_files(tmp_path,monkey
     monkeypatch.setattr(preparation.clean_data_all,'clean_all_data',clean)
     monkeypatch.setattr(preparation.apply_sql_queries,'apply_sql_queries',sql)
     monkeypatch.setattr(preparation.predictor_guide,'write_predictor_guide',lambda frames,path:path.write_text('guide'))
+    monkeypatch.setattr(preparation.apply_sql_queries,'read_snapshot',
+                        lambda schema, **kwargs: frames)
     a=preparation.run_preparation({'output_dir':tmp_path})
     clean.assert_called_once_with(raw); sql.assert_called_once_with(cleaned)
-    old_content=Path(a['train_path']).read_text()
+    original_manifest=next(tmp_path.glob('datasets/*/prepared_data.json'))
+    old_content=original_manifest.read_text()
+    assert not list(tmp_path.rglob('*.csv'))
+    assert 'train_path' not in a and 'test_path' not in a
     frames['train'].loc[0,'winner']='lab'
     b=preparation.run_preparation({'output_dir':tmp_path})
     assert a['data_id']!=b['data_id']
-    assert Path(a['train_path']).read_text()==old_content
+    assert original_manifest.read_text()==old_content
     assert json.loads((tmp_path/'latest_prepared.json').read_text())==b
     assert a['database_schema']=='run_example'
 
@@ -154,20 +159,29 @@ def test_final_uses_recorded_grid_and_fixed_settings_and_checks_compatibility(tm
     nested.assert_not_called()
 
 
-def test_preparation_rejects_corrupt_existing_snapshot(tmp_path, monkeypatch):
+def test_database_snapshot_is_preferred_to_csv_and_detects_changes(monkeypatch):
     preparation=import_module('election.pipeline.preparation')
     frames={'train':pd.DataFrame({'election':[2019],'winner':['con']}),
             'test':pd.DataFrame({'election':[2024],'winner':['lab']})}
-    monkeypatch.setattr(preparation.read_in_raw,'read_raw_data',Mock(return_value={}))
-    monkeypatch.setattr(preparation.clean_data_all,'clean_all_data',Mock(return_value={}))
-    monkeypatch.setattr(preparation.apply_sql_queries,'apply_sql_queries',Mock(return_value=frames))
-    monkeypatch.setattr(preparation.predictor_guide,'write_predictor_guide',lambda frames,path:path.write_text('guide'))
-    prepared=preparation.run_preparation({'output_dir':tmp_path})
-    path=Path(prepared['train_path'])
-    path.write_text('election,winner\n2019,lab\n')
-    with pytest.raises(ValueError,match='changed'):
-        preparation.run_preparation({'output_dir':tmp_path})
-    assert path.read_text()=='election,winner\n2019,lab\n'
+    read=Mock(return_value=frames)
+    monkeypatch.setattr(preparation.apply_sql_queries,'read_snapshot',read)
+    from election.models.evaluation import data_identity
+    prepared={'database_schema':'run_example',
+              'data_id':data_identity(frames['train']),
+              'test_data_id':data_identity(frames['test']),
+              'train_path':'nonexistent.csv','test_path':'nonexistent.csv'}
+    history,_=preparation.load_prepared(prepared)
+    assert history.election.tolist()==[2019]
+    read.assert_called_once_with('run_example',include_test=False)
+    combined,_=preparation.load_prepared(prepared,include_test=True)
+    assert combined.election.tolist()==[2019,2024]
+    read.assert_called_with('run_example',include_test=True)
+    frames['test'].loc[0,'winner']='con'
+    with pytest.raises(ValueError,match='final test data has changed'):
+        preparation.load_prepared(prepared,include_test=True)
+    frames['train'].loc[0,'winner']='lab'
+    with pytest.raises(ValueError,match='training data has changed'):
+        preparation.load_prepared(prepared)
 
 
 def test_pipeline_accepts_existing_csv_paths_without_a_manifest(tmp_path,monkeypatch):

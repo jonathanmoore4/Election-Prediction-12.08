@@ -12,6 +12,11 @@ from election.pipeline.helpers import read_in_raw, clean_data_all, predictor_gui
 from election.sql import apply_sql_queries
 
 
+def _model_frame(frame):
+    """Preserve the historical model dtypes and content IDs without CSV files."""
+    return pd.read_csv(StringIO(frame.to_csv(index=False)))
+
+
 def run_preparation(config=None):
     """Run existing ingestion, cleaning and SQL once; do not start training."""
     config = config or {}
@@ -19,21 +24,16 @@ def run_preparation(config=None):
     raw = read_in_raw.read_raw_data()
     cleaned = clean_data_all.clean_all_data(raw)
     frames = apply_sql_queries.apply_sql_queries(cleaned)
-    # CSV round-trip establishes the exact representation that later stages load.
-    train = pd.read_csv(StringIO(frames['train'].to_csv(index=False)))
-    test = pd.read_csv(StringIO(frames['test'].to_csv(index=False)))
+    # Use the same model representation for preparation and database reads.
+    train = _model_frame(frames['train'])
+    test = _model_frame(frames['test'])
     data_id, test_id = data_identity(train), data_identity(test)
     snapshot_id = sha256((data_id + test_id).encode()).hexdigest()
     directory = output / 'datasets' / snapshot_id
     directory.mkdir(parents=True, exist_ok=True)
     prepared = dict(data_id=data_id, test_data_id=test_id,
-        train_path=str(directory / 'train.csv'), test_path=str(directory / 'test.csv'),
         predictor_guide_path=str(directory / 'predictor_descriptions.md'),
         database_schema=frames['train'].attrs.get('database_schema'))
-    for key in ('train', 'test'):
-        destination = Path(prepared[f'{key}_path'])
-        if not destination.exists():
-            frames[key].to_csv(destination, index=False)
     guide = Path(prepared['predictor_guide_path'])
     if not guide.exists():
         predictor_guide.write_predictor_guide(frames, guide)
@@ -43,8 +43,8 @@ def run_preparation(config=None):
     else:
         # Preserve the original retained SQL schema reference for reused snapshots.
         prepared = json.loads(manifest.read_text())
-    # Verify reused files before publishing the latest snapshot pointer. Existing
-    # snapshots are immutable: corruption must fail rather than be overwritten.
+    # Verify retained tables before publishing the latest snapshot pointer.
+    # Changed snapshots must fail rather than be silently replaced.
     load_prepared(prepared, include_test=True)
     output.mkdir(parents=True, exist_ok=True)
     (output / 'latest_prepared.json').write_text(json.dumps(prepared, indent=2) + '\n')
@@ -68,14 +68,21 @@ def prepared_locations(value):
 
 def load_prepared(value, *, include_test=False):
     locations = prepared_locations(value)
-    train = pd.read_csv(locations['train_path'])
+    if locations.get('database_schema'):
+        frames = apply_sql_queries.read_snapshot(
+            locations['database_schema'], include_test=include_test)
+        train = _model_frame(frames['train'])
+    else:
+        # Explicit CSV inputs remain supported for external datasets.
+        train = pd.read_csv(locations['train_path'])
     identity = data_identity(train)
     if locations.get('data_id', identity) != identity:
         raise ValueError('Prepared training data has changed since preparation.')
     locations['data_id'] = identity
     if not include_test:
         return train, locations
-    test = pd.read_csv(locations['test_path'])
+    test = (_model_frame(frames['test']) if locations.get('database_schema')
+            else pd.read_csv(locations['test_path']))
     test_id = data_identity(test)
     if locations.get('test_data_id', test_id) != test_id:
         raise ValueError('Prepared final test data has changed since preparation.')
