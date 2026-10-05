@@ -53,45 +53,181 @@ Python modules and project-owned files use lowercase snake case; package directo
 
 ## Run stages independently
 
-After preparation, evaluation and comparison reuse existing data/results. No stage
-implicitly reruns an earlier stage.
+Run these commands from the repository root with the virtual environment active.
+Start the services and load their connection settings once per terminal session:
+
+```bash
+source .venv/bin/activate
+setup/mlflow-services.sh start
+source .mlflow/config.env
+source .env.election
+```
+
+Each stage reuses existing inputs where appropriate. Evaluation and final fitting
+require the prepared PostgreSQL tables; saved reports require only their manifest
+and/or MLflow. Reading reports does not start training.
+
+### Prepare the data
+
+Download and clean the source data, create the PostgreSQL training/test tables,
+and save a manifest at `outputs/latest_prepared.json`. This does not fit models.
 
 ```bash
 python -m election.pipeline.run_pipeline prepare
+```
+
+### Evaluate one model on historical elections
+
+Tune logistic regression using earlier elections and score it on each of the five
+historical outer elections. Save the completed evaluation in MLflow, without
+preparing data again or evaluating 2024.
+
+```bash
 python -m election.pipeline.run_pipeline evaluate --model logistic_regression
+```
+
+### Evaluate every candidate
+
+Run the same historical evaluation for all eight model procedures. This can take
+substantial time, particularly for conditional XGBoost and neural ensembles.
+
+```bash
 python -m election.pipeline.run_pipeline evaluate --model all
+```
+
+To evaluate just two candidates, name both models:
+
+```bash
+python -m election.pipeline.run_pipeline evaluate --model logistic_regression random_forest
+```
+
+### Compare saved historical results
+
+Print a readable ranking of the latest compatible completed evaluation for each
+candidate, its mean historical accuracy and run ID. Also show the highest-ranked
+model and its selection run ID. Missing or incompatible runs are reported;
+comparison does not fit models or load PostgreSQL rows.
+
+```bash
+python -m election.reports.comparison
+```
+
+To compare only the two candidates evaluated above:
+
+```bash
+python -m election.reports.comparison --model logistic_regression random_forest
+```
+
+For the full comparison dictionary as JSON, including compatibility fields, use:
+
+```bash
 python -m election.pipeline.run_pipeline compare
+```
+
+### Evaluate the selected model on 2024
+
+Replace `HISTORICAL_RUN_ID` with the selection run ID from the historical
+comparison. Tune that model again using pre-2024 history, fit it through 2019,
+and score 2024. Record a separate final MLflow run and write predictions and
+confusion-matrix reports under `outputs/reports/`.
+
+```bash
 python -m election.pipeline.run_pipeline final --selection-run HISTORICAL_RUN_ID
+```
+
+### Print saved 2024 accuracy and model specifications
+
+List completed final evaluations, newest first, with percentage accuracy, run ID,
+model architecture, fixed settings, tuning search space and selected 2024
+hyperparameters. Early stopping settings are included when recorded.
+
+```bash
+python -m election.reports.accuracy_history
+```
+
+The earlier `python -m election.models.accuracy_history` command remains supported.
+
+### Inspect one saved evaluation
+
+Replace `RUN_ID` with any completed historical or final evaluation ID. Print its
+model specifications, data references, election accuracies, selected settings,
+inner scores and recorded refit durations. This retrieves saved MLflow results.
+
+```bash
+python -m election.reports.run_details RUN_ID
+```
+
+### Inspect the prepared-data manifest
+
+Print the latest dataset identities, retained PostgreSQL schema and predictor-guide
+location. This reads the manifest without querying table rows.
+
+```bash
+python -m election.reports.prepared_data
+```
+
+### Run the complete pipeline
+
+Prepare data, evaluate all candidates, compare historical results and evaluate the
+historically selected model on 2024.
+
+```bash
 python -m election.pipeline.run_pipeline all
 ```
 
-`--data-dir` accepts a prepared snapshot folder, its `prepared_data.json`, or the
-outputs folder containing `latest_prepared.json`. `--output-dir` chooses where
-preparation snapshot metadata and optional final reports are written; reports go
-under its `reports/` subfolder. Without `--data-dir`,
-independent stages read `outputs/latest_prepared.json` and load its retained PostgreSQL
-tables; `all` runs preparation. PostgreSQL must be running for evaluation.
-Use `--model logistic_regression random_forest` to evaluate/compare a subset.
-`--skip-final` stops the full pipeline after comparison. `--quiet` hides fit progress.
+To stop after historical evaluation and comparison, omit the final evaluation:
 
-```python
-from election.pipeline.preparation import run_preparation
-from election.pipeline.run_pipeline import evaluate_models, compare_recorded, run_pipeline
-
-prepared = run_preparation({"output_dir": "outputs"})
-results = evaluate_models(prepared, model_ids=["logistic_regression", "random_forest"])
-comparison = compare_recorded(prepared, model_ids=["logistic_regression", "random_forest"])
-# Reuse both preparation and completed historical MLflow records:
-result = run_pipeline(prepared_data=prepared, reuse_evaluations=True,
-                      model_ids=["logistic_regression", "random_forest"])
+```bash
+python -m election.pipeline.run_pipeline all --skip-final
 ```
 
-The pipeline returns dictionaries, including prepared locations, evaluations,
-comparison and final evaluation. It does not return a fitted model. Prepared datasets live in PostgreSQL `train_data` and `test_data` tables within
-the manifest’s `database_schema`. Preparation does not export CSV copies. Existing
-external CSVs can still be reused by supplying `prepared_data={"train_path": ..., "test_path": ...}`
-to evaluation/pipeline; evaluation computes their content identity. For comparison
-alone, include that `data_id` or use the generated manifest.
+### Reuse preparation and saved historical evaluations
+
+Use the existing prepared manifest and compatible completed MLflow evaluations,
+then tune and evaluate the selected model on 2024. This avoids running preparation
+and historical training again. All requested models must have compatible records.
+
+```bash
+python -m election.pipeline.run_pipeline all --data-dir outputs/latest_prepared.json --reuse-evaluations
+```
+
+To reuse results for a subset, add `--model logistic_regression random_forest`.
+Add `--skip-final` to perform only the saved comparison.
+
+### Choose input and output locations
+
+Use `--data-dir` to select an existing manifest, its snapshot folder, or an outputs
+folder containing `latest_prepared.json`. For example, inspect a particular snapshot:
+
+```bash
+python -m election.reports.prepared_data --data-dir outputs/datasets/SNAPSHOT_ID
+```
+
+The evaluation, comparison, final and full-pipeline commands also accept
+`--data-dir`. Independent stages default to `outputs/latest_prepared.json`.
+
+Use `--output-dir` to choose where preparation metadata and final reports are
+written. For example, run the complete pipeline into another folder:
+
+```bash
+python -m election.pipeline.run_pipeline all --output-dir outputs/another_run
+```
+
+Its manifest is `outputs/another_run/latest_prepared.json`, and final reports go
+under `outputs/another_run/reports/`. To read that run's comparison, pass
+`--data-dir outputs/another_run` to `election.reports.comparison`.
+
+Use `--quiet` to hide fitting progress while keeping the final stage result:
+
+```bash
+python -m election.pipeline.run_pipeline evaluate --model logistic_regression --quiet
+```
+
+The pipeline stage commands print their result dictionaries as JSON. The
+`election.reports` commands provide readable saved summaries. Prepared rows live
+in the manifest's PostgreSQL schema, in `train_data` and `test_data`; preparation
+saves metadata rather than CSV copies. The Python API remains available for
+programmatic use, including external CSV inputs.
 
 ## Preparation and stored data
 
@@ -114,10 +250,10 @@ With the virtual environment active and the MLflow service running:
 
 ```bash
 source .mlflow/config.env
-python -m election.models.accuracy_history
+python -m election.reports.accuracy_history
 ```
 
-Alternatively, run `.venv/bin/python src/election/models/accuracy_history.py` from the repository root. The command prints completion time (UTC), model, percentage accuracy and run ID, newest first, across completed compact final evaluations. `--experiment NAME` and `--tracking-uri URL` select another experiment or server. It reads saved results without training. Each full pipeline run evaluates only the historically selected candidate on 2024; it does not automatically produce 2024 scores for every candidate.
+Alternatively, run `.venv/bin/python src/election/reports/accuracy_history.py` from the repository root. The command prints completion time (UTC), model, percentage accuracy and run ID, newest first, across completed compact final evaluations. `--experiment NAME` and `--tracking-uri URL` select another experiment or server. It also prints the saved model architecture, training protocol, fixed settings, tuning search space, selected 2024 hyperparameters and any early stopping settings. It reads saved results without training. Each full pipeline run evaluates only the historically selected candidate on 2024; it does not automatically produce 2024 scores for every candidate.
 
 ## What the pipeline predicts
 
@@ -254,7 +390,7 @@ are ordinary dictionaries.
 | `pipeline/run_pipeline.py` | Independent evaluation/comparison/final stage functions, CLI and full orchestration |
 | `models/config.py` | Named historical and final schedules, party/target/scoring definitions |
 | `models/evaluation.py` | Schedule validation, election splitting, parameter combinations, tuning and nested CV |
-| `models/accuracy_history.py` | Print completed 2024 accuracy history from MLflow |
+| `reports/` | Terminal commands for saved accuracy/specifications, historical comparisons, individual evaluation details and prepared-data manifests |
 | `models/boosting.py` | Shared XGBoost defaults, party-label encoding and preprocessing/training pipeline |
 | `models/tracking.py` | One compact MLflow run per evaluation, summary validation and compatible result retrieval |
 | `models/compare_models.py` | Rank the latest compatible completed historical evaluation per model |

@@ -12,7 +12,8 @@ Paths are relative to the project root.
 | `src/election/sql/` | PostgreSQL queries for feature engineering and train/test datasets. |
 | `src/election/pipeline/` | Coordinates the full data preparation and modelling workflow. |
 | `src/election/pipeline/helpers/` | Supports data loading, cleaning and predictor documentation. |
-| `src/election/models/` | Shared model support, nested evaluation, comparison, MLflow tracking and the accuracy-history command. |
+| `src/election/models/` | Shared model support, nested evaluation, comparison, MLflow tracking. |
+| `src/election/reports/` | Terminal commands for saved accuracy history, comparisons, evaluation details and prepared-data manifests. |
 | `src/election/models/adapters/` | Gives individual model implementations a common interface. |
 | `tests/` | Automated checks for data processing, models and pipeline integration, including synthetic MLflow validation. |
 | `notebooks/` | Notebook entry point for running the pipeline. |
@@ -32,7 +33,7 @@ Paths are relative to the project root.
 | `setup/election-database.sh` | Creates the separate election database and private connection configuration. |
 | `.env.election` | Private election database URL; excluded from Git. |
 | `.mlflow/config.env` | Generated private service configuration; excluded from Git. |
-| `src/election/models/accuracy_history.py` | Prints completed 2024 MLflow evaluations without training. |
+| `src/election/reports/accuracy_history.py` | Prints completed 2024 MLflow evaluations without training. |
 | `tests/test_mlflow_pipeline.py` | Synthetic pipeline integration test formerly in `setup/validate_mlflow.py`. |
 | `notes/detailed_project_description.md` | Entire process, setup, independent stages, evaluation and model specifications. |
 | `notes/intended_next_improvements.md` | Proposed future changes. |

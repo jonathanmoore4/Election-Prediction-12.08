@@ -27,10 +27,10 @@ See [first-time setup](notes/detailed_project_description.md#quick-start) before
 To print saved 2024 accuracy history in the shell, with the MLflow configuration sourced:
 
 ```bash
-python -m election.models.accuracy_history
+python -m election.reports.accuracy_history
 ```
 
-Accuracy is printed as a percentage. This reads saved results without training; full runs evaluate only the historically selected model on 2024.
+Accuracy is printed as a percentage, followed by each run's saved model architecture, training protocol, fixed settings, hyperparameter search space and selected 2024 hyperparameters (plus early stopping settings where applicable). This reads saved results without training; full runs evaluate only the historically selected model on 2024.
 
 ## Data and predictors
 
