@@ -62,6 +62,12 @@ Fit learned transformations only on that iteration’s training rows, then apply
 
 This is proposed work; the current pipeline still preprocesses inside model fits.
 
+### 8. Improve results presentation and the reporting workflow
+
+Revise how saved results are inspected. The accuracy-history report now produces a pandas DataFrame, but wide tables and detailed model configurations remain difficult to read in the terminal.
+
+Keep the terminal for running pipelines, training and other processes that do not require detailed reading. Provide a notebook or another suitable viewing interface for inspecting saved results, comparing runs and exploring full model settings. Reuse the report's DataFrame so viewing results does not require rerunning training. Present a concise comparison table with detailed configurations available separately.
+
 ## Recommended implementation order
 
 1. Shared historical evaluation and saved probabilities.
