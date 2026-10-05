@@ -67,7 +67,8 @@ python -m election.pipeline.run_pipeline all
 
 `--data-dir` accepts a prepared snapshot folder, its `prepared_data.json`, or the
 outputs folder containing `latest_prepared.json`. `--output-dir` chooses where
-preparation snapshots and optional final reports are written. Without `--data-dir`,
+preparation snapshot metadata and optional final reports are written; reports go
+under its `reports/` subfolder. Without `--data-dir`,
 independent stages read `outputs/latest_prepared.json` and load its retained PostgreSQL
 tables; `all` runs preparation. PostgreSQL must be running for evaluation.
 Use `--model logistic_regression random_forest` to evaluate/compare a subset.
@@ -101,6 +102,11 @@ Preparation reads the configured historical, notional, 2024 and polling sources.
 `load_prepared` reads the retained PostgreSQL tables in a read-only transaction with a consistent snapshot and deterministic row ordering. It normalises the model representation in memory to preserve the existing content identities and dtypes, then checks those identities before evaluation. Historical evaluation reads only training rows; final evaluation also reads 2024 rows. PostgreSQL must remain available. Explicit external CSV paths remain supported, but database-backed manifests use their schema even if legacy CSV paths are present.
 
 Model-specific normalisation, encoding, scaling, imputation and conditional role handling currently run inside the model-fitting implementations. Learned transformations fit only on each fold’s training data and are reused for its held-out rows. They are currently repeated as part of model fits; performing it once before each nested-CV iteration’s algorithm fits and reusing it across compatible fits is proposed in the improvements document.
+
+Final evaluation writes optional `test_predictions.csv`, `test_confusion_matrix.csv`
+and `test_confusion_matrix.png` under `outputs/reports/` by default. These reports
+are replaced on reruns; dataset manifests and MLflow evaluations retain their
+separate histories. The pipeline notebook displays the chart from this reports folder.
 
 ## Saved 2024 accuracy history
 

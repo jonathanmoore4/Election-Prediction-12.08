@@ -144,7 +144,8 @@ def test_final_uses_recorded_grid_and_fixed_settings_and_checks_compatibility(tm
         'hyperparameter_candidates':{'C':[.123]}}
     monkeypatch.setattr(pipeline,'read_evaluation',Mock(return_value=selected))
     nested=Mock(return_value={'status':'complete'}); monkeypatch.setattr(pipeline,'nested_cv',nested)
-    pipeline.evaluate_final(prepared,selection_run_id='historical')
+    pipeline.evaluate_final(prepared,selection_run_id='historical',output_dir=tmp_path)
+    assert nested.call_args.kwargs['output_dir']==tmp_path/'reports'
     assert nested.call_args.args[1]=={'C':[.123]}
     assert nested.call_args.kwargs['metadata']['fixed_settings']=={'max_iter':23}
     assert nested.call_args.kwargs['metadata']['selection_run_id']=='historical'

@@ -65,4 +65,4 @@ def test_synthetic_pipeline_records_compact_runs(tracking_settings):
         original_id = reports[0]['evaluations'][models[0]]['run_id']
         assert read_evaluation(original_id, tracking=tracking)['mean_outer_accuracy'] == 1
         for filename in ('test_predictions.csv','test_confusion_matrix.csv','test_confusion_matrix.png'):
-            assert (output/filename).exists()
+            assert (output/'reports'/filename).exists()

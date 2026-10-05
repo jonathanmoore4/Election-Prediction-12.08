@@ -17,7 +17,8 @@ Paths are relative to the project root.
 | `tests/` | Automated checks for data processing, models and pipeline integration, including synthetic MLflow validation. |
 | `notebooks/` | Notebook entry point for running the pipeline. |
 | `notes/` | Detailed project description, proposed improvements and retained predictor guide. |
-| `outputs/` | Latest prepared-snapshot pointer and optional prediction/confusion-matrix reports. |
+| `outputs/` | Latest prepared-snapshot pointer (`latest_prepared.json`), dataset metadata and reports subfolders. |
+| `outputs/reports/` | Optional final predictions and confusion-matrix CSV/image reports, overwritten on a final-stage rerun. |
 | `outputs/datasets/<snapshot>/` | Prepared-data manifests and generated predictor guides; train/test rows are stored in PostgreSQL. |
 
 ## Important files
@@ -53,3 +54,5 @@ Local tooling and generated directories are grouped below; their internal databa
 | `.mlflow/` | Local MLflow PostgreSQL data, connection socket and saved artifacts. |
 | `.agents/`, `.codex/` | Workspace directories reserved for coding agent configuration. |
 | `.aws/` | Workspace directory reserved for AWS configuration. |
+
+The generated guide in each snapshot documents that dataset’s columns; the notes guide is a reading reference. Keep `latest_prepared.json` and snapshot metadata for independent stages. Reports are optional and can be regenerated. Model accuracy history is stored in MLflow, and train/test rows are stored in PostgreSQL.

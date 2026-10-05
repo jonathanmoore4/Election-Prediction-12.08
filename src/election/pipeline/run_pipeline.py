@@ -103,7 +103,8 @@ def evaluate_final(prepared_data, *, selection_run_id, source_run_ids=None,
             'selection_run_id': selection_run_id,
             'source_run_ids': source_run_ids or {model_id: selection_run_id}},
         schedule=FINAL_EVALUATION_SCHEDULE, tracking=tracking,
-        output_dir=output_dir, verbose=verbose)
+        output_dir=Path(output_dir) / 'reports' if output_dir is not None else None,
+        verbose=verbose)
     return result
 
 
