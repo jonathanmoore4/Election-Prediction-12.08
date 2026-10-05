@@ -82,7 +82,7 @@ def test_database_configuration_precedence(monkeypatch, tmp_path, explicit, envi
 
 def test_snapshots_are_persistent_isolated_and_failed_runs_roll_back(monkeypatch, tmp_path):
     if not os.environ.get('ELECTION_DATABASE_URL'):
-        pytest.skip('Set ELECTION_DATABASE_URL; see docs/postgresql.md')
+        pytest.skip('Set ELECTION_DATABASE_URL; see README.md')
     connection = database.connect_database()
     schemas = []
     try:

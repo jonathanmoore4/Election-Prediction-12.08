@@ -18,14 +18,14 @@ Use Python 3.11 or newer and install the dependencies in a virtual environment:
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[notebooks,dev]"
-scripts/mlflow-services.sh init  # First-time local PostgreSQL and MLflow setup
-scripts/election-database.sh    # Create the separate election database
+setup/mlflow-services.sh init  # First-time local PostgreSQL and MLflow setup
+setup/election-database.sh    # Create the separate election database
 source .mlflow/config.env
 source .env.election
 jupyter lab
 ```
 
-The service scripts target the Linux Codespace. For another machine, use an existing PostgreSQL server and MLflow server as described in [the PostgreSQL guide](docs/postgresql.md). On Windows, activate the environment with `.venv\Scripts\activate` instead.
+The service scripts target the Linux Codespace. For another machine, use an existing PostgreSQL server and MLflow server. On Windows, activate the environment with `.venv\Scripts\activate` instead.
 
 Open [00_run_pipeline.ipynb](notebooks/00_run_pipeline.ipynb) and run all cells. Start Jupyter from the repository root or a directory within it. The notebook downloads the configured sources, checks the supplied local workbook, prepares features, compares all candidates and fits the selected procedure for 2024. It then predicts every test row, scores rows with known winners and displays a confusion matrix.
 
@@ -40,12 +40,12 @@ Import project modules explicitly so calls show their origin:
 ```python
 from election.pipeline import run_pipeline
 
-result = run_pipeline.run_pipeline(output_dir="notebooks/outputs")
+result = run_pipeline.run_pipeline(output_dir="outputs")
 print(result["comparison"]["winner_model_id"])
 print(result["final_evaluation"]["run_id"])
 ```
 
-Run tests with `python -m pytest` after sourcing the database and MLflow configuration; PostgreSQL integration tests skip when their connection settings are absent. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `notebooks/outputs/`; use `output_dir` to choose another location.
+Run tests with `python -m pytest` after sourcing the database and MLflow configuration; PostgreSQL integration tests skip when their connection settings are absent. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `outputs/`; use `output_dir` to choose another location.
 
 Python modules and project-owned files use lowercase snake case; package directories use lowercase names. Standard filenames such as `README.md` and `__init__.py` retain their conventional spelling. Pipeline notebooks remain separate from the installable package.
 
@@ -66,7 +66,7 @@ python -m election.pipeline.run_pipeline all
 `--data-dir` accepts a prepared snapshot folder, its `prepared_data.json`, or the
 outputs folder containing `latest_prepared.json`. `--output-dir` chooses where
 preparation snapshots and optional final reports are written. Without `--data-dir`,
-independent stages read `notebooks/outputs/latest_prepared.json`; `all` runs preparation.
+independent stages read `outputs/latest_prepared.json`; `all` runs preparation.
 Use `--model logistic_regression random_forest` to evaluate/compare a subset.
 `--skip-final` stops the full pipeline after comparison. `--quiet` hides fit progress.
 
@@ -74,7 +74,7 @@ Use `--model logistic_regression random_forest` to evaluate/compare a subset.
 from election.pipeline.preparation import run_preparation
 from election.pipeline.run_pipeline import evaluate_models, compare_recorded, run_pipeline
 
-prepared = run_preparation({"output_dir": "notebooks/outputs"})
+prepared = run_preparation({"output_dir": "outputs"})
 results = evaluate_models(prepared, model_ids=["logistic_regression", "random_forest"])
 comparison = compare_recorded(prepared, model_ids=["logistic_regression", "random_forest"])
 # Reuse both preparation and completed historical MLflow records:
@@ -92,14 +92,14 @@ alone, include that `data_id` or use the generated manifest.
 
 | Location | Output |
 |---|---|
-| `notebooks/outputs/datasets/<snapshot>/train.csv`, `test.csv` | Prepared historical and final datasets; existing snapshots are preserved |
+| `outputs/datasets/<snapshot>/train.csv`, `test.csv` | Prepared historical and final datasets; existing snapshots are preserved |
 | Same folder: `prepared_data.json`, `predictor_descriptions.md` | Content identities, retained SQL schema and predictor guide |
-| `notebooks/notes/predictor_descriptions.md` | Retained reference copy of the predictor guide |
-| `notebooks/outputs/latest_prepared.json` | Locations of the most recently prepared snapshot |
+| `notes/predictor_descriptions.md` | Retained reference copy of the predictor guide |
+| `outputs/latest_prepared.json` | Locations of the most recently prepared snapshot |
 | MLflow: one historical run per model | Five outer accuracies, their unweighted mean and one compact `evaluation.json` |
 | MLflow: separate final run | 2024 accuracy, selected configuration, refit durations and historical selection reference |
-| `notebooks/outputs/test_predictions.csv` | Optional final constituency predictions, stored locally |
-| `notebooks/outputs/test_confusion_matrix.csv`, `.png` | Optional final confusion matrix, stored locally |
+| `outputs/test_predictions.csv` | Optional final constituency predictions, stored locally |
+| `outputs/test_confusion_matrix.csv`, `.png` | Optional final confusion matrix, stored locally |
 
 MLflow does not receive datasets, constituency predictions, fitted models, every
 candidate's scores, epoch histories or package inventories. Eight historical model
@@ -120,16 +120,18 @@ changes to its architecture, training protocol or feature list.
 
 | Directory | Purpose |
 |---|---|
-| `notebooks/` | Notebook for running the complete pipeline |
+| `setup/` | PostgreSQL and MLflow setup tools and example configuration |
+| `notes/` | Project description, proposed improvements and retained predictor guide |
+| `notebooks/` | Notebooks for running the pipeline and inspecting results |
 | `src/election/pipeline/` | Coordinates source loading, data preparation, exports and model selection |
 | `src/election/preparation/` | Cleans election, polling and boundary-change data |
 | `src/election/sql/` | Builds predictors and separates training and test data in PostgreSQL |
 | `src/election/models/` | Model candidates, preprocessing, training and historical evaluation |
 | `src/election/data/` | Packaged local source workbook |
-| `notebooks/outputs/` | All generated datasets, predictor guide and evaluation reports |
+| `outputs/` | All generated datasets, predictor guide and evaluation reports |
 | `tests/` | Automated checks for the pipeline and models |
 
-The SQL pipeline retains each successful run in a separate PostgreSQL schema. Cleaned inputs, feature views and row counts remain available for inspection, and MLflow records the schema reference in its compact summary. Failed SQL runs roll back completely. See [PostgreSQL setup and inspection](docs/postgresql.md).
+The SQL pipeline retains each successful run in a separate PostgreSQL schema. Cleaned inputs, feature views and row counts remain available for inspection, and MLflow records the schema reference in its compact summary. Failed SQL runs roll back completely.
 
 ## Data and predictors
 

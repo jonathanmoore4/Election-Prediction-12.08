@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 STATE_ROOT=${ELECTION_MLFLOW_HOME:-$REPO_ROOT/.mlflow}
 if [[ ! -f "$STATE_ROOT/config.env" ]]; then
-    echo 'First initialize PostgreSQL with scripts/mlflow-services.sh init' >&2
+    echo 'First initialize PostgreSQL with setup/mlflow-services.sh init' >&2
     exit 1
 fi
 source "$STATE_ROOT/config.env"

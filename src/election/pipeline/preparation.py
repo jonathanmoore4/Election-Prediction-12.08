@@ -15,7 +15,7 @@ from election.sql import apply_sql_queries
 def run_preparation(config=None):
     """Run existing ingestion, cleaning and SQL once; do not start training."""
     config = config or {}
-    output = Path(config.get('output_dir', paths.project_root() / 'notebooks' / 'outputs')).resolve()
+    output = Path(config.get('output_dir', paths.project_root() / 'outputs')).resolve()
     raw = read_in_raw.read_raw_data()
     cleaned = clean_data_all.clean_all_data(raw)
     frames = apply_sql_queries.apply_sql_queries(cleaned)

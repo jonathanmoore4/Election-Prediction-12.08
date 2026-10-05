@@ -118,7 +118,7 @@ def run_pipeline(config=None, *, output_dir=None, model_ids=None, prepared_data=
     config = dict(config or {})
     if output_dir is not None:
         config['output_dir'] = output_dir
-    output = Path(config.get('output_dir', PROJECT_ROOT / 'notebooks' / 'outputs')).resolve()
+    output = Path(config.get('output_dir', PROJECT_ROOT / 'outputs')).resolve()
     ids = _model_ids(model_ids)
     tracking = {} if tracking is None else tracking
     prepared = run_preparation({**config, 'output_dir': output}) if prepared_data is None else prepared_locations(prepared_data)
@@ -144,7 +144,7 @@ def main(argv=None):
     parser.add_argument('stage', choices=['prepare', 'evaluate', 'compare', 'final', 'all'])
     parser.add_argument('--model', nargs='+', choices=['all', *MODEL_MODULES], default=['all'])
     parser.add_argument('--data-dir', type=Path, help='Prepared manifest, snapshot folder, or outputs folder')
-    parser.add_argument('--output-dir', type=Path, default=PROJECT_ROOT / 'notebooks' / 'outputs')
+    parser.add_argument('--output-dir', type=Path, default=PROJECT_ROOT / 'outputs')
     parser.add_argument('--selection-run', help='Completed historical MLflow run for the selected model')
     parser.add_argument('--reuse-evaluations', action='store_true')
     parser.add_argument('--skip-final', action='store_true')

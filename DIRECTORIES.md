@@ -4,8 +4,7 @@ Paths are relative to the project root.
 
 | Directory | Purpose |
 |---|---|
-| `docs/` | MLflow setup instructions and example configuration. |
-| `scripts/` | Sets up PostgreSQL databases, starts MLflow and validates tracking. |
+| `setup/` | Sets up PostgreSQL and MLflow, validates tracking and provides example configuration. |
 | `src/` | Installable Python source code. |
 | `src/election/` | Main election prediction package and shared path utilities. |
 | `src/election/data/` | Bundled historical election workbook and data notes. |
@@ -17,8 +16,8 @@ Paths are relative to the project root.
 | `src/election/models/adapters/` | Gives individual model implementations a common interface. |
 | `tests/` | Automated checks for data processing, models and pipeline integration. |
 | `notebooks/` | Notebook entry point for running the pipeline. |
-| `notebooks/notes/` | Detailed project description, proposed improvements and retained predictor guide. |
-| `notebooks/outputs/` | Exported datasets, predictions, predictor descriptions and evaluation results. |
+| `notes/` | Detailed project description, proposed improvements and retained predictor guide. |
+| `outputs/` | Exported datasets, predictions, predictor descriptions and evaluation results. |
 
 Local tooling and generated directories are grouped below; their internal database, environment and cache folders are managed automatically.
 

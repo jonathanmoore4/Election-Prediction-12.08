@@ -93,7 +93,7 @@ def test_pipeline_notebook_code_compiles_and_uses_root_output_directory():
     for cell in notebook['cells']:
         if cell['cell_type'] == 'code':
             ast.parse(''.join(cell['source']))
-    assert 'output_directory = project_root / "notebooks" / "outputs"' in ''.join(
+    assert 'output_directory = project_root / "outputs"' in ''.join(
         ''.join(cell['source']) for cell in notebook['cells'] if cell['cell_type'] == 'code'
     )
 

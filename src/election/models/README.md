@@ -13,7 +13,7 @@ from election.models.adapters.logistic_regression import (
 from election.models.evaluation import nested_cv
 from election.pipeline.preparation import load_prepared
 
-history, locations = load_prepared("notebooks/outputs/latest_prepared.json")
+history, locations = load_prepared("outputs/latest_prepared.json")
 result = nested_cv(
     LogReg, logreghyperparameters, history,
     model_id="logistic_regression",
@@ -73,5 +73,4 @@ five-party probability order and optionally export final constituency reports
 locally. `custom_model.py` and `pipeline_model.py` retain only fitted-model
 implementation helpers; fit contexts and fit records are dictionaries.
 
-See [compact recording and comparison](../../../docs/mlflow.md) and the
-[stage commands](../../../README.md).
+See the [recording, comparison and stage commands](../../../README.md).

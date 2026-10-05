@@ -16,7 +16,7 @@ mkdir -p "$STATE_ROOT"
 chmod 700 "$STATE_ROOT"
 if [[ ! -f "$CONFIG_FILE" ]]; then
     if [[ "$COMMAND" != init ]]; then
-        echo 'First run: scripts/mlflow-services.sh init' >&2; exit 1
+        echo 'First run: setup/mlflow-services.sh init' >&2; exit 1
     fi
     STATE_ROOT="$STATE_ROOT" "$REPO_ROOT/.venv/bin/python" - <<'PY'
 import os, secrets, shlex
@@ -40,7 +40,7 @@ export PATH="/usr/lib/postgresql/16/bin:$PATH"
 mkdir -p "$STATE_ROOT/socket" "$MLFLOW_ARTIFACT_ROOT"
 PG_CTL=$(command -v pg_ctl || true)
 if [[ -z "$PG_CTL" ]]; then
-    echo 'PostgreSQL 16 software missing; run scripts/mlflow-services.sh install, then reuse this state.' >&2; exit 1
+    echo 'PostgreSQL 16 software missing; run setup/mlflow-services.sh install, then reuse this state.' >&2; exit 1
 fi
 if [[ -f "$PGDATA/PG_VERSION" && $(cat "$PGDATA/PG_VERSION") != 16 ]]; then
     echo 'Existing PostgreSQL major version differs; install matching binaries or use documented dump/restore upgrade.' >&2; exit 1
@@ -120,5 +120,5 @@ case "$COMMAND" in
         pg_ctl -D "$PGDATA" status
         curl --fail --silent "$MLFLOW_TRACKING_URI/health"
         ;;
-    *) echo 'Usage: scripts/mlflow-services.sh {install|init|start|stop|restart|status}' >&2; exit 1 ;;
+    *) echo 'Usage: setup/mlflow-services.sh {install|init|start|stop|restart|status}' >&2; exit 1 ;;
 esac

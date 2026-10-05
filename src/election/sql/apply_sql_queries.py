@@ -40,7 +40,7 @@ def connect_database(database_url=None):
                 if len(tokens) == 1 and tokens[0].startswith('ELECTION_DATABASE_URL='):
                     url = tokens[0].partition('=')[2]
     if not url:
-        raise ValueError('Set ELECTION_DATABASE_URL to the PostgreSQL election database; see docs/postgresql.md')
+        raise ValueError('Set ELECTION_DATABASE_URL to the PostgreSQL election database; see README.md')
     return psycopg2.connect(url, connect_timeout=10, application_name='election-prediction')
 
 

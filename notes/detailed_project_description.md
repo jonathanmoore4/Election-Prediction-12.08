@@ -182,5 +182,5 @@ model comparison, plus a separate final run. It receives no per-constituency dat
 fitted models, candidate-fit logs or epoch histories. Dataset manifests and CSVs
 remain in preserved snapshot folders; MLflow contains their references.
 
-See the repository [README](../../README.md), [model interface guide](../../src/election/models/README.md)
-and [MLflow guide](../../docs/mlflow.md) for commands, Python calls and recording fields.
+See the repository [README](../README.md), [model interface guide](../src/election/models/README.md)
+for commands, Python calls and recording fields.

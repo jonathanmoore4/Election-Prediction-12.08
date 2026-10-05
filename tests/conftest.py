@@ -17,7 +17,7 @@ def postgres_cursor():
     from election.sql.apply_sql_queries import connect_database
     from psycopg2 import sql
     if not os.environ.get('ELECTION_DATABASE_URL'):
-        pytest.skip('Set ELECTION_DATABASE_URL; see docs/postgresql.md')
+        pytest.skip('Set ELECTION_DATABASE_URL; see README.md')
     connection = connect_database()
     try:
         with connection.cursor() as cursor:
