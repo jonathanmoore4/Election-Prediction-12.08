@@ -44,15 +44,23 @@ Use a small predefined slice set for comparison. Verify newly discovered slices 
 
 ### 6. Strengthen automated model selection
 
-Build a shared expanding-election evaluator with nested historical tuning, common evaluation rows and explicit selection objectives. Include simple baselines such as predicting the previous winner and logistic regression; define a polling-based baseline if useful.
+The shared expanding-election evaluator now implements nested historical tuning, common evaluation rows and selection by unweighted mean accuracy across five outer elections. Extend its diagnostics and saved predictions. Include simple baselines such as predicting the previous winner and logistic regression; define a polling-based baseline if useful.
 
 Record overall accuracy, changed-seat accuracy, macro-F1, log loss and party seat-total errors. Decide in advance which metric or rule selects the winner, rather than choosing the objective after inspecting results. Save runtime, failures, configurations, data identity and seeds.
 
-The current score adds overall accuracy to changed-seat accuracy. Changed seats contribute to both parts, so they receive extra influence. The amount of extra influence depends on how many seats changed in that election.
+The current selection score is mean overall accuracy across 2005, 2010, 2015, 2017 and 2019. Changed-seat accuracy does not contribute to selection. Earlier proposals to add overall and changed-seat accuracy would count changed seats in both terms; any alternative objective needs an explicit decision.
 
 If the intention is to give changed and retained seats equal importance, calculate accuracy for each group separately and average the two. This is an alternative to consider, not an agreed replacement.
 
 Since 2024 results have already informed development, further comparisons on 2024 should be described as retrospective evaluation rather than an untouched final test.
+
+### 7. Move model-specific preprocessing before each nested-CV iteration
+
+Perform model-specific preprocessing once before the algorithm fits in each nested-CV iteration, rather than repeating it inside the algorithm for multiple fits. Make this an explicit step for each inner training/validation split, outer refit and final refit. Reuse prepared features across compatible hyperparameter candidates and neural seeds within the same iteration. Currently, preprocessing is performed inside model-fitting implementations.
+
+Fit learned transformations only on that iteration’s training rows, then apply them to its held-out rows. Keep encoders, scalers, imputers and conditional role handling specific to the model and fold. Reuse transformed data across hyperparameter candidates only when preprocessing is independent of those parameters and the training/validation split is identical. Never fit preprocessing on the full dataset before splitting into folds. Preserve row membership, party ordering and the neural checkpoint/refit rules.
+
+This is proposed work; the current pipeline still preprocesses inside model fits.
 
 ## Recommended implementation order
 

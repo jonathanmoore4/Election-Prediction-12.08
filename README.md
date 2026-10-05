@@ -65,7 +65,11 @@ Holder/challenger features are missing where their party has no polling input or
 
 Missing predictors are imputed using training data within each fold. Numeric values use medians (zero for entirely missing columns); categories use a missing marker, with a historical fallback for previous winners. Prepared PostgreSQL tables retain missing values as SQL NULL.
 
-For setup, independent pipeline stages, package development and a fuller explanation of the models, see the [detailed project description](notes/detailed_project_description.md).
+Further information:
+
+- [Project structure](notes/directories.md): directories and important configuration files.
+- [Detailed project description](notes/detailed_project_description.md): greater detail about the entire process, from setup and preparation through nested validation, selection, final evaluation and MLflow recording.
+- [Intended next improvements](notes/intended_next_improvements.md): proposed new changes and development priorities.
 
 ## Historical tuning and model selection
 

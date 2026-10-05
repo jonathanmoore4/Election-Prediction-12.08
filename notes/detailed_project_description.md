@@ -1,9 +1,12 @@
 # The nested election prediction pipeline
 
-This guide combines the model development specification and the module explainer. It describes the implemented pipeline: how nested cross-validation selects a modelling procedure, how model functions and compact MLflow records work, and what each file does.
+This guide describes the entire implemented process: setup, source ingestion, PostgreSQL preparation, model preprocessing, nested historical evaluation, model selection, retrospective 2024 evaluation and MLflow recording. See the [directory guide](directories.md) for project structure and [intended next improvements](intended_next_improvements.md) for proposed changes.
 
 ## Reading guide
 
+- [Quick start](#quick-start), [package and development](#package-and-development), and [independent stages](#run-stages-independently).
+- [Preparation and stored data](#preparation-and-stored-data): sources, PostgreSQL snapshots and integrity checks.
+- [Saved 2024 accuracy history](#saved-2024-accuracy-history): print completed MLflow results.
 - [Nested cross-validation](#nested-cross-validation): the two loops and their flowchart.
 - [Model specifications](#model-specifications): the settings searched and held fixed.
 - [Modules and functions](#modules-and-functions): stage functions and MLflow recording.
@@ -88,6 +91,27 @@ the manifest’s `database_schema`. Preparation does not export CSV copies. Exis
 external CSVs can still be reused by supplying `prepared_data={"train_path": ..., "test_path": ...}`
 to evaluation/pipeline; evaluation computes their content identity. For comparison
 alone, include that `data_id` or use the generated manifest.
+
+## Preparation and stored data
+
+Preparation reads the configured historical, notional, 2024 and polling sources. The bundled 1997 workbook is checksum-verified. Cleaning normalises the inputs before loading them into a new PostgreSQL run schema. Six SQL scripts join previous elections and polling, engineer predictors and create `train_data` and `test_data`. Training covers available elections through 2019; the final test contains 2024. SQL preparation commits atomically, retaining successful schemas for inspection and rolling back failed runs.
+
+`run_preparation` writes content identities, the retained `database_schema` and predictor-guide location to `outputs/datasets/<snapshot>/prepared_data.json`, then updates `outputs/latest_prepared.json`. It does not write train/test CSV copies. Repeated identical datasets reuse the saved manifest and its original schema reference.
+
+`load_prepared` reads the retained PostgreSQL tables in a read-only transaction with a consistent snapshot and deterministic row ordering. It normalises the model representation in memory to preserve the existing content identities and dtypes, then checks those identities before evaluation. Historical evaluation reads only training rows; final evaluation also reads 2024 rows. PostgreSQL must remain available. Explicit external CSV paths remain supported, but database-backed manifests use their schema even if legacy CSV paths are present.
+
+Model-specific normalisation, encoding, scaling, imputation and conditional role handling currently run inside the model-fitting implementations. Learned transformations fit only on each fold’s training data and are reused for its held-out rows. They are currently repeated as part of model fits; performing it once before each nested-CV iteration’s algorithm fits and reusing it across compatible fits is proposed in the improvements document.
+
+## Saved 2024 accuracy history
+
+With the virtual environment active and the MLflow service running:
+
+```bash
+source .mlflow/config.env
+python -m election.models.accuracy_history
+```
+
+Alternatively, run `.venv/bin/python src/election/models/accuracy_history.py` from the repository root. The command prints completion time (UTC), model, percentage accuracy and run ID, newest first, across completed compact final evaluations. `--experiment NAME` and `--tracking-uri URL` select another experiment or server. It reads saved results without training. Each full pipeline run evaluates only the historically selected candidate on 2024; it does not automatically produce 2024 scores for every candidate.
 
 ## What the pipeline predicts
 
@@ -220,10 +244,12 @@ are ordinary dictionaries.
 
 | Module | Responsibility |
 |---|---|
-| `pipeline/preparation.py` | Existing ingestion, cleaning and SQL stages; immutable dataset snapshots |
+| `pipeline/preparation.py` | Ingestion, cleaning, PostgreSQL preparation, manifests and verified database reads |
 | `pipeline/run_pipeline.py` | Independent evaluation/comparison/final stage functions, CLI and full orchestration |
 | `models/config.py` | Named historical and final schedules, party/target/scoring definitions |
 | `models/evaluation.py` | Schedule validation, election splitting, parameter combinations, tuning and nested CV |
+| `models/accuracy_history.py` | Print completed 2024 accuracy history from MLflow |
+| `models/boosting.py` | Shared XGBoost defaults, party-label encoding and preprocessing/training pipeline |
 | `models/tracking.py` | One compact MLflow run per evaluation, summary validation and compatible result retrieval |
 | `models/compare_models.py` | Rank the latest compatible completed historical evaluation per model |
 | `models/adapters/` | Existing model implementations, model functions, grids and fixed metadata |
