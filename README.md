@@ -2,13 +2,19 @@
 
 Constituency identifiers can improve predictive accuracy but may reduce a model's ability to generalise across boundary reviews and changing electoral landscapes. This project investigates whether constituency winners can instead be predicted using information that remains meaningful across elections: previous party vote shares, national polling, the governing party and country or region.
 
-The project combines historical election results and polling in an end-to-end Python and PostgreSQL pipeline. MLflow records model configurations, historical accuracy and separate 2024 evaluations so completed runs can be compared and inspected over time. The current iteration compares **eight modelling procedures across five historical elections**, tuning each procedure using only earlier elections. The selected procedure is then tuned again on pre-2024 history and evaluated retrospectively on the 2024 General Election.
+The project combines historical election results and polling in an end-to-end Python and PostgreSQL pipeline. MLflow records model configurations, historical accuracy and separate 2024 evaluations so completed runs can be compared and inspected over time. The current iteration compares eight modelling procedures across five historical elections, tuning each procedure using only earlier elections. The selected procedure is then tuned again on pre-2024 history and evaluated retrospectively on the 2024 General Election.
 
-The saved complete comparison selects **Conditional XGBoost**, with **88.85% mean historical accuracy** across 2005, 2010, 2015, 2017 and 2019. The saved pipeline notebook reports **75.00% accuracy on all 632 Great Britain constituencies in 2024** (474 correct predictions). On the same constituencies, predicting the previous winner achieves **52.37%** (331 correct), predicting Labour everywhere achieves **65.03%** (411 correct), and predicting Conservative everywhere achieves **19.15%** (121 correct).  These are recorded results; rerunning with different inputs or dependencies may change them.
+The saved complete comparison selects Conditional XGBoost, with 88.85% mean historical accuracy across 2005, 2010, 2015, 2017 and 2019. The saved pipeline notebook reports 75.00% accuracy on all 632 Great Britain constituencies in 2024 (474 correct predictions). On the same constituencies, predicting the previous winner achieves 52.37% (331 correct), predicting Labour everywhere achieves 65.03% (411 correct), and predicting Conservative everywhere achieves 19.15% (121 correct). These are recorded results; rerunning with different inputs or dependencies may change them.
+
+## View experiment results
+
+[Open the MLflow experiment dashboard](https://jupyter-server-4jr4jr77q4xvc97w-5000.app.github.dev/) to explore recorded model runs, accuracy metrics and configurations. No local setup is required.
+
+This temporary demo is available while the Codespace and MLflow server are running. I am only able to keep this open for short amounts of time.
 
 ## Motivation
 
-The 2024 election represented a markedly different political environment from recent elections. A model that performs well on one historical election may struggle when national conditions change. This project tests how much constituency behaviour can be captured without using constituency identity as a predictor, while developing a reproducible workflow for ingestion, cleaning, feature engineering, tuning and evaluation.
+The 2024 election represented a markedly different political environment from recent elections. A model that performs well on one historical election may struggle when national conditions change. This project tests how much constituency behaviour can be captured without using constituency identity as a predictor, while developing a reproducible workflow for cleaning, feature engineering, hyperparameter tuning and evaluation.
 
 ## Quick start
 
@@ -87,6 +93,8 @@ Holder/challenger features are missing where their party has no polling input or
 Missing predictors are imputed using training data within each fold. Numeric values use medians (zero for entirely missing columns); categories use a missing marker, with a historical fallback for previous winners. Prepared PostgreSQL tables retain missing values as SQL NULL.
 
 Further information:
+
+The linked Markdown files below are working notes, updated as the project develops.
 
 - [Project structure](notes/directories.md): directories and important configuration files.
 - [Detailed project description](notes/detailed_project_description.md): greater detail about the entire process, from setup and preparation through nested validation, selection, final evaluation and MLflow recording.

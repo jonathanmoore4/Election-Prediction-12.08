@@ -1,0 +1,232 @@
+{
+  "model_id": "logistic_regression",
+  "schedule": {
+    "name": "historical-five-election-v1",
+    "purpose": "model_comparison",
+    "outer_elections": [
+      2005,
+      2010,
+      2015,
+      2017,
+      2019
+    ],
+    "inner_elections": {
+      "2005": [
+        1997,
+        2001
+      ],
+      "2010": [
+        1997,
+        2001,
+        2005
+      ],
+      "2015": [
+        1997,
+        2001,
+        2005,
+        2010
+      ],
+      "2017": [
+        1997,
+        2001,
+        2005,
+        2010,
+        2015
+      ],
+      "2019": [
+        1997,
+        2001,
+        2005,
+        2010,
+        2015,
+        2017
+      ]
+    },
+    "training_cutoff": null
+  },
+  "data_id": "6812e57c08cc604171ab26f161bac2ab0653849f6b945fce4deaa2beb930f424",
+  "hyperparameter_candidates": {
+    "C": [
+      0.01,
+      0.1,
+      1,
+      10
+    ]
+  },
+  "outer_results": {
+    "2005": {
+      "hyperparameters": {
+        "C": 0.1
+      },
+      "mean_inner_accuracy": 0.87597503900156,
+      "inner_accuracies": {
+        "1997": 0.8065522620904836,
+        "2001": 0.9453978159126365
+      },
+      "accuracy": 0.9124203821656051,
+      "training_years": [
+        1987,
+        1992,
+        1997,
+        2001
+      ],
+      "refit_durations": {},
+      "evaluation_rows": 628,
+      "excluded_rows": 0
+    },
+    "2010": {
+      "hyperparameters": {
+        "C": 0.1
+      },
+      "mean_inner_accuracy": 0.8881234867229084,
+      "inner_accuracies": {
+        "1997": 0.8065522620904836,
+        "2001": 0.9453978159126365,
+        "2005": 0.9124203821656051
+      },
+      "accuracy": 0.8908227848101266,
+      "training_years": [
+        1987,
+        1992,
+        1997,
+        2001,
+        2005
+      ],
+      "refit_durations": {},
+      "evaluation_rows": 632,
+      "excluded_rows": 0
+    },
+    "2015": {
+      "hyperparameters": {
+        "C": 0.1
+      },
+      "mean_inner_accuracy": 0.888798311244713,
+      "inner_accuracies": {
+        "1997": 0.8065522620904836,
+        "2001": 0.9453978159126365,
+        "2005": 0.9124203821656051,
+        "2010": 0.8908227848101266
+      },
+      "accuracy": 0.754746835443038,
+      "training_years": [
+        1987,
+        1992,
+        1997,
+        2001,
+        2005,
+        2010
+      ],
+      "refit_durations": {},
+      "evaluation_rows": 632,
+      "excluded_rows": 0
+    },
+    "2017": {
+      "hyperparameters": {
+        "C": 0.1
+      },
+      "mean_inner_accuracy": 0.8619880160843779,
+      "inner_accuracies": {
+        "1997": 0.8065522620904836,
+        "2001": 0.9453978159126365,
+        "2005": 0.9124203821656051,
+        "2010": 0.8908227848101266,
+        "2015": 0.754746835443038
+      },
+      "accuracy": 0.8734177215189873,
+      "training_years": [
+        1987,
+        1992,
+        1997,
+        2001,
+        2005,
+        2010,
+        2015
+      ],
+      "refit_durations": {},
+      "evaluation_rows": 632,
+      "excluded_rows": 0
+    },
+    "2019": {
+      "hyperparameters": {
+        "C": 0.1
+      },
+      "mean_inner_accuracy": 0.8638929669901462,
+      "inner_accuracies": {
+        "1997": 0.8065522620904836,
+        "2001": 0.9453978159126365,
+        "2005": 0.9124203821656051,
+        "2010": 0.8908227848101266,
+        "2015": 0.754746835443038,
+        "2017": 0.8734177215189873
+      },
+      "accuracy": 0.8686708860759493,
+      "training_years": [
+        1987,
+        1992,
+        1997,
+        2001,
+        2005,
+        2010,
+        2015,
+        2017
+      ],
+      "refit_durations": {},
+      "evaluation_rows": 632,
+      "excluded_rows": 0
+    }
+  },
+  "mean_outer_accuracy": 0.8600157220027412,
+  "status": "complete",
+  "metadata": {
+    "architecture_id": "logistic_regression-v1",
+    "training_protocol": "full-history-v1",
+    "fixed_settings": {
+      "C": 1.0,
+      "penalty": "l2",
+      "solver": "lbfgs",
+      "max_iter": 1000,
+      "tol": 0.0001,
+      "class_weight": null
+    },
+    "features": [
+      "country/region",
+      "previous_winning_party_last_election_vote_share",
+      "previous_winner",
+      "con_polling",
+      "lab_polling",
+      "lib_polling",
+      "incumbent",
+      "previous_con_share",
+      "previous_lib_share",
+      "previous_lab_share",
+      "previous_natSW_share",
+      "projected_con_share",
+      "projected_lib_share",
+      "projected_lab_share"
+    ],
+    "feature_definition_reference": "/workspaces/Election-Prediction-12.08/outputs/datasets/bbd4beeb209abbbef8c82a72b65c5df80399c80af059990f6ad2943119dfdd27/predictor_descriptions.md",
+    "target_id": "winner-five-party-gb-v1",
+    "target_definition": {
+      "column": "winner",
+      "classes": [
+        "con",
+        "lab",
+        "lib",
+        "natSW",
+        "oth"
+      ],
+      "unknown_outcomes": "exclude from accuracy"
+    },
+    "scoring_id": "winner-accuracy-equal-election-mean-v1",
+    "scoring_definition": "fraction of correct labelled constituency winners; unweighted election means",
+    "evaluation_protocol": "nested-election-inner-checkpoint-median-refit-v1",
+    "data_id": "6812e57c08cc604171ab26f161bac2ab0653849f6b945fce4deaa2beb930f424",
+    "prepared_data": {
+      "data_id": "6812e57c08cc604171ab26f161bac2ab0653849f6b945fce4deaa2beb930f424",
+      "test_data_id": "f826113d72f5b57cf7c93e9f0b0a5d91087d78765155c6e439f40403b1a9b790",
+      "predictor_guide_path": "/workspaces/Election-Prediction-12.08/outputs/datasets/bbd4beeb209abbbef8c82a72b65c5df80399c80af059990f6ad2943119dfdd27/predictor_descriptions.md",
+      "database_schema": "run_20261004_173948_4aeeb6e71caa"
+    }
+  },
+  "run_id": "6441063097944cccaeb72bda1abc6c1f"
+}
