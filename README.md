@@ -8,7 +8,7 @@ The saved complete comparison selects Conditional XGBoost, with 88.85% mean hist
 
 ## View experiment results
 
-[Open the MLflow experiment dashboard](https://jupyter-server-4jr4jr77q4xvc97w-5000.app.github.dev/) to explore recorded model runs, accuracy metrics and configurations. No local setup is required.
+[Open the MLflow experiment dashboard](https://jupyter-server-4jr4jr77q4xvc97w-5000.app.github.dev/#/experiments) to explore recorded model runs, accuracy metrics and configurations. No local setup is required.
 
 This temporary demo is available while the Codespace and MLflow server are running. I am only able to keep this open for short amounts of time.
 
