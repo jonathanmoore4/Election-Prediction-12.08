@@ -13,28 +13,37 @@ This guide describes the entire implemented process: setup, source ingestion, Po
 
 ## Quick start
 
-Use Python 3.11 or newer and install the dependencies in a virtual environment:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run from the repository root:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[notebooks,dev]"
-setup/mlflow-services.sh init  # First-time local PostgreSQL and MLflow setup
-setup/election-database.sh    # Create the separate election database
-source .mlflow/config.env
-source .env.election
-jupyter lab
+uv sync --extra notebooks
+setup/mlflow-services.sh install  # Install PostgreSQL 16 system software on Linux
+setup/mlflow-services.sh init     # Initialise PostgreSQL and start background MLflow
+setup/election-database.sh        # Create the separate election database
+source setup/environment.sh
+uv run --extra notebooks jupyter lab
 ```
 
-The service scripts target the Linux Codespace. For another machine, use an existing PostgreSQL server and MLflow server. On Windows, activate the environment with `.venv\Scripts\activate` instead.
+The repository pins Python 3.14.2 in `.python-version`; uv can download it when
+needed. `uv.lock` records resolved dependencies. The service scripts target the
+Linux Codespace. On another machine, configure an existing PostgreSQL server and
+MLflow server using `ELECTION_DATABASE_URL` and `MLFLOW_TRACKING_URI`.
+
+For foreground MLflow, stop the managed background server once with
+`setup/mlflow-services.sh stop-mlflow`, start PostgreSQL with
+`setup/mlflow-services.sh postgres`, source `setup/environment.sh`, then run
+`uv run mlflow server`. Ctrl+C stops the foreground server; PostgreSQL keeps
+running. The stop-mlflow command manages only the script's background process.
+The environment script preserves database credentials, artifact paths and
+Codespaces access settings without modifying the private configuration files.
 
 Open [00_run_pipeline.ipynb](../notebooks/00_run_pipeline.ipynb) and run all cells. Start Jupyter from the repository root or a directory within it. The notebook downloads the configured sources, checks the supplied local workbook, prepares features, compares all candidates and fits the selected procedure for 2024. It then predicts every test row, scores rows with known winners and displays a confusion matrix.
 
-A full run includes nested searches and ten-network ensembles and can take substantial time. Internet access is required for ingestion. Most dependency versions are not pinned, and remote inputs can change.
+A full run includes nested searches and ten-network ensembles and can take substantial time. Internet access is required for ingestion. Dependency versions are locked in `uv.lock`; remote inputs can still change.
 
 ## Package and development
 
-The project follows the [Python Packaging User Guide](https://packaging.python.org/en/latest/tutorials/packaging-projects/#creating-the-package-files) with a `src/` layout and regular packages marked by `__init__.py`. `pyproject.toml` defines the build backend, project metadata and dependencies. Core installation uses `python -m pip install -e .`, so the pipeline runs directly from `src/`; the `notebooks` extra adds notebook/report tools and `dev` adds testing tools.
+The project follows the [Python Packaging User Guide](https://packaging.python.org/en/latest/tutorials/packaging-projects/#creating-the-package-files) with a `src/` layout and regular packages marked by `__init__.py`. `pyproject.toml` defines the build backend, project metadata and dependencies. `uv sync` installs the project in editable mode, so the pipeline runs directly from `src/`. The `notebooks` extra adds notebook/report tools; the `dev` dependency group adds pytest and is installed by default. Commit `uv.lock` and `.python-version`, but keep `.venv` ignored. Use `uv add PACKAGE` or `uv add --dev PACKAGE` to manage dependencies, and `uv lock --upgrade` for an intentional dependency upgrade.
 
 Import project modules explicitly so calls show their origin:
 
@@ -46,21 +55,19 @@ print(result["comparison"]["winner_model_id"])
 print(result["final_evaluation"]["run_id"])
 ```
 
-Run tests with `python -m pytest` after sourcing the database and MLflow configuration;
+Run tests with `uv run pytest` after sourcing the database and MLflow configuration;
 `tests/test_mlflow_pipeline.py` checks two synthetic pipeline executions against the configured MLflow server; PostgreSQL integration tests skip when their connection settings are absent. Normal development and pipeline execution do not require building a distribution. If packaging is needed, `setup.cfg` directs setuptools staging files to `/tmp/election-prediction-build` instead of creating a `build/` directory in this checkout. SQL queries and the checksum-verified local workbook are included in the installed package. When installed outside a checkout, default outputs go under the working directory's `outputs/`; use `output_dir` to choose another location.
 
 Python modules and project-owned files use lowercase snake case; package directories use lowercase names. Standard filenames such as `README.md` and `__init__.py` retain their conventional spelling. Pipeline notebooks remain separate from the installable package.
 
 ## Run stages independently
 
-Run these commands from the repository root with the virtual environment active.
+Run these commands from the repository root; virtual environment activation is not required.
 Start the services and load their connection settings once per terminal session:
 
 ```bash
-source .venv/bin/activate
 setup/mlflow-services.sh start
-source .mlflow/config.env
-source .env.election
+source setup/environment.sh
 ```
 
 Each stage reuses existing inputs where appropriate. Evaluation and final fitting
@@ -73,7 +80,7 @@ Download and clean the source data, create the PostgreSQL training/test tables,
 and save a manifest at `outputs/latest_prepared.json`. This does not fit models.
 
 ```bash
-python -m election.pipeline.run_pipeline prepare
+uv run python -m election.pipeline.run_pipeline prepare
 ```
 
 ### Evaluate one model on historical elections
@@ -83,7 +90,7 @@ historical outer elections. Save the completed evaluation in MLflow, without
 preparing data again or evaluating 2024.
 
 ```bash
-python -m election.pipeline.run_pipeline evaluate --model logistic_regression
+uv run python -m election.pipeline.run_pipeline evaluate --model logistic_regression
 ```
 
 ### Evaluate every candidate
@@ -92,13 +99,13 @@ Run the same historical evaluation for all eight model procedures. This can take
 substantial time, particularly for conditional XGBoost and neural ensembles.
 
 ```bash
-python -m election.pipeline.run_pipeline evaluate --model all
+uv run python -m election.pipeline.run_pipeline evaluate --model all
 ```
 
 To evaluate just two candidates, name both models:
 
 ```bash
-python -m election.pipeline.run_pipeline evaluate --model logistic_regression random_forest
+uv run python -m election.pipeline.run_pipeline evaluate --model logistic_regression random_forest
 ```
 
 ### Compare saved historical results
@@ -109,19 +116,19 @@ model and its selection run ID. Missing or incompatible runs are reported;
 comparison does not fit models or load PostgreSQL rows.
 
 ```bash
-python -m election.reports.comparison
+uv run python -m election.reports.comparison
 ```
 
 To compare only the two candidates evaluated above:
 
 ```bash
-python -m election.reports.comparison --model logistic_regression random_forest
+uv run python -m election.reports.comparison --model logistic_regression random_forest
 ```
 
 For the full comparison dictionary as JSON, including compatibility fields, use:
 
 ```bash
-python -m election.pipeline.run_pipeline compare
+uv run python -m election.pipeline.run_pipeline compare
 ```
 
 ### Evaluate the selected model on 2024
@@ -132,7 +139,7 @@ and score 2024. Record a separate final MLflow run and write predictions and
 confusion-matrix reports under `outputs/reports/`.
 
 ```bash
-python -m election.pipeline.run_pipeline final --selection-run HISTORICAL_RUN_ID
+uv run python -m election.pipeline.run_pipeline final --selection-run HISTORICAL_RUN_ID
 ```
 
 ### Print saved 2024 accuracy and model specifications
@@ -142,10 +149,10 @@ model architecture, fixed settings, tuning search space and selected 2024
 hyperparameters. Early stopping settings are included when recorded.
 
 ```bash
-python -m election.reports.accuracy_history
+uv run python -m election.reports.accuracy_history
 ```
 
-The earlier `python -m election.models.accuracy_history` command remains supported.
+The earlier `uv run python -m election.models.accuracy_history` command remains supported.
 
 ### Inspect one saved evaluation
 
@@ -154,7 +161,7 @@ model specifications, data references, election accuracies, selected settings,
 inner scores and recorded refit durations. This retrieves saved MLflow results.
 
 ```bash
-python -m election.reports.run_details RUN_ID
+uv run python -m election.reports.run_details RUN_ID
 ```
 
 ### Inspect the prepared-data manifest
@@ -163,7 +170,7 @@ Print the latest dataset identities, retained PostgreSQL schema and predictor-gu
 location. This reads the manifest without querying table rows.
 
 ```bash
-python -m election.reports.prepared_data
+uv run python -m election.reports.prepared_data
 ```
 
 ### Run the complete pipeline
@@ -172,13 +179,13 @@ Prepare data, evaluate all candidates, compare historical results and evaluate t
 historically selected model on 2024.
 
 ```bash
-python -m election.pipeline.run_pipeline all
+uv run python -m election.pipeline.run_pipeline all
 ```
 
 To stop after historical evaluation and comparison, omit the final evaluation:
 
 ```bash
-python -m election.pipeline.run_pipeline all --skip-final
+uv run python -m election.pipeline.run_pipeline all --skip-final
 ```
 
 ### Reuse preparation and saved historical evaluations
@@ -188,7 +195,7 @@ then tune and evaluate the selected model on 2024. This avoids running preparati
 and historical training again. All requested models must have compatible records.
 
 ```bash
-python -m election.pipeline.run_pipeline all --data-dir outputs/latest_prepared.json --reuse-evaluations
+uv run python -m election.pipeline.run_pipeline all --data-dir outputs/latest_prepared.json --reuse-evaluations
 ```
 
 To reuse results for a subset, add `--model logistic_regression random_forest`.
@@ -200,7 +207,7 @@ Use `--data-dir` to select an existing manifest, its snapshot folder, or an outp
 folder containing `latest_prepared.json`. For example, inspect a particular snapshot:
 
 ```bash
-python -m election.reports.prepared_data --data-dir outputs/datasets/SNAPSHOT_ID
+uv run python -m election.reports.prepared_data --data-dir outputs/datasets/SNAPSHOT_ID
 ```
 
 The evaluation, comparison, final and full-pipeline commands also accept
@@ -210,7 +217,7 @@ Use `--output-dir` to choose where preparation metadata and final reports are
 written. For example, run the complete pipeline into another folder:
 
 ```bash
-python -m election.pipeline.run_pipeline all --output-dir outputs/another_run
+uv run python -m election.pipeline.run_pipeline all --output-dir outputs/another_run
 ```
 
 Its manifest is `outputs/another_run/latest_prepared.json`, and final reports go
@@ -220,7 +227,7 @@ under `outputs/another_run/reports/`. To read that run's comparison, pass
 Use `--quiet` to hide fitting progress while keeping the final stage result:
 
 ```bash
-python -m election.pipeline.run_pipeline evaluate --model logistic_regression --quiet
+uv run python -m election.pipeline.run_pipeline evaluate --model logistic_regression --quiet
 ```
 
 The pipeline stage commands print their result dictionaries as JSON. The
@@ -246,14 +253,14 @@ separate histories. The pipeline notebook displays the chart from this reports f
 
 ## Saved 2024 accuracy history
 
-With the virtual environment active and the MLflow service running:
+With the MLflow service running:
 
 ```bash
-source .mlflow/config.env
-python -m election.reports.accuracy_history
+source setup/environment.sh
+uv run python -m election.reports.accuracy_history
 ```
 
-Alternatively, run `.venv/bin/python src/election/reports/accuracy_history.py` from the repository root. The command prints completion time (UTC), model, percentage accuracy and run ID, newest first, across completed compact final evaluations. `--experiment NAME` and `--tracking-uri URL` select another experiment or server. It also prints the saved model architecture, training protocol, fixed settings, tuning search space, selected 2024 hyperparameters and any early stopping settings. It reads saved results without training. Each full pipeline run evaluates only the historically selected candidate on 2024; it does not automatically produce 2024 scores for every candidate.
+Alternatively, run `uv run src/election/reports/accuracy_history.py` from the repository root. The command prints completion time (UTC), model, percentage accuracy and run ID, newest first, across completed compact final evaluations. `--experiment NAME` and `--tracking-uri URL` select another experiment or server. It also prints the saved model architecture, training protocol, fixed settings, tuning search space, selected 2024 hyperparameters and any early stopping settings. It reads saved results without training. Each full pipeline run evaluates only the historically selected candidate on 2024; it does not automatically produce 2024 scores for every candidate.
 
 ## What the pipeline predicts
 

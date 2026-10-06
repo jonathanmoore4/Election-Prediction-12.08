@@ -28,6 +28,9 @@ Paths are relative to the project root.
 |---|---|
 | `README.md` | Project overview and brief commands for running the pipeline and printing 2024 accuracy history. |
 | `pyproject.toml` | Package metadata, dependencies, source discovery and pytest configuration. |
+| `uv.lock` | Resolved Python dependency versions; maintained by uv and committed to Git. |
+| `.python-version` | Python version used by uv (3.14.2). |
+| `setup/environment.sh` | Source once per Bash terminal to load database and MLflow settings. |
 | `setup.cfg` | Places packaging staging files under `/tmp/election-prediction-build`. |
 | `setup/mlflow-services.sh` | Installs, initialises and manages the local PostgreSQL and MLflow services. |
 | `setup/election-database.sh` | Creates the separate election database and private connection configuration. |

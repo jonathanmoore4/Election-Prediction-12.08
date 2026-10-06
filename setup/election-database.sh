@@ -13,7 +13,7 @@ if ! pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
     pg_ctl -D "$PGDATA" -l "$STATE_ROOT/postgres.log" \
         -o "-p $PGPORT -h 127.0.0.1 -k $STATE_ROOT/socket" -w start
 fi
-REPO_ROOT="$REPO_ROOT" "$REPO_ROOT/.venv/bin/python" - <<'PY'
+REPO_ROOT="$REPO_ROOT" uv run --project "$REPO_ROOT" python - <<'PY'
 import os
 from pathlib import Path
 import secrets

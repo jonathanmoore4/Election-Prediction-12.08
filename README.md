@@ -12,22 +12,43 @@ The 2024 election represented a markedly different political environment from re
 
 ## Quick start
 
-For an already configured Linux Codespace, run from the repository root:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) first. From the repository root in an already configured Linux Codespace:
 
 ```bash
-source .venv/bin/activate
-setup/mlflow-services.sh start
-source .mlflow/config.env
-source .env.election
-python -m election.pipeline.run_pipeline all
+uv sync --extra notebooks
+setup/mlflow-services.sh postgres
+source setup/environment.sh
+uv run mlflow server
 ```
+
+MLflow runs in the foreground; use Ctrl+C to stop it. If the previous background
+server is running, first run `setup/mlflow-services.sh stop-mlflow`. Forward port
+5000 privately in Codespaces to open the UI. In a second Bash terminal:
+
+```bash
+source setup/environment.sh
+uv run python -m election.pipeline.run_pipeline all
+```
+
+For a standalone script, use `uv run file_x.py` (replace the filename with an
+actual script). Existing runnable package files can also be executed directly,
+for example `uv run src/election/reports/accuracy_history.py`. Files that only
+define functions need a caller or executable entry point.
+
+`uv.lock` records dependency versions and `.python-version` selects Python 3.14.2.
+uv manages `.venv` and installs this package in editable mode; activation is optional.
+Run `uv add PACKAGE` to add a runtime dependency, `uv add --dev PACKAGE` for a
+development tool, and `uv run pytest` for tests. Notebook tools are optional:
+use `uv run --extra notebooks jupyter lab`. PostgreSQL is a separate system
+service and is not installed or started by uv. The existing combined background
+startup remains available as `setup/mlflow-services.sh start`.
 
 See [first-time setup](notes/detailed_project_description.md#quick-start) before running this on a new checkout. A full run can take substantial time.
 
 To print saved 2024 accuracy history in the shell, with the MLflow configuration sourced:
 
 ```bash
-python -m election.reports.accuracy_history
+uv run python -m election.reports.accuracy_history
 ```
 
 The report displays a pandas DataFrame with one row per run: accuracy as a percentage, saved model architecture, training protocol, fixed settings, hyperparameter search space, selected 2024 hyperparameters and early stopping settings where applicable. Long cells are shortened for terminal display; add `--full` to show their complete contents. In Python, `accuracy_history(MlflowClient(...))` from `election.reports.accuracy_history` returns the DataFrame with full configuration dictionaries and numeric accuracy proportions. This reads saved results without training; full runs evaluate only the historically selected model on 2024.

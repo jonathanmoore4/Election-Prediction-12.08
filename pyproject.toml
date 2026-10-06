@@ -25,6 +25,8 @@ dependencies = [
 
 [project.optional-dependencies]
 notebooks = ["jupyter", "matplotlib", "seaborn", "mistune"]
+
+[dependency-groups]
 dev = ["pytest"]
 
 [tool.setuptools.packages.find]

@@ -9,7 +9,7 @@ COMMAND=${1:-status}
 if [[ "$COMMAND" == install ]]; then
     sudo apt-get update
     sudo apt-get install -y postgresql-16 postgresql-client-16
-    "$REPO_ROOT/.venv/bin/python" -m pip install -e "$REPO_ROOT[dev,notebooks]"
+    uv sync --project "$REPO_ROOT" --extra notebooks
     exit
 fi
 mkdir -p "$STATE_ROOT"
@@ -18,7 +18,7 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
     if [[ "$COMMAND" != init ]]; then
         echo 'First run: setup/mlflow-services.sh init' >&2; exit 1
     fi
-    STATE_ROOT="$STATE_ROOT" "$REPO_ROOT/.venv/bin/python" - <<'PY'
+    STATE_ROOT="$STATE_ROOT" uv run --project "$REPO_ROOT" python - <<'PY'
 import os, secrets, shlex
 from pathlib import Path
 root = Path(os.environ['STATE_ROOT'])
@@ -35,7 +35,7 @@ path.chmod(0o600)
 PY
 fi
 # Configuration is private, generated locally, and never checked into Git.
-source "$CONFIG_FILE"
+source "$REPO_ROOT/setup/environment.sh"
 export PATH="/usr/lib/postgresql/16/bin:$PATH"
 mkdir -p "$STATE_ROOT/socket" "$MLFLOW_ARTIFACT_ROOT"
 PG_CTL=$(command -v pg_ctl || true)
@@ -76,19 +76,8 @@ start_mlflow() {
         fi
     fi
     # Environment variable supplies backend credentials without putting them in argv.
-    "$REPO_ROOT/.venv/bin/mlflow" db upgrade "$MLFLOW_BACKEND_STORE_URI" >"$STATE_ROOT/migration.log" 2>&1
-    export MLFLOW_DISABLE_AGENT_HINT=1
-    export MLFLOW_SERVER_ENABLE_JOB_EXECUTION=false
-    allowed_hosts='localhost:*,127.0.0.1:*'
-    allowed_origins='http://localhost:*,http://127.0.0.1:*'
-    if [[ -n ${CODESPACE_NAME:-} && -n ${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-} ]]; then
-        forwarded_host="${CODESPACE_NAME}-5000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
-        allowed_hosts="$allowed_hosts,$forwarded_host"
-        allowed_origins="$allowed_origins,https://$forwarded_host"
-    fi
-    setsid nohup "$REPO_ROOT/.venv/bin/mlflow" server --host 127.0.0.1 --port 5000 --workers 1 \
-        --no-serve-artifacts --default-artifact-root "$MLFLOW_ARTIFACT_ROOT" \
-        --allowed-hosts "$allowed_hosts" --cors-allowed-origins "$allowed_origins" </dev/null >"$STATE_ROOT/mlflow.log" 2>&1 &
+    uv run --project "$REPO_ROOT" mlflow db upgrade "$MLFLOW_BACKEND_STORE_URI" >"$STATE_ROOT/migration.log" 2>&1
+    setsid nohup uv run --project "$REPO_ROOT" mlflow server </dev/null >"$STATE_ROOT/mlflow.log" 2>&1 &
     echo $! >"$STATE_ROOT/mlflow.pid"
     for _ in {1..60}; do
         if curl --fail --silent "$MLFLOW_TRACKING_URI/health" >/dev/null; then
@@ -113,6 +102,8 @@ case "$COMMAND" in
         fi
         start_mlflow
         ;;
+    postgres) start_postgres ;;
+    stop-mlflow) stop_mlflow ;;
     start) start_postgres; start_mlflow ;;
     stop) stop_mlflow; if pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then pg_ctl -D "$PGDATA" -m fast -w stop; fi ;;
     restart) "$0" stop; "$0" start ;;
@@ -120,5 +111,5 @@ case "$COMMAND" in
         pg_ctl -D "$PGDATA" status
         curl --fail --silent "$MLFLOW_TRACKING_URI/health"
         ;;
-    *) echo 'Usage: setup/mlflow-services.sh {install|init|start|stop|restart|status}' >&2; exit 1 ;;
+    *) echo 'Usage: setup/mlflow-services.sh {install|init|postgres|start|stop-mlflow|stop|restart|status}' >&2; exit 1 ;;
 esac
