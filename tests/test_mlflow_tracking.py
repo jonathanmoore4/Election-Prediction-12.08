@@ -63,6 +63,8 @@ def test_one_run_six_metrics_one_small_summary_and_no_observations(client):
     artifact=json.loads(path.read_text())
     assert path.stat().st_size < 15000
     assert list((client.directory/run.info.run_id).iterdir())==[path]
+    assert artifact['metadata']['hyperparameter_search'] == {
+        'sampler': 'optuna-random', 'n_trials': 30, 'random_seed': 42}
     assert artifact['outer_results']['2019']['accuracy']==0
     assert 'fit_records' not in path.read_text()
     assert 'constituency_id' not in path.read_text()

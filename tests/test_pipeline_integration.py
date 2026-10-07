@@ -140,11 +140,14 @@ def test_final_uses_recorded_grid_and_fixed_settings_and_checks_compatibility(tm
     _,locations=pipeline.load_prepared(prepared)
     function,candidates,metadata=pipeline.model_functions('logistic_regression')
     selected={'model_id':'logistic_regression','schedule':json_value(MODEL_COMPARISON_SCHEDULE),
-        'metadata':{**metadata,**pipeline._data_metadata(locations),'fixed_settings':{'max_iter':23}},
+        'metadata':{**metadata,**pipeline._data_metadata(locations),'fixed_settings':{'max_iter':23},
+                    'hyperparameter_search':{'sampler':'optuna-random','n_trials':7,'random_seed':13}},
         'hyperparameter_candidates':{'C':[.123]}}
     monkeypatch.setattr(pipeline,'read_evaluation',Mock(return_value=selected))
     nested=Mock(return_value={'status':'complete'}); monkeypatch.setattr(pipeline,'nested_cv',nested)
     pipeline.evaluate_final(prepared,selection_run_id='historical',output_dir=tmp_path)
+    assert nested.call_args.kwargs['n_trials']==7
+    assert nested.call_args.kwargs['random_seed']==13
     assert nested.call_args.kwargs['output_dir']==tmp_path/'reports'
     assert nested.call_args.args[1]=={'C':[.123]}
     assert nested.call_args.kwargs['metadata']['fixed_settings']=={'max_iter':23}

@@ -90,7 +90,7 @@ def log_evaluation_result(result, *, tracking):
         fields = ('model_id', 'schedule', 'data_id', 'hyperparameter_candidates',
                   'outer_results', 'mean_outer_accuracy', 'status')
         artifact = {key: value[key] for key in fields}
-        metadata_fields = ('architecture_id', 'training_protocol', 'fixed_settings',
+        metadata_fields = ('hyperparameter_search', 'architecture_id', 'training_protocol', 'fixed_settings',
             'early_stopping', 'features', 'feature_definition_reference',
             'target_id', 'target_definition', 'scoring_id', 'scoring_definition', 'evaluation_protocol', 'data_id',
             'prepared_data', 'selection_run_id', 'source_run_ids')

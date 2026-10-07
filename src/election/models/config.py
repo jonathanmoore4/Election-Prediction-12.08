@@ -5,7 +5,7 @@ INNER_ELECTIONS = (1997, 2001, 2005, 2010, 2015, 2017, 2019)
 PARTIES = ('con', 'lab', 'lib', 'natSW', 'oth')
 SCORING_ID = 'winner-accuracy-equal-election-mean-v1'
 TARGET_ID = 'winner-five-party-gb-v1'
-EVALUATION_PROTOCOL = 'nested-election-inner-checkpoint-median-refit-v1'
+EVALUATION_PROTOCOL = 'nested-election-optuna-random-inner-checkpoint-median-refit-v2'
 
 MODEL_COMPARISON_SCHEDULE = {
     'name': 'historical-five-election-v1',

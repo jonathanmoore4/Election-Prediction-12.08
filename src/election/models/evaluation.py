@@ -7,6 +7,7 @@ from time import perf_counter
 
 import numpy as np
 import pandas as pd
+import optuna
 from sklearn.model_selection import ParameterGrid
 
 from election.models.config import (
@@ -112,10 +113,23 @@ def _evaluate(model_function, training, test, parameters, **options):
     return {**result, 'accuracy': float(score)}
 
 
+def suggest_parameters(trial, hyperparameter_candidates):
+    """Sample any model's existing discrete search space through one interface."""
+    return {name: trial.suggest_categorical(name, list(values))
+            for name, values in sorted(hyperparameter_candidates.items())}
+
+
 def tune_hyperparameters(model_function, hyperparameter_candidates, data, inner_elections,
                          *, training_cutoff=None, fixed_settings=None, verbose=True,
-                         _fit_cache=None):
-    """Score every configuration on every supplied inner election, without logging."""
+                         _fit_cache=None, n_trials=30, random_seed=42):
+    """Maximise mean inner-election accuracy with seeded Optuna random search."""
+    if isinstance(n_trials, bool) or not isinstance(n_trials, int) or n_trials < 1:
+        raise ValueError('n_trials must be a positive integer.')
+    if isinstance(random_seed, bool) or not isinstance(random_seed, int) or random_seed < 0:
+        raise ValueError('random_seed must be a nonnegative integer.')
+    for name, values in hyperparameter_candidates.items():
+        if not isinstance(values, (list, tuple, np.ndarray)) or len(values) == 0:
+            raise ValueError(f'{name}: candidates must be a nonempty sequence.')
     frame = prepared_frame(data)
     years = list(inner_elections)
     if len(years) < 2 or sorted(set(years)) != years:
@@ -128,11 +142,12 @@ def tune_hyperparameters(model_function, hyperparameter_candidates, data, inner_
         if training.election.nunique() < 2:
             raise ValueError(f'Inner election {year} needs at least two earlier training elections.')
         folds[year] = (training, validation, data_identity(training), data_identity(validation), {})
-    configurations = parameter_combinations(hyperparameter_candidates)
     fit_cache = {} if _fit_cache is None else _fit_cache
-    best = None
     last_progress = perf_counter()
-    for index, candidate in enumerate(configurations):
+
+    def objective(trial):
+        nonlocal last_progress
+        candidate = suggest_parameters(trial, hyperparameter_candidates)
         configuration = {**deepcopy(fixed_settings or {}), **candidate}
         scores, records = {}, []
         config_key = json.dumps(json_value(configuration), sort_keys=True, allow_nan=False)
@@ -148,18 +163,31 @@ def tune_hyperparameters(model_function, hyperparameter_candidates, data, inner_
             if record is not None:
                 records.append(deepcopy(record))
         mean = float(np.mean(list(scores.values())))
-        if best is None or mean > best['mean_inner_accuracy']:
-            best = dict(best_hyperparameters=deepcopy(candidate),
-                        mean_inner_accuracy=mean, inner_accuracies=scores,
-                        fit_records=records)
+        trial.set_user_attr('evaluation', dict(best_hyperparameters=deepcopy(candidate),
+            mean_inner_accuracy=mean, inner_accuracies=scores, fit_records=records))
         if verbose and perf_counter() - last_progress >= 30:
-            print(f'  {model_function.__name__}: {index + 1}/{len(configurations)} configurations scored', flush=True)
+            print(f'  {model_function.__name__}: {trial.number + 1}/{n_trials} trials scored', flush=True)
             last_progress = perf_counter()
-    return best
+        return mean
+
+    # A fixed configuration needs only one trial. Duplicate sampled configurations
+    # reuse scores and checkpoint records through the existing fit cache.
+    trial_count = 1 if all(len(v) == 1 for v in hyperparameter_candidates.values()) else n_trials
+    verbosity = optuna.logging.get_verbosity()
+    try:
+        if not verbose:
+            optuna.logging.set_verbosity(optuna.logging.WARNING)
+        study = optuna.create_study(direction='maximize',
+            sampler=optuna.samplers.RandomSampler(seed=random_seed))
+        study.optimize(objective, n_trials=trial_count)
+    finally:
+        optuna.logging.set_verbosity(verbosity)
+    return deepcopy(study.best_trial.user_attrs['evaluation'])
 
 
 def nested_cv(model_function, hyperparameter_candidates, data, *, model_id, metadata=None,
-              schedule=MODEL_COMPARISON_SCHEDULE, tracking=None, output_dir=None, verbose=True):
+              schedule=MODEL_COMPARISON_SCHEDULE, tracking=None, output_dir=None, verbose=True,
+              n_trials=30, random_seed=42):
     """Evaluate one model independently; log a single compact completed result.
 
     tracking=None disables recording, useful for tests and direct experiments.
@@ -172,6 +200,7 @@ def nested_cv(model_function, hyperparameter_candidates, data, *, model_id, meta
         import mlflow
         mlflow.autolog(disable=True)
     metadata = deepcopy(metadata or {})
+    metadata['hyperparameter_search'] = dict(sampler='optuna-random', n_trials=n_trials, random_seed=random_seed)
     metadata.setdefault('data_id', data_identity(data))
     metadata.setdefault('target_id', TARGET_ID)
     metadata.setdefault('scoring_id', SCORING_ID)
@@ -199,7 +228,8 @@ def nested_cv(model_function, hyperparameter_candidates, data, *, model_id, meta
                                               training_cutoff=schedule.get('training_cutoff'))
         tuned = tune_hyperparameters(model_function, hyperparameter_candidates, history,
             _inner_elections(schedule, election), training_cutoff=schedule.get('training_cutoff'),
-            fixed_settings=metadata.get('fixed_settings'), verbose=verbose, _fit_cache=fit_cache)
+            fixed_settings=metadata.get('fixed_settings'), verbose=verbose, _fit_cache=fit_cache,
+            n_trials=n_trials, random_seed=random_seed)
         # Include unknown final outcomes in optional exports, exclude them from scores.
         if schedule['purpose'] == 'final_evaluation':
             test = data.loc[pd.to_numeric(data.election) == election].copy()

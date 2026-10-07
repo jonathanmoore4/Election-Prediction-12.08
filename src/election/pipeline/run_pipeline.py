@@ -56,7 +56,8 @@ def _data_metadata(locations):
                 evaluation_protocol=EVALUATION_PROTOCOL)
 
 
-def evaluate_models(prepared_data, *, model_ids=None, tracking=None, verbose=True):
+def evaluate_models(prepared_data, *, model_ids=None, tracking=None, verbose=True,
+                    n_trials=30, random_seed=42):
     """Load existing history and evaluate one or multiple models independently."""
     ids = _model_ids(model_ids)
     data, locations = load_prepared(prepared_data)
@@ -65,7 +66,8 @@ def evaluate_models(prepared_data, *, model_ids=None, tracking=None, verbose=Tru
     for model_id in ids:
         function, candidates, metadata = model_functions(model_id)
         results[model_id] = nested_cv(function, candidates, data, model_id=model_id,
-            metadata={**metadata, **_data_metadata(locations)}, tracking=tracking, verbose=verbose)
+            metadata={**metadata, **_data_metadata(locations)}, tracking=tracking, verbose=verbose,
+            n_trials=n_trials, random_seed=random_seed)
     return results
 
 
@@ -98,18 +100,20 @@ def evaluate_final(prepared_data, *, selection_run_id, source_run_ids=None,
     metadata['fixed_settings'] = deepcopy(selected['metadata'].get('fixed_settings', {}))
     if 'early_stopping' in selected['metadata']:
         metadata['early_stopping'] = deepcopy(selected['metadata']['early_stopping'])
+    search = selected['metadata']['hyperparameter_search']
     result = nested_cv(function, selected['hyperparameter_candidates'], data,
         model_id=model_id, metadata={**metadata, **_data_metadata(locations),
             'selection_run_id': selection_run_id,
             'source_run_ids': source_run_ids or {model_id: selection_run_id}},
         schedule=FINAL_EVALUATION_SCHEDULE, tracking=tracking,
         output_dir=Path(output_dir) / 'reports' if output_dir is not None else None,
-        verbose=verbose)
+        verbose=verbose, n_trials=search['n_trials'], random_seed=search['random_seed'])
     return result
 
 
 def run_pipeline(config=None, *, output_dir=None, model_ids=None, prepared_data=None,
-                 reuse_evaluations=False, final_evaluation=True, tracking=None, verbose=True):
+                 reuse_evaluations=False, final_evaluation=True, tracking=None, verbose=True,
+                 n_trials=30, random_seed=42):
     """Run the same independent stages, optionally reusing preparation/results.
 
     Returns ordinary dictionaries; fitted models remain local to individual fits.
@@ -126,7 +130,8 @@ def run_pipeline(config=None, *, output_dir=None, model_ids=None, prepared_data=
     if not prepared.get('data_id'):
         _, prepared = load_prepared(prepared)
     evaluations = {} if reuse_evaluations else evaluate_models(
-        prepared, model_ids=ids, tracking=tracking, verbose=verbose)
+        prepared, model_ids=ids, tracking=tracking, verbose=verbose,
+        n_trials=n_trials, random_seed=random_seed)
     comparison = compare_recorded(prepared, model_ids=ids, tracking=tracking)
     if comparison['missing_results']:
         raise ValueError(f"Comparison requires all requested models: {comparison['missing_results']}")
@@ -149,6 +154,10 @@ def main(argv=None):
     parser.add_argument('--selection-run', help='Completed historical MLflow run for the selected model')
     parser.add_argument('--reuse-evaluations', action='store_true')
     parser.add_argument('--skip-final', action='store_true')
+    parser.add_argument('--n-trials', type=int, default=30,
+                        help='Optuna trials per outer election for evaluate/all (default: 30)')
+    parser.add_argument('--random-seed', type=int, default=42,
+                        help='Random search seed for evaluate/all (default: 42)')
     parser.add_argument('--quiet', action='store_true')
     args = parser.parse_args(argv)
     if 'all' in args.model and args.model != ['all']:
@@ -158,7 +167,8 @@ def main(argv=None):
     if args.stage == 'prepare':
         result = run_preparation({'output_dir': args.output_dir})
     elif args.stage == 'evaluate':
-        result = evaluate_models(prepared, model_ids=model_ids, verbose=not args.quiet)
+        result = evaluate_models(prepared, model_ids=model_ids, verbose=not args.quiet,
+                                 n_trials=args.n_trials, random_seed=args.random_seed)
     elif args.stage == 'compare':
         result = compare_recorded(prepared, model_ids=model_ids)
     elif args.stage == 'final':
@@ -169,7 +179,8 @@ def main(argv=None):
     else:
         result = run_pipeline(output_dir=args.output_dir, model_ids=model_ids,
             prepared_data=args.data_dir, reuse_evaluations=args.reuse_evaluations,
-            final_evaluation=not args.skip_final, verbose=not args.quiet)
+            final_evaluation=not args.skip_final, verbose=not args.quiet,
+            n_trials=args.n_trials, random_seed=args.random_seed)
     print(json.dumps(json_value(result), indent=2, allow_nan=False))
 
 

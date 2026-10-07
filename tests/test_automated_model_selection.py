@@ -53,10 +53,11 @@ def test_every_fit_uses_earlier_data_and_selected_parameters_with_cached_inner_f
     assert result['status'] == 'complete'
 
 
-def test_configuration_tie_keeps_existing_parametergrid_order():
+def test_configuration_tie_keeps_first_seeded_trial():
     tuned = evaluation.tune_hyperparameters(lambda *args: .5, {'party': ['lab', 'con']},
         history(), [1997,2001], verbose=False)
-    assert tuned['best_hyperparameters'] == {'party':'lab'}
+    # Seed 42 samples the second category first.
+    assert tuned['best_hyperparameters'] == {'party':'con'}
     assert evaluation.parameter_combinations({}) == [{}]
 
 
@@ -144,3 +145,39 @@ def test_fixed_settings_are_applied_to_every_fit_and_recorded_once_in_metadata()
     assert calls
     assert result['metadata']['fixed_settings']=={'random_state':42}
     assert all(fold['hyperparameters']=={'party':'con'} for fold in result['outer_results'].values())
+
+
+def test_random_search_respects_budget_and_is_reproducible():
+    def run():
+        calls = []
+        def model(train, test, parameters):
+            calls.append((int(test.election.iloc[0]), dict(parameters)))
+            return parameters['value'] / 100
+        result = evaluation.tune_hyperparameters(model, {'value': list(range(100))},
+            history(), [1997, 2001], n_trials=3, random_seed=9, verbose=False)
+        return calls, result
+    calls, result = run()
+    assert (calls, result) == run()
+    assert 0 < len(calls) <= 6
+    assert len({p['value'] for _, p in calls}) <= 3
+    assert result['mean_inner_accuracy'] == max(p['value'] for _, p in calls) / 100
+
+
+def test_winning_trial_retains_checkpoint_records_and_duplicates_reuse_fits():
+    calls = []
+    def model(train, test, parameters, **kwargs):
+        calls.append(parameters.copy())
+        return {'accuracy': parameters['value'], 'fit_record': {'value': parameters['value']}}
+    result = evaluation.tune_hyperparameters(model, {'value': [.1, .9]},
+        history(), [1997, 2001], n_trials=30, verbose=False)
+    assert len(calls) == 4
+    assert result['best_hyperparameters'] == {'value': .9}
+    assert result['fit_records'] == [{'value': .9}, {'value': .9}]
+
+
+@pytest.mark.parametrize('options', [{'n_trials': 0}, {'n_trials': True},
+    {'random_seed': -1}, {'random_seed': True}])
+def test_invalid_search_settings_fail(options):
+    with pytest.raises(ValueError):
+        evaluation.tune_hyperparameters(constant, {'party': ['con']}, history(),
+            [1997, 2001], verbose=False, **options)

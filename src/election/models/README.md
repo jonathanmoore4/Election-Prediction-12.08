@@ -19,6 +19,7 @@ result = nested_cv(
     model_id="logistic_regression",
     metadata={**TRAINING_METADATA, "data_id": locations["data_id"],
               "prepared_data": locations},
+    n_trials=30, random_seed=42,
     tracking={},  # Existing MLflow server/environment. None means do not log.
 )
 print(result["mean_outer_accuracy"], result["run_id"])
@@ -26,15 +27,25 @@ print(result["mean_outer_accuracy"], result["run_id"])
 
 `nested_cv` imports no concrete model implementations. It validates the schedule,
 iterates the outer elections, tunes using earlier elections, refits and scores.
-`parameter_combinations` preserves sklearn ParameterGrid ordering. Exact inner
-score ties select the first generated configuration. Model ties follow the
+Each outer election starts a fresh Optuna study using `RandomSampler`. The shared
+objective samples the model's candidate dictionary with `suggest_parameters`,
+evaluates every inner election and returns their unweighted mean accuracy.
+The default budget is 30 trials with seed 42; `n_trials` and `random_seed` can be
+set in the Python API or with CLI `--n-trials` and `--random-seed` for `evaluate`
+and `all`. Sampling is with replacement and does not guarantee every combination
+is tried. Repeated configurations reuse cached inner scores/checkpoint records;
+a fixed search space runs once. Exact inner score ties select the first sampled
+configuration. `parameter_combinations` remains a utility for inspecting candidate
+spaces, but is not used by tuning. Model ties follow the
 requested model order (the pipeline's default order preserves the old order).
 All scheduled elections must succeed. Accuracy excludes unknown winner labels;
 missing predictors are handled by training-fitted preprocessing.
 
 The two schedule dictionaries in `config.py` reproduce the existing elections.
 Final evaluation reuses `nested_cv` with outer election 2024, inner elections
-1997–2019 and a training cutoff of 2019. It records a separate run.
+1997–2019 and a training cutoff of 2019. It records a separate run and reuses the selected historical run's candidate
+space, trial budget and random seed. The evaluation protocol version distinguishes
+these random-search evaluations from earlier exhaustive-search records.
 
 ## Neural early stopping is unchanged
 
