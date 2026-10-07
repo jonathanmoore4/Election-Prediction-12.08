@@ -121,10 +121,10 @@ TRAINING_METADATA = {
 
 
 def LogReg(train_data, test_data, hyperparameters, *, fit_records=None,
-           cache=None, return_details=False, output_dir=None):
+           cache=None, return_details=False, output_dir=None, return_model=False):
     """Fit one configuration and score known winners; no MLflow operations."""
     from election.models.model_function import evaluate_fit
     return evaluate_fit(LogisticRegressionModel, train_data, test_data, hyperparameters,
                         metadata=TRAINING_METADATA,
                         context=custom_model_module.fit_context(cache=cache),
-                        return_details=return_details, output_dir=output_dir)
+                        return_details=return_details, output_dir=output_dir, return_model=return_model)

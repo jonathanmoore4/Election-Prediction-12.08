@@ -221,6 +221,8 @@ def nested_cv(model_function, hyperparameter_candidates, data, *, model_id, meta
                   hyperparameter_candidates=deepcopy(hyperparameter_candidates),
                   outer_results={}, run_id=None)
     fit_cache = {}
+    fitted_model = None
+    confusion_matrix_figure = None
     for election in schedule['outer_elections']:
         if verbose:
             print(f'Outer election {election}: tuning and fitting {model_id}', flush=True)
@@ -237,7 +239,11 @@ def nested_cv(model_function, hyperparameter_candidates, data, *, model_id, meta
                             **tuned['best_hyperparameters']}
         details = _evaluate(model_function, history, test, refit_parameters,
                             fit_records=tuned['fit_records'], return_details=True,
+                            return_model=tracking is not None and schedule['purpose'] == 'final_evaluation',
                             output_dir=output_dir if schedule['purpose'] == 'final_evaluation' else None)
+        if schedule['purpose'] == 'final_evaluation':
+            fitted_model = details.get('fitted_model')
+            confusion_matrix_figure = details.get('confusion_matrix_figure')
         result['outer_results'][election] = dict(
             hyperparameters=tuned['best_hyperparameters'],
             mean_inner_accuracy=tuned['mean_inner_accuracy'],
@@ -250,5 +256,10 @@ def nested_cv(model_function, hyperparameter_candidates, data, *, model_id, meta
     result['status'] = 'complete'
     if tracking is not None:
         from election.models.tracking import log_evaluation_result
-        result['run_id'] = log_evaluation_result(result, tracking=tracking)
+        result['run_id'] = log_evaluation_result(
+            result, tracking=tracking, fitted_model=fitted_model,
+            confusion_matrix_figure=confusion_matrix_figure)
+        if fitted_model is not None:
+            from election.models.tracking import read_evaluation
+            result['model_uri'] = read_evaluation(result['run_id'], tracking=tracking)['model_uri']
     return result

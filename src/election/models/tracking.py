@@ -1,14 +1,88 @@
-"""Explicit compact MLflow records: one run and one JSON summary per evaluation."""
+"""MLflow execution groups, selection snapshots and compact evaluation records."""
 from hashlib import sha256
 import json
 import math
 import os
 from pathlib import Path
+from contextlib import contextmanager
+from functools import wraps
+from tempfile import TemporaryDirectory
 
 from mlflow import MlflowClient
 
 from election.models.config import MODEL_COMPARISON_SCHEDULE
 from election.models.evaluation import json_value
+
+
+def lineage_tags(tracking):
+    execution_id = (tracking or {}).get('execution_id')
+    return {'execution_id': execution_id, 'mlflow.parentRunId': execution_id} if execution_id else {}
+
+
+@contextmanager
+def execution_scope(execution_type, tracking):
+    """Group one invocation; reused evaluations stay under their original parents."""
+    settings = dict(tracking or {})
+    if settings.get('execution_id'):
+        yield settings
+        return
+    client, experiment_id = _client(settings)
+    run_id = client.create_run(experiment_id, tags={
+        'mlflow.runName': f'Execution: {execution_type}',
+        'record_type': 'execution-v1', 'run_role': 'execution',
+        'execution_type': execution_type,
+    }).info.run_id
+    settings['execution_id'] = run_id
+    try:
+        yield settings
+        client.set_terminated(run_id, 'FINISHED')
+    except BaseException as error:
+        try:
+            client.set_terminated(run_id, 'FAILED')
+        except Exception as logging_error:
+            error.add_note(f'Unable to mark failed execution: {logging_error}')
+        raise
+    _refresh_result_status(client, experiment_id, {
+        'record_type': 'execution-v1', 'execution_type': execution_type})
+
+
+def tracked_execution(execution_type):
+    def decorate(function):
+        @wraps(function)
+        def wrapped(*args, **kwargs):
+            if kwargs.get('record') is False:
+                return function(*args, **kwargs)
+            with execution_scope(execution_type, kwargs.get('tracking')) as settings:
+                kwargs['tracking'] = settings
+                return function(*args, **kwargs)
+        return wrapped
+    return decorate
+
+
+def log_stage_result(result, *, role, tracking):
+    """Save a preparation or comparison snapshot and refresh its status group."""
+    client, experiment_id = _client(tracking)
+    run_id = client.create_run(experiment_id, tags={
+        'mlflow.runName': role, 'record_type': f'{role}-v1',
+        'run_role': role, 'record_complete': 'false', **lineage_tags(tracking),
+    }).info.run_id
+    try:
+        value = {**json_value(result), 'run_id': run_id}
+        client.log_dict(run_id, value, f'{role}.json')
+        if role == 'selection' and result.get('winner_model_id'):
+            client.set_tag(run_id, 'winner_model_id', result['winner_model_id'])
+            client.set_tag(run_id, 'selected_evaluation_run_id', result['source_run_ids'][result['winner_model_id']])
+        client.set_tag(run_id, 'record_complete', 'true')
+        client.set_terminated(run_id, 'FINISHED')
+    except BaseException as error:
+        try:
+            client.set_tag(run_id, 'record_complete', 'false')
+            client.set_terminated(run_id, 'FAILED')
+        except Exception as logging_error:
+            error.add_note(f'Unable to mark failed stage: {logging_error}')
+        raise
+    _refresh_result_status(client, experiment_id, {'record_type': f'{role}-v1'})
+    return run_id
 
 
 def _client(tracking):
@@ -67,8 +141,37 @@ def validate_evaluation(result):
         raise ValueError('Outer mean must give every election equal weight.')
 
 
-def log_evaluation_result(result, *, tracking):
-    """Record only selected summaries; never fitted models or candidate histories."""
+def _refresh_result_status(client, experiment_id, tags):
+    """Label latest successful results independently of comparison compatibility."""
+    record_type = tags['record_type']
+    keys = ('record_type',)
+    if record_type == 'evaluation-v1':
+        keys += ('model_id', 'purpose')
+    elif record_type == 'execution-v1':
+        keys += ('execution_type',)
+    runs, token = [], None
+    while True:
+        page = client.search_runs([experiment_id],
+            filter_string=f"tags.record_type = '{record_type}'",
+            order_by=['attributes.end_time DESC', 'attributes.run_id ASC'],
+            max_results=1000, page_token=token)
+        runs.extend(run for run in page
+                    if run.info.status == 'FINISHED'
+                    and run.info.end_time is not None
+                    and (record_type == 'execution-v1'
+                         or run.data.tags.get('record_complete') == 'true')
+                    and all(run.data.tags.get(key) == tags[key] for key in keys))
+        token = page.token
+        if not token:
+            break
+    for index, run in enumerate(runs):
+        status = 'Current' if index == 0 else 'Old'
+        if run.data.tags.get('result_status') != status:
+            client.set_tag(run.info.run_id, 'result_status', status)
+
+
+def log_evaluation_result(result, *, tracking, fitted_model=None, confusion_matrix_figure=None):
+    """Record compact summaries and, for final evaluation only, the fitted model."""
     value = json_value(result)
     validate_evaluation(value)
     client, experiment_id = _client(tracking)
@@ -80,10 +183,15 @@ def log_evaluation_result(result, *, tracking):
         'training_protocol': metadata['training_protocol'],
         'purpose': value['schedule']['purpose'], 'schedule_name': value['schedule']['name'],
         **compatibility_fields(metadata, value['schedule']),
+        'run_role': 'final_evaluation' if value['schedule']['purpose'] == 'final_evaluation' else 'historical_evaluation',
+        **lineage_tags(tracking),
     }
     if metadata.get('selection_run_id'):
         tags['selection_run_id'] = metadata['selection_run_id']
+    if metadata.get('comparison_run_id'):
+        tags['comparison_run_id'] = metadata['comparison_run_id']
     run_id = client.create_run(experiment_id, tags=tags).info.run_id
+    logged_model_id = None
     try:
         # An explicit whitelist prevents internal fit records or caller dataframes
         # from becoming accidental large artifacts.
@@ -93,13 +201,36 @@ def log_evaluation_result(result, *, tracking):
         metadata_fields = ('hyperparameter_search', 'architecture_id', 'training_protocol', 'fixed_settings',
             'early_stopping', 'features', 'feature_definition_reference',
             'target_id', 'target_definition', 'scoring_id', 'scoring_definition', 'evaluation_protocol', 'data_id',
-            'prepared_data', 'selection_run_id', 'source_run_ids')
+            'prepared_data', 'selection_run_id', 'comparison_run_id', 'source_run_ids')
         artifact['metadata'] = {key: metadata[key] for key in metadata_fields if key in metadata}
         artifact['run_id'] = run_id
+        if fitted_model is not None:
+            if value['schedule']['purpose'] != 'final_evaluation':
+                raise ValueError('Only the final fitted model is saved.')
+            from election.models.saved_model import save_model
+            logged_model_id = client.create_logged_model(
+                experiment_id, name=f"{value['model_id']}-2024", source_run_id=run_id,
+                model_type='election-winner', tags={'model_id': value['model_id']}).model_id
+            with TemporaryDirectory(prefix='election-final-model-') as directory:
+                model_path = Path(directory) / 'model'
+                save_model(fitted_model, model_path, model_id=logged_model_id, run_id=run_id)
+                client.log_model_artifacts(logged_model_id, str(model_path))
+            final_parameters = {**metadata.get('fixed_settings', {}),
+                                **value['outer_results']['2024']['hyperparameters']}
+            client.log_model_params(logged_model_id, {
+                key: json.dumps(setting, sort_keys=True) for key, setting in final_parameters.items()})
+            artifact['model_uri'] = f'models:/{logged_model_id}'
+            client.set_tag(run_id, 'model_uri', artifact['model_uri'])
+        if confusion_matrix_figure is not None:
+            if value['schedule']['purpose'] != 'final_evaluation':
+                raise ValueError('Only final evaluations log confusion matrix figures.')
+            client.log_figure(run_id, confusion_matrix_figure, 'test_confusion_matrix.png',
+                              save_kwargs={'dpi': 150, 'bbox_inches': 'tight'})
         client.log_dict(run_id, artifact, 'evaluation.json')
-        client.log_metric(run_id, 'mean_outer_accuracy', value['mean_outer_accuracy'])
+        metric_options = {'model_id': logged_model_id} if logged_model_id else {}
+        client.log_metric(run_id, 'mean_outer_accuracy', value['mean_outer_accuracy'], **metric_options)
         for year, fold in value['outer_results'].items():
-            client.log_metric(run_id, f'accuracy_{year}', fold['accuracy'])
+            client.log_metric(run_id, f'accuracy_{year}', fold['accuracy'], **metric_options)
         cutoff = value['schedule'].get('training_cutoff')
         if cutoff is not None:
             client.log_param(run_id, 'training_cutoff', cutoff)
@@ -107,15 +238,20 @@ def log_evaluation_result(result, *, tracking):
             if key in metadata.get('fixed_settings', {}):
                 setting = metadata['fixed_settings'][key]
                 client.log_param(run_id, key, json.dumps(setting) if isinstance(setting, list) else setting)
+        if logged_model_id is not None:
+            client.finalize_logged_model(logged_model_id, 'READY')
         client.set_tag(run_id, 'record_complete', 'true')
         client.set_terminated(run_id, 'FINISHED')
     except BaseException as error:
         try:
+            if logged_model_id is not None:
+                client.finalize_logged_model(logged_model_id, 'FAILED')
             client.set_tag(run_id, 'record_complete', 'false')
             client.set_terminated(run_id, 'FAILED')
         except Exception as logging_error:
             error.add_note(f'Unable to mark failed MLflow run: {logging_error}')
         raise
+    _refresh_result_status(client, experiment_id, tags)
     return run_id
 
 

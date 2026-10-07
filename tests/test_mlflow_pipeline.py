@@ -12,15 +12,21 @@ from election.pipeline.preparation import run_preparation
 
 
 def demo_model(train, test, parameters, *, fit_records=None, return_details=False,
-               cache=None, output_dir=None):
+               cache=None, output_dir=None, return_model=False):
     assert train.election.max() < test.election.min()
     accuracy = float(test.winner.eq(parameters['party']).mean())
     if output_dir is not None:
         import numpy as np
         from election.models.model_function import export_predictions
         export_predictions(test, np.full(len(test), parameters['party']), output_dir, 'demo')
-    return dict(accuracy=accuracy, training_years=sorted(train.election.unique()),
-                evaluation_rows=len(test), excluded_rows=0) if return_details else accuracy
+    details = dict(accuracy=accuracy, training_years=sorted(train.election.unique()),
+                   evaluation_rows=len(test), excluded_rows=0)
+    if return_model:
+        import numpy as np
+        from election.models.model_function import confusion_matrix_figure
+        details['confusion_matrix_figure'] = confusion_matrix_figure(
+            test, np.full(len(test), parameters['party']), 'demo')
+    return details if return_details else accuracy
 
 
 def test_synthetic_pipeline_records_compact_runs(tracking_settings):
@@ -56,13 +62,23 @@ def test_synthetic_pipeline_records_compact_runs(tracking_settings):
             assert comparison['source_run_ids'] == reports[-1]['comparison']['source_run_ids']
         client, experiment_id = _client(tracking)
         runs = client.search_runs([experiment_id], max_results=100)
-        assert len(runs) == 18
+        assert len(runs) == 24
         for run in runs:
             assert run.info.status == 'FINISHED'
-            assert 'mlflow.parentRunId' not in run.data.tags
-            assert len(run.data.metrics) == (6 if run.data.tags['purpose'] == 'model_comparison' else 2)
-            assert [a.path for a in client.list_artifacts(run.info.run_id)] == ['evaluation.json']
+            role = run.data.tags['run_role']
+            if role == 'execution':
+                assert 'mlflow.parentRunId' not in run.data.tags
+                continue
+            assert 'mlflow.parentRunId' in run.data.tags
+            if role in ('historical_evaluation', 'final_evaluation'):
+                assert len(run.data.metrics) == (6 if role == 'historical_evaluation' else 2)
+                assert sorted(a.path for a in client.list_artifacts(run.info.run_id)) == (
+                    ['evaluation.json'] if role == 'historical_evaluation' else
+                    ['evaluation.json', 'test_confusion_matrix.png'])
+            else:
+                assert role == 'selection'
+                assert [a.path for a in client.list_artifacts(run.info.run_id)] == ['selection.json']
         original_id = reports[0]['evaluations'][models[0]]['run_id']
         assert read_evaluation(original_id, tracking=tracking)['mean_outer_accuracy'] == 1
-        for filename in ('test_predictions.csv','test_confusion_matrix.csv','test_confusion_matrix.png'):
-            assert (output/'reports'/filename).exists()
+        assert (output/'reports'/'test_predictions.csv').exists()
+        assert not list((output/'reports').glob('*confusion*'))

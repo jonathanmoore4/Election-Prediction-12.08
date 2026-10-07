@@ -13,7 +13,7 @@ from tests.test_automated_model_selection import evaluated
 class MemoryClient:
     """Native MLflow call surface; deterministic failures without a server."""
     def __init__(self, directory):
-        self.directory=directory; self.runs={}; self.clock=0; self.fail=None
+        self.directory=directory; self.runs={}; self.clock=0; self.fail=None; self.models={}
     def create_run(self, experiment_id, tags):
         run_id=f'{len(self.runs)+1:032x}'
         run=SimpleNamespace(info=SimpleNamespace(run_id=run_id,status='RUNNING',end_time=None),
@@ -22,9 +22,26 @@ class MemoryClient:
         return run
     def log_dict(self, run_id, value, filename):
         if self.fail == 'artifact': raise RuntimeError('artifact unavailable')
-        directory=self.directory/run_id; directory.mkdir()
+        directory=self.directory/run_id; directory.mkdir(exist_ok=True)
         (directory/filename).write_text(json.dumps(value,allow_nan=False))
-    def log_metric(self, run_id, key, value):
+    def log_figure(self, run_id, figure, filename, **kwargs):
+        if self.fail == 'figure': raise RuntimeError('figure unavailable')
+        directory = self.directory/run_id
+        directory.mkdir(exist_ok=True)
+        figure.savefig(directory/filename, **kwargs.get('save_kwargs', {}))
+    def create_logged_model(self, experiment_id, **kwargs):
+        model_id = f'm-{len(self.models):032x}'
+        self.models[model_id] = SimpleNamespace(model_id=model_id, status='PENDING', **kwargs)
+        return self.models[model_id]
+    def log_model_artifacts(self, model_id, local_dir):
+        from shutil import copytree
+        if self.fail == 'model': raise RuntimeError('model unavailable')
+        copytree(local_dir, self.directory/'models'/model_id)
+    def finalize_logged_model(self, model_id, status):
+        self.models[model_id].status = status
+    def log_model_params(self, model_id, params):
+        self.models[model_id].params = params
+    def log_metric(self, run_id, key, value, **kwargs):
         if self.fail == 'metric': raise RuntimeError('metric unavailable')
         self.runs[run_id].data.metrics[key]=value
     def log_param(self,run_id,key,value): self.runs[run_id].data.params[key]=str(value)
@@ -100,6 +117,70 @@ def test_latest_compatible_run_wins_over_historically_highest_score(client):
     assert comparison['source_run_ids']=={'constant':latest.info.run_id}
     assert comparison['ranked_results'][0]['mean_outer_accuracy']==.2
     assert old.info.run_id != latest.info.run_id
+    assert old.data.tags['result_status'] == 'Old'
+    assert latest.data.tags['result_status'] == 'Current'
+
+
+def test_result_status_keeps_other_models_and_stages_current(client):
+    result = evaluated()
+    previous = record(result, client)
+    other_model = record(evaluated('other'), client)
+    different_data = deepcopy(result)
+    different_data['metadata']['data_id'] = 'different'
+    different_data['data_id'] = 'different'
+    different_data['metadata']['evaluation_protocol'] = 'older-protocol'
+    other_data = record(different_data, client)
+    different_stage = deepcopy(result)
+    different_stage['schedule']['purpose'] = 'final_evaluation'
+    other_stage = record(different_stage, client)
+    latest = record(result, client)
+    assert previous.data.tags['result_status'] == 'Old'
+    assert other_data.data.tags['result_status'] == 'Old'
+    for run in (other_model, other_stage, latest):
+        assert run.data.tags['result_status'] == 'Current'
+
+
+@pytest.mark.parametrize('role', ['preparation', 'selection'])
+def test_stage_status_supersedes_previous_success_but_not_on_failure(client, role):
+    previous = tracking.log_stage_result({}, role=role, tracking={})
+    latest = tracking.log_stage_result({}, role=role, tracking={})
+    assert client.runs[previous].data.tags['result_status'] == 'Old'
+    assert client.runs[latest].data.tags['result_status'] == 'Current'
+    client.fail = 'artifact'
+    with pytest.raises(RuntimeError, match='unavailable'):
+        tracking.log_stage_result({}, role=role, tracking={})
+    assert client.runs[latest].data.tags['result_status'] == 'Current'
+
+
+def test_execution_status_is_per_command_and_failed_parent_keeps_successful_child(client):
+    with tracking.execution_scope('all', {}) as previous:
+        pass
+    with tracking.execution_scope('evaluate', {}) as other:
+        pass
+    with tracking.execution_scope('all', {}) as latest:
+        pass
+    assert client.runs[previous['execution_id']].data.tags['result_status'] == 'Old'
+    for settings in (other, latest):
+        assert client.runs[settings['execution_id']].data.tags['result_status'] == 'Current'
+    with pytest.raises(ValueError, match='later stage failed'):
+        with tracking.execution_scope('all', {}) as failed:
+            child = tracking.log_stage_result({}, role='preparation', tracking=failed)
+            raise ValueError('later stage failed')
+    assert client.runs[child].data.tags['result_status'] == 'Current'
+    assert 'result_status' not in client.runs[failed['execution_id']].data.tags
+    assert client.runs[latest['execution_id']].data.tags['result_status'] == 'Current'
+
+
+@pytest.mark.parametrize('failure', ['artifact', 'metric', 'finish'])
+def test_failed_replacement_preserves_current_result(client, failure):
+    result = evaluated()
+    previous = record(result, client)
+    client.fail = failure
+    with pytest.raises(RuntimeError, match='unavailable'):
+        record(result, client)
+    assert previous.data.tags['result_status'] == 'Current'
+    failed = list(client.runs.values())[-1]
+    assert 'result_status' not in failed.data.tags
 
 
 def test_incompatible_and_final_runs_do_not_replace_latest_historical_result(client):
@@ -161,3 +242,66 @@ def test_real_server_records_and_reads_compact_evaluation(tracking_settings):
     assert tracking.read_evaluation(result['run_id'],tracking=tracking_settings)['mean_outer_accuracy']==.8
     comparison=compare_models(model_ids=['constant'],compatibility=compatibility(result),tracking=tracking_settings)
     assert comparison['winner_model_id']=='constant'
+
+
+def test_failed_final_model_upload_is_not_a_completed_evaluation(client, monkeypatch):
+    from election.models.config import FINAL_EVALUATION_SCHEDULE
+    from election.models.evaluation import nested_cv
+    from tests.test_mlflow_pipeline import demo_model
+    import pandas as pd
+    years = (1987, 1992, 1997, 2001, 2005, 2010, 2015, 2017, 2019, 2024)
+    data = pd.DataFrame({'election': years, 'winner': ['con'] * len(years)})
+    result = nested_cv(demo_model, {'party': ['con']}, data, model_id='demo',
+                       schedule=FINAL_EVALUATION_SCHEDULE, verbose=False)
+    def save(fitted, path, **kwargs):
+        path.mkdir()
+        (path/'MLmodel').write_text('test')
+    monkeypatch.setattr('election.models.saved_model.save_model', save)
+    client.fail = 'model'
+    with pytest.raises(RuntimeError, match='model unavailable'):
+        tracking.log_evaluation_result(result, tracking={}, fitted_model=object())
+    run = next(iter(client.runs.values()))
+    assert run.info.status == 'FAILED'
+    assert run.data.tags['record_complete'] == 'false'
+    assert next(iter(client.models.values())).status == 'FAILED'
+
+
+def test_failed_execution_retains_failed_status(client):
+    with pytest.raises(ValueError, match='training failed'):
+        with tracking.execution_scope('evaluate', {}) as settings:
+            assert settings['execution_id']
+            raise ValueError('training failed')
+    assert next(iter(client.runs.values())).info.status == 'FAILED'
+
+
+@pytest.mark.parametrize('failure', [None, 'figure'])
+def test_final_figure_is_attached_to_its_run_or_marks_run_failed(client, failure):
+    import numpy as np
+    import pandas as pd
+    from election.models.config import FINAL_EVALUATION_SCHEDULE, PARTIES
+    from election.models.evaluation import nested_cv
+    from election.models.model_function import confusion_matrix_figure
+    from tests.test_mlflow_pipeline import demo_model
+
+    years = (1987, 1992, 1997, 2001, 2005, 2010, 2015, 2017, 2019, 2024)
+    data = pd.DataFrame({'election': years, 'winner': ['con'] * len(years)})
+    result = nested_cv(demo_model, {'party': ['con']}, data, model_id='demo',
+                       schedule=FINAL_EVALUATION_SCHEDULE, verbose=False)
+    test = pd.DataFrame({'election': [2024] * 3, 'winner': ['con', 'lab', None]})
+    figure = confusion_matrix_figure(test, np.array(['con', 'con', 'lab']), 'demo')
+    matrix = np.asarray(figure.axes[0].images[0].get_array())
+    assert matrix.shape == (len(PARTIES), len(PARTIES))
+    assert matrix.sum() == 2  # Unknown outcomes do not enter the matrix.
+    assert matrix[PARTIES.index('lab'), PARTIES.index('con')] == 1
+    client.fail = failure
+    if failure:
+        with pytest.raises(RuntimeError, match='figure unavailable'):
+            tracking.log_evaluation_result(result, tracking={}, confusion_matrix_figure=figure)
+        run = next(iter(client.runs.values()))
+        assert run.info.status == 'FAILED'
+        assert run.data.tags['record_complete'] == 'false'
+    else:
+        run_id = tracking.log_evaluation_result(result, tracking={}, confusion_matrix_figure=figure)
+        assert (client.directory/run_id/'test_confusion_matrix.png').read_bytes().startswith(b'\x89PNG')
+        assert client.runs[run_id].info.status == 'FINISHED'
+        assert 'confusion_matrix_figure' not in (client.directory/run_id/'evaluation.json').read_text()

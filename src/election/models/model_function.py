@@ -1,4 +1,4 @@
-"""Shared scoring and optional local diagnostics, without experiment logging."""
+"""Shared scoring, prediction exports and in-memory evaluation figures."""
 from copy import deepcopy
 from pathlib import Path
 
@@ -10,8 +10,8 @@ from election.models.config import PARTIES
 
 
 def evaluate_fit(factory, train_data, test_data, hyperparameters, *, metadata,
-                 context=None, return_details=False, output_dir=None):
-    """Keep fitted implementation objects inside one call; return numbers/dicts."""
+                 context=None, return_details=False, output_dir=None, return_model=False):
+    """Return numbers/dicts, optionally exposing the final model for persistence."""
     unknown = set(hyperparameters) - set(metadata['supported_hyperparameters'])
     if unknown:
         raise ValueError(f"{metadata['model_id']}: unsupported hyperparameters {sorted(unknown)}")
@@ -43,27 +43,34 @@ def evaluate_fit(factory, train_data, test_data, hyperparameters, *, metadata,
                    evaluation_rows=int(labelled.sum()), excluded_rows=int((~labelled).sum()))
     if output_dir is not None:
         export_predictions(test_data, predicted, output_dir, metadata['model_id'])
+    if return_model:
+        details['fitted_model'] = model
+        details['confusion_matrix_figure'] = confusion_matrix_figure(
+            test_data, predicted, metadata['model_id'])
     return details if return_details else accuracy
 
 
 def export_predictions(data, predicted, output_dir, model_id):
     """Optional constituency reports stay on disk, never in MLflow."""
-    from matplotlib.figure import Figure
-    from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
     export = data.copy()
     export['predicted_winner'] = predicted
     export.to_csv(output / 'test_predictions.csv', index=False)
+
+
+def confusion_matrix_figure(data, predicted, model_id):
+    """Build a final evaluation figure without writing local matrix files."""
+    from matplotlib.figure import Figure
+    from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+    predicted = np.asarray(predicted)
     labelled = data.winner.notna().to_numpy()
-    labels = sorted(set(data.loc[labelled, 'winner']) | set(predicted[labelled]))
+    labels = list(PARTIES)
     matrix = confusion_matrix(data.loc[labelled, 'winner'], predicted[labelled], labels=labels)
-    pd.DataFrame(matrix, index=labels, columns=labels).to_csv(
-        output / 'test_confusion_matrix.csv', index_label='actual_winner')
     figure = Figure(figsize=(8, 6))
     ConfusionMatrixDisplay(matrix, display_labels=labels).plot(
         ax=figure.subplots(), cmap='Blues', values_format='d', colorbar=False)
     figure.axes[0].set_title(f'{model_id}: {int(data.election.iloc[0])}')
     figure.tight_layout()
-    figure.savefig(output / 'test_confusion_matrix.png', dpi=150, bbox_inches='tight')
+    return figure

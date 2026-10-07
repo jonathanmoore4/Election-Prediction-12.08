@@ -12,7 +12,10 @@ from election.models.config import (
 )
 from election.models.evaluation import nested_cv, json_value
 from election.models.compare_models import compare_models
-from election.models.tracking import compatibility_fields, read_evaluation
+from election.models.tracking import (
+    compatibility_fields, read_evaluation, tracked_execution,
+    execution_scope, log_stage_result,
+)
 from election.pipeline.preparation import run_preparation, load_prepared, prepared_locations
 
 PROJECT_ROOT = paths.project_root()
@@ -56,6 +59,7 @@ def _data_metadata(locations):
                 evaluation_protocol=EVALUATION_PROTOCOL)
 
 
+@tracked_execution('evaluate')
 def evaluate_models(prepared_data, *, model_ids=None, tracking=None, verbose=True,
                     n_trials=30, random_seed=42):
     """Load existing history and evaluate one or multiple models independently."""
@@ -71,18 +75,31 @@ def evaluate_models(prepared_data, *, model_ids=None, tracking=None, verbose=Tru
     return results
 
 
-def compare_recorded(prepared_data, *, model_ids=None, tracking=None):
+@tracked_execution('compare')
+def compare_recorded(prepared_data, *, model_ids=None, tracking=None, record=True):
     """Read the manifest and MLflow only; never load rows or start training."""
     locations = prepared_locations(prepared_data)
-    return compare_models(model_ids=_model_ids(model_ids),
+    comparison = compare_models(model_ids=_model_ids(model_ids),
         compatibility=compatibility_fields(_data_metadata(locations)),
         tracking={} if tracking is None else tracking)
+    if record:
+        comparison['run_id'] = log_stage_result(comparison, role='selection', tracking=tracking)
+    return comparison
 
 
-def evaluate_final(prepared_data, *, selection_run_id, source_run_ids=None,
+@tracked_execution('final')
+def evaluate_final(prepared_data, *, selection_run_id=None, source_run_ids=None,
+                   comparison_run_id=None, model_ids=None,
                    tracking=None, output_dir=None, verbose=True):
     """Tune/refit the historically selected model through 2019, then score 2024."""
     tracking = {} if tracking is None else tracking
+    if selection_run_id is None:
+        comparison = compare_recorded(prepared_data, model_ids=model_ids, tracking=tracking)
+        if comparison['missing_results'] or comparison['winner_model_id'] is None:
+            raise ValueError(f"Comparison requires all requested models: {comparison['missing_results']}")
+        selection_run_id = comparison['source_run_ids'][comparison['winner_model_id']]
+        source_run_ids = comparison['source_run_ids']
+        comparison_run_id = comparison['run_id']
     # Load outcomes only after a historical run identifies the chosen model.
     selected = read_evaluation(selection_run_id, tracking=tracking)
     if selected['schedule'] != json_value(MODEL_COMPARISON_SCHEDULE):
@@ -92,11 +109,8 @@ def evaluate_final(prepared_data, *, selection_run_id, source_run_ids=None,
         raise ValueError('Selected historical evaluation is incompatible with prepared data.')
     model_id = selected['model_id']
     function, _, metadata = model_functions(model_id)
-    # Reuse the evaluated search space/fixed settings rather than silently tuning
-    # a newer grid. Reject an implementation/protocol change before final fitting.
-    for key in ('architecture_id', 'training_protocol', 'features'):
-        if selected['metadata'][key] != metadata[key]:
-            raise ValueError(f'Selected model has an incompatible {key}; rerun historical evaluation.')
+    # Users rerun historical evaluation after edits; no implementation freshness
+    # detection. Reuse the selected evaluation's search and fixed settings.
     metadata['fixed_settings'] = deepcopy(selected['metadata'].get('fixed_settings', {}))
     if 'early_stopping' in selected['metadata']:
         metadata['early_stopping'] = deepcopy(selected['metadata']['early_stopping'])
@@ -104,6 +118,7 @@ def evaluate_final(prepared_data, *, selection_run_id, source_run_ids=None,
     result = nested_cv(function, selected['hyperparameter_candidates'], data,
         model_id=model_id, metadata={**metadata, **_data_metadata(locations),
             'selection_run_id': selection_run_id,
+            'comparison_run_id': comparison_run_id,
             'source_run_ids': source_run_ids or {model_id: selection_run_id}},
         schedule=FINAL_EVALUATION_SCHEDULE, tracking=tracking,
         output_dir=Path(output_dir) / 'reports' if output_dir is not None else None,
@@ -111,12 +126,13 @@ def evaluate_final(prepared_data, *, selection_run_id, source_run_ids=None,
     return result
 
 
+@tracked_execution('all')
 def run_pipeline(config=None, *, output_dir=None, model_ids=None, prepared_data=None,
                  reuse_evaluations=False, final_evaluation=True, tracking=None, verbose=True,
                  n_trials=30, random_seed=42):
     """Run the same independent stages, optionally reusing preparation/results.
 
-    Returns ordinary dictionaries; fitted models remain local to individual fits.
+    Returns ordinary dictionaries; only the final fitted model is persisted.
     Preparation runs only when prepared_data is omitted. reuse_evaluations=True
     compares existing runs and never starts historical training.
     """
@@ -127,6 +143,8 @@ def run_pipeline(config=None, *, output_dir=None, model_ids=None, prepared_data=
     ids = _model_ids(model_ids)
     tracking = {} if tracking is None else tracking
     prepared = run_preparation({**config, 'output_dir': output}) if prepared_data is None else prepared_locations(prepared_data)
+    if prepared_data is None:
+        log_stage_result(prepared, role='preparation', tracking=tracking)
     if not prepared.get('data_id'):
         _, prepared = load_prepared(prepared)
     evaluations = {} if reuse_evaluations else evaluate_models(
@@ -139,6 +157,7 @@ def run_pipeline(config=None, *, output_dir=None, model_ids=None, prepared_data=
     if final_evaluation:
         winner = comparison['winner_model_id']
         final = evaluate_final(prepared, selection_run_id=comparison['source_run_ids'][winner],
+            comparison_run_id=comparison['run_id'],
             source_run_ids=comparison['source_run_ids'], tracking=tracking,
             output_dir=output, verbose=verbose)
     return dict(prepared_data=prepared, evaluations=evaluations, comparison=comparison,
@@ -151,7 +170,7 @@ def main(argv=None):
     parser.add_argument('--model', nargs='+', choices=['all', *MODEL_MODULES], default=['all'])
     parser.add_argument('--data-dir', type=Path, help='Prepared manifest, snapshot folder, or outputs folder')
     parser.add_argument('--output-dir', type=Path, default=PROJECT_ROOT / 'outputs')
-    parser.add_argument('--selection-run', help='Completed historical MLflow run for the selected model')
+    parser.add_argument('--selection-run', help='Optional historical run override; final otherwise compares latest results')
     parser.add_argument('--reuse-evaluations', action='store_true')
     parser.add_argument('--skip-final', action='store_true')
     parser.add_argument('--n-trials', type=int, default=30,
@@ -165,16 +184,17 @@ def main(argv=None):
     model_ids = None if args.model == ['all'] else args.model
     prepared = args.data_dir or args.output_dir / 'latest_prepared.json'
     if args.stage == 'prepare':
-        result = run_preparation({'output_dir': args.output_dir})
+        with execution_scope('prepare', {}) as tracking:
+            result = run_preparation({'output_dir': args.output_dir})
+            log_stage_result(result, role='preparation', tracking=tracking)
     elif args.stage == 'evaluate':
         result = evaluate_models(prepared, model_ids=model_ids, verbose=not args.quiet,
                                  n_trials=args.n_trials, random_seed=args.random_seed)
     elif args.stage == 'compare':
         result = compare_recorded(prepared, model_ids=model_ids)
     elif args.stage == 'final':
-        if not args.selection_run:
-            parser.error('final requires --selection-run with a completed historical evaluation')
         result = evaluate_final(prepared, selection_run_id=args.selection_run,
+                                model_ids=model_ids,
                                 output_dir=args.output_dir, verbose=not args.quiet)
     else:
         result = run_pipeline(output_dir=args.output_dir, model_ids=model_ids,

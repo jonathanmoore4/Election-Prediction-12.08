@@ -21,9 +21,9 @@ TRAINING_METADATA = nn01_model_module.training_metadata('nn03', HIDDEN_SIZES)
 
 
 def NN03(train_data, test_data, hyperparameters, *, fit_records=None,
-          cache=None, return_details=False, output_dir=None):
+          cache=None, return_details=False, output_dir=None, return_model=False):
     """Preserve inner checkpoint selection and full-history median-duration refits."""
     return nn01_model_module.evaluate_neural(
         NeuralNetworkModel, TRAINING_METADATA, train_data, test_data, hyperparameters,
         fit_records=fit_records, cache=cache,
-        return_details=return_details, output_dir=output_dir)
+        return_details=return_details, output_dir=output_dir, return_model=return_model)

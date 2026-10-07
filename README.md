@@ -37,9 +37,7 @@ uv run python -m election.pipeline.run_pipeline all
 ```
 
 For a standalone script, use `uv run file_x.py` (replace the filename with an
-actual script). Existing runnable package files can also be executed directly,
-for example `uv run src/election/reports/accuracy_history.py`. Files that only
-define functions need a caller or executable entry point.
+actual script). Files that only define functions need a caller or executable entry point.
 
 `uv.lock` records dependency versions and `.python-version` selects Python 3.14.2.
 uv manages `.venv` and installs this package in editable mode; activation is optional.
@@ -51,13 +49,46 @@ startup remains available as `setup/mlflow-services.sh start`.
 
 See [first-time setup](notes/detailed_project_description.md#quick-start) before running this on a new checkout. A full run can take substantial time.
 
-To print saved 2024 accuracy history in the shell, with the MLflow configuration sourced:
+Inspect saved results in the MLflow UI: filter final evaluations with
+`tags.purpose = 'final_evaluation'`, compare `accuracy_2024`, and open a run's
+Artifacts to view `evaluation.json` and `test_confusion_matrix.png`.
+
+## Update a model and rerun selection
+
+After changing a model, rerun only its nested historical CV, then compare the
+latest results and evaluate the winner on 2024:
 
 ```bash
-uv run python -m election.reports.accuracy_history
+uv run python -m election.pipeline.run_pipeline evaluate --model random_forest
+uv run python -m election.pipeline.run_pipeline compare
+uv run python -m election.pipeline.run_pipeline final
 ```
 
-The report displays a pandas DataFrame with one row per run: accuracy as a percentage, saved model architecture, training protocol, fixed settings, hyperparameter search space, selected 2024 hyperparameters and early stopping settings where applicable. Long cells are shortened for terminal display; add `--full` to show their complete contents. In Python, `accuracy_history(MlflowClient(...))` from `election.reports.accuracy_history` returns the DataFrame with full configuration dictionaries and numeric accuracy proportions. This reads saved results without training; full runs evaluate only the historically selected model on 2024.
+`final` repeats the comparison using the latest successful compatible historical
+result for each model, retunes/refits the winner through 2019, and regenerates
+2024 predictions—even when the same model wins again. A newer worse historical
+result replaces the older result. You are responsible for rerunning models after
+edits; there is no code-change detection or pending-evaluation status.
+To refresh everything, run `all`. To reuse all historical evaluations and run
+comparison plus final evaluation together, run `all --reuse-evaluations
+--data-dir outputs/latest_prepared.json` on one command line.
+
+All invocations share the `election-prediction` experiment (or your configured
+experiment). An execution parent groups the stages performed in that invocation.
+Historical runs store scores and configuration summaries; comparison runs store
+the ranking and exact source run IDs. Reused runs stay under their original
+execution parents. Only the 2024 evaluation saves a fitted MLflow model, linked from its evaluation summary as `model_uri` (`models:/MODEL_ID`). Predictions are refreshed under `outputs/reports/`. Confusion matrix figures are
+logged only as artifacts on the final evaluation run. Previous MLflow
+runs remain available. No individual Optuna trials are logged.
+
+In Python, use `evaluate_models(prepared, model_ids=["random_forest"])`,
+`compare_recorded(prepared)`, then `evaluate_final(prepared, output_dir="outputs")`
+from `election.pipeline.run_pipeline`. An explicit historical run can still be
+chosen with `final --selection-run HISTORICAL_RUN_ID`.
+
+To reload the final model, pass its returned `model_uri` to
+`mlflow.pyfunc.load_model(model_uri)`. Its `predict(dataframe)` method accepts the
+model's predictors and election year and returns predicted winner labels.
 
 ## Data and predictors
 

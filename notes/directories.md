@@ -13,13 +13,12 @@ Paths are relative to the project root.
 | `src/election/pipeline/` | Coordinates the full data preparation and modelling workflow. |
 | `src/election/pipeline/helpers/` | Supports data loading, cleaning and predictor documentation. |
 | `src/election/models/` | Shared model support, nested evaluation, comparison, MLflow tracking. |
-| `src/election/reports/` | Terminal commands for saved accuracy history, comparisons, evaluation details and prepared-data manifests. |
 | `src/election/models/adapters/` | Gives individual model implementations a common interface. |
 | `tests/` | Automated checks for data processing, models and pipeline integration, including synthetic MLflow validation. |
 | `notebooks/` | Notebook entry point for running the pipeline. |
 | `notes/` | Detailed project description, proposed improvements and retained predictor guide. |
 | `outputs/` | Latest prepared-snapshot pointer (`latest_prepared.json`), dataset metadata and reports subfolders. |
-| `outputs/reports/` | Optional final predictions and confusion-matrix CSV/image reports, overwritten on a final-stage rerun. |
+| `outputs/reports/` | Optional final predictions CSV, overwritten on a final-stage rerun. Confusion matrix figures live in MLflow. |
 | `outputs/datasets/<snapshot>/` | Prepared-data manifests and generated predictor guides; train/test rows are stored in PostgreSQL. |
 
 ## Important files
@@ -36,7 +35,6 @@ Paths are relative to the project root.
 | `setup/election-database.sh` | Creates the separate election database and private connection configuration. |
 | `.env.election` | Private election database URL; excluded from Git. |
 | `.mlflow/config.env` | Generated private service configuration; excluded from Git. |
-| `src/election/reports/accuracy_history.py` | Prints completed 2024 MLflow evaluations without training. |
 | `tests/test_mlflow_pipeline.py` | Synthetic pipeline integration test formerly in `setup/validate_mlflow.py`. |
 | `notes/detailed_project_description.md` | Entire process, setup, independent stages, evaluation and model specifications. |
 | `notes/intended_next_improvements.md` | Proposed future changes. |

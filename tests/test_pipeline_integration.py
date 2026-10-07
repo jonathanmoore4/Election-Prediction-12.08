@@ -10,10 +10,22 @@ import pandas as pd
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def memory_tracking(tmp_path, monkeypatch):
+    from election.models import tracking
+    # Notebook setup changes the process environment; restore it after each test.
+    monkeypatch.setenv('MLFLOW_TRACKING_URI', '')
+    from tests.test_mlflow_tracking import MemoryClient
+    client = MemoryClient(tmp_path / 'tracking')
+    client.directory.mkdir()
+    monkeypatch.setattr(tracking, '_client', lambda settings: (client, 'experiment'))
+    return client
+
+
 def test_pipeline_reuses_prepared_data_and_evaluations_without_preparation_or_training(tmp_path,monkeypatch):
     pipeline=import_module('election.pipeline.run_pipeline')
     prepared={'data_id':'id','train_path':'train.csv','test_path':'test.csv'}
-    comparison={'winner_model_id':'logistic_regression','source_run_ids':{'logistic_regression':'run'},'missing_results':[]}
+    comparison={'winner_model_id':'logistic_regression','source_run_ids':{'logistic_regression':'run'},'missing_results':[], 'run_id':'comparison'}
     prepare=Mock(); evaluate=Mock(); final=Mock(return_value={'status':'complete'})
     monkeypatch.setattr(pipeline,'run_preparation',prepare)
     monkeypatch.setattr(pipeline,'evaluate_models',evaluate)
@@ -30,7 +42,7 @@ def test_complete_pipeline_calls_the_same_independent_stages(tmp_path,monkeypatc
     pipeline=import_module('election.pipeline.run_pipeline')
     prepared={'data_id':'id'}
     prepare=Mock(return_value=prepared); evaluate=Mock(return_value={'logistic_regression':{}})
-    compare=Mock(return_value={'winner_model_id':'logistic_regression','source_run_ids':{'logistic_regression':'run'},'missing_results':[]})
+    compare=Mock(return_value={'winner_model_id':'logistic_regression','source_run_ids':{'logistic_regression':'run'},'missing_results':[], 'run_id':'comparison'})
     final=Mock(return_value={'status':'complete'})
     for name,call in [('run_preparation',prepare),('evaluate_models',evaluate),('compare_recorded',compare),('evaluate_final',final)]:
         monkeypatch.setattr(pipeline,name,call)
@@ -152,15 +164,10 @@ def test_final_uses_recorded_grid_and_fixed_settings_and_checks_compatibility(tm
     assert nested.call_args.args[1]=={'C':[.123]}
     assert nested.call_args.kwargs['metadata']['fixed_settings']=={'max_iter':23}
     assert nested.call_args.kwargs['metadata']['selection_run_id']=='historical'
-    selected['metadata']['architecture_id']='incompatible'
-    with pytest.raises(ValueError,match='architecture_id'):
-        pipeline.evaluate_final(prepared,selection_run_id='historical')
-    selected['metadata']['architecture_id']=metadata['architecture_id']
-    selected['metadata']['features']=['different_feature']
-    nested.reset_mock()
-    with pytest.raises(ValueError,match='features'):
-        pipeline.evaluate_final(prepared,selection_run_id='historical')
-    nested.assert_not_called()
+    # Implementation updates are the user's responsibility; no freshness checks.
+    selected['metadata']['architecture_id']='updated'
+    pipeline.evaluate_final(prepared,selection_run_id='historical')
+    assert nested.call_count == 2
 
 
 def test_database_snapshot_is_preferred_to_csv_and_detects_changes(monkeypatch):
@@ -194,8 +201,95 @@ def test_pipeline_accepts_existing_csv_paths_without_a_manifest(tmp_path,monkeyp
     pd.DataFrame({'election':[2019],'winner':['con']}).to_csv(train_path,index=False)
     evaluate=Mock(return_value={})
     monkeypatch.setattr(pipeline,'evaluate_models',evaluate)
-    monkeypatch.setattr(pipeline,'compare_recorded',Mock(return_value={'missing_results':[]}))
+    monkeypatch.setattr(pipeline,'compare_recorded',Mock(return_value={'missing_results':[], 'run_id':'comparison'}))
     result=pipeline.run_pipeline(prepared_data={'train_path':str(train_path)},
         model_ids=['logistic_regression'],final_evaluation=False)
     assert result['prepared_data']['data_id']
     assert evaluate.call_args.args[0]['data_id']==result['prepared_data']['data_id']
+
+
+def test_single_model_update_changes_selection_and_final_reuses_latest_results(tmp_path, monkeypatch, memory_tracking):
+    from tests.test_mlflow_pipeline import demo_model
+    from election.models.config import OUTER_ELECTIONS
+    from election.models.tracking import read_evaluation
+    pipeline = import_module('election.pipeline.run_pipeline')
+    history = pd.DataFrame([{'election': year, 'winner': 'con'}
+        for year in (1987, 1992, 1997, 2001, *OUTER_ELECTIONS)])
+    test = history.tail(1).assign(election=2024)
+    prepared = {'data_id': 'synthetic'}
+    functions = {
+        'random_forest': {'party': ['con']},
+        'logistic_regression': {'party': ['lab']},
+    }
+    monkeypatch.setattr(pipeline, 'model_functions', lambda model_id: (
+        demo_model, functions[model_id], {'architecture_id': 'demo',
+        'training_protocol': 'demo', 'features': [], 'fixed_settings': {}}))
+    monkeypatch.setattr(pipeline, 'load_prepared', lambda data, include_test=False: (
+        pd.concat([history, test]) if include_test else history, prepared))
+    ids = list(functions)
+    first = pipeline.evaluate_models(prepared, model_ids=ids, verbose=False)
+    old_selection = pipeline.compare_recorded(prepared, model_ids=ids)
+    assert old_selection['winner_model_id'] == 'random_forest'
+    # Updating only the old winner to a worse model replaces its earlier score.
+    functions['random_forest'] = {'party': ['lab']}
+    updated = pipeline.evaluate_models(prepared, model_ids=['random_forest'], verbose=False)
+    comparison = pipeline.compare_recorded(prepared, model_ids=ids)
+    assert comparison['source_run_ids']['random_forest'] == updated['random_forest']['run_id']
+    assert comparison['source_run_ids']['logistic_regression'] == first['logistic_regression']['run_id']
+    assert comparison['ranked_results'][0]['mean_outer_accuracy'] == 0
+    # Same-name winner still gets fresh 2024 evaluation; previous runs stay intact.
+    final = pipeline.evaluate_final(prepared, model_ids=ids, output_dir=tmp_path, verbose=False)
+    assert final['mean_outer_accuracy'] == 0
+    saved = read_evaluation(final['run_id'], tracking={})
+    assert saved['metadata']['selection_run_id'] == updated['random_forest']['run_id']
+    comparison_id = saved['metadata']['comparison_run_id']
+    assert memory_tracking.runs[comparison_id].data.tags['run_role'] == 'selection'
+    assert read_evaluation(first['random_forest']['run_id'], tracking={})['mean_outer_accuracy'] == 1
+    assert (tmp_path / 'reports' / 'test_predictions.csv').exists()
+    # Each independent invocation has a parent; no trial runs or model copies.
+    children = [run for run in memory_tracking.runs.values() if run.data.tags.get('run_role') != 'execution']
+    assert all(run.data.tags['mlflow.parentRunId'] for run in children)
+    assert all(run.info.status == 'FINISHED' for run in memory_tracking.runs.values())
+
+
+def test_final_without_selection_run_refuses_missing_candidates(monkeypatch):
+    pipeline = import_module('election.pipeline.run_pipeline')
+    monkeypatch.setattr(pipeline, 'compare_recorded', Mock(return_value={
+        'missing_results': [{'model_id': 'nn01'}], 'winner_model_id': 'random_forest'}))
+    load = Mock()
+    monkeypatch.setattr(pipeline, 'load_prepared', load)
+    with pytest.raises(ValueError, match='requires all requested'):
+        pipeline.evaluate_final({'data_id': 'id'})
+    load.assert_not_called()
+
+
+def test_final_saves_only_selected_fitted_model(tmp_path, monkeypatch, memory_tracking):
+    import numpy as np
+    import mlflow.pyfunc
+    from election.models.tracking import read_evaluation
+    from tests.test_model_training import model_spec, small_spec, sample
+    pipeline = import_module('election.pipeline.run_pipeline')
+    spec = small_spec(model_spec(2))
+    history = sample()
+    test = history[history.election == 2019].assign(election=2024)
+    prepared = {'data_id': 'synthetic'}
+    monkeypatch.setattr(pipeline, 'load_prepared', lambda data, include_test=False: (
+        pd.concat([history, test]) if include_test else history, prepared))
+    monkeypatch.setattr(pipeline, 'model_functions', lambda model_id: (
+        spec['function'], {}, {**spec['metadata'], 'fixed_settings': spec['configuration']}))
+    pipeline.evaluate_models(prepared, model_ids=['logistic_regression'], verbose=False)
+    assert not memory_tracking.models
+    result = pipeline.evaluate_final(prepared, model_ids=['logistic_regression'],
+                                     output_dir=tmp_path, verbose=False)
+    assert len(memory_tracking.models) == 1
+    assert (memory_tracking.directory/result['run_id']/'test_confusion_matrix.png').exists()
+    assert not list((tmp_path/'reports').glob('*confusion*'))
+    model = next(iter(memory_tracking.models.values()))
+    assert model.status == 'READY'
+    assert model.source_run_id == result['run_id']
+    assert result['model_uri'] == f'models:/{model.model_id}'
+    assert read_evaluation(result['run_id'], tracking={})['model_uri'] == result['model_uri']
+    loaded = mlflow.pyfunc.load_model(str(memory_tracking.directory/'models'/model.model_id))
+    saved_predictions = pd.read_csv(tmp_path/'reports'/'test_predictions.csv')
+    np.testing.assert_array_equal(loaded.predict(test.drop(columns='winner')),
+                                  saved_predictions.predicted_winner.to_numpy())

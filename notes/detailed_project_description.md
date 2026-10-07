@@ -110,68 +110,38 @@ uv run python -m election.pipeline.run_pipeline evaluate --model logistic_regres
 
 ### Compare saved historical results
 
-Print a readable ranking of the latest compatible completed evaluation for each
-candidate, its mean historical accuracy and run ID. Also show the highest-ranked
-model and its selection run ID. Missing or incompatible runs are reported;
-comparison does not fit models or load PostgreSQL rows.
-
-```bash
-uv run python -m election.reports.comparison
-```
-
-To compare only the two candidates evaluated above:
-
-```bash
-uv run python -m election.reports.comparison --model logistic_regression random_forest
-```
-
-For the full comparison dictionary as JSON, including compatibility fields, use:
+Compare the latest compatible completed evaluation for each candidate. The command
+prints a JSON ranking with mean historical accuracy and source run IDs, and
+reports missing or incompatible runs. Comparison does not fit models or load
+PostgreSQL rows.
 
 ```bash
 uv run python -m election.pipeline.run_pipeline compare
 ```
 
+To compare only the two candidates evaluated above:
+
+```bash
+uv run python -m election.pipeline.run_pipeline compare --model logistic_regression random_forest
+```
+
 ### Evaluate the selected model on 2024
 
-Replace `HISTORICAL_RUN_ID` with the selection run ID from the historical
-comparison. Tune that model again using pre-2024 history, fit it through 2019,
+The final stage compares the latest historical results and selects the winner.
+Tune that model again using pre-2024 history, fit it through 2019,
 and score 2024. Record a separate final MLflow run and write predictions and
-confusion-matrix reports under `outputs/reports/`.
+a confusion matrix figure on the final MLflow run.
 
 ```bash
-uv run python -m election.pipeline.run_pipeline final --selection-run HISTORICAL_RUN_ID
+uv run python -m election.pipeline.run_pipeline final
 ```
 
-### Print saved 2024 accuracy and model specifications
+### Inspect saved evaluations
 
-List completed final evaluations, newest first, with percentage accuracy, run ID,
-model architecture, fixed settings, tuning search space and selected 2024
-hyperparameters. Early stopping settings are included when recorded.
-
-```bash
-uv run python -m election.reports.accuracy_history
-```
-
-The earlier `uv run python -m election.models.accuracy_history` command remains supported.
-
-### Inspect one saved evaluation
-
-Replace `RUN_ID` with any completed historical or final evaluation ID. Print its
-model specifications, data references, election accuracies, selected settings,
-inner scores and recorded refit durations. This retrieves saved MLflow results.
-
-```bash
-uv run python -m election.reports.run_details RUN_ID
-```
-
-### Inspect the prepared-data manifest
-
-Print the latest dataset identities, retained PostgreSQL schema and predictor-guide
-location. This reads the manifest without querying table rows.
-
-```bash
-uv run python -m election.reports.prepared_data
-```
+Use the MLflow UI to compare accuracy metrics and open `evaluation.json` for
+saved settings, inner scores, training history and data references. Final runs
+also contain `test_confusion_matrix.png` in Artifacts. Filter by
+`tags.purpose = 'final_evaluation'` for 2024 results.
 
 ### Run the complete pipeline
 
@@ -204,11 +174,7 @@ Add `--skip-final` to perform only the saved comparison.
 ### Choose input and output locations
 
 Use `--data-dir` to select an existing manifest, its snapshot folder, or an outputs
-folder containing `latest_prepared.json`. For example, inspect a particular snapshot:
-
-```bash
-uv run python -m election.reports.prepared_data --data-dir outputs/datasets/SNAPSHOT_ID
-```
+folder containing `latest_prepared.json`.
 
 The evaluation, comparison, final and full-pipeline commands also accept
 `--data-dir`. Independent stages default to `outputs/latest_prepared.json`.
@@ -222,7 +188,7 @@ uv run python -m election.pipeline.run_pipeline all --output-dir outputs/another
 
 Its manifest is `outputs/another_run/latest_prepared.json`, and final reports go
 under `outputs/another_run/reports/`. To read that run's comparison, pass
-`--data-dir outputs/another_run` to `election.reports.comparison`.
+`--data-dir outputs/another_run` to `election.pipeline.run_pipeline compare`.
 
 Use `--quiet` to hide fitting progress while keeping the final stage result:
 
@@ -230,8 +196,7 @@ Use `--quiet` to hide fitting progress while keeping the final stage result:
 uv run python -m election.pipeline.run_pipeline evaluate --model logistic_regression --quiet
 ```
 
-The pipeline stage commands print their result dictionaries as JSON. The
-`election.reports` commands provide readable saved summaries. Prepared rows live
+The pipeline stage commands print their result dictionaries as JSON. Inspect saved summaries in the MLflow UI. Prepared rows live
 in the manifest's PostgreSQL schema, in `train_data` and `test_data`; preparation
 saves metadata rather than CSV copies. The Python API remains available for
 programmatic use, including external CSV inputs.
@@ -246,21 +211,10 @@ Preparation reads the configured historical, notional, 2024 and polling sources.
 
 Model-specific normalisation, encoding, scaling, imputation and conditional role handling currently run inside the model-fitting implementations. Learned transformations fit only on each fold’s training data and are reused for its held-out rows. They are currently repeated as part of model fits; performing it once before each nested-CV iteration’s algorithm fits and reusing it across compatible fits is proposed in the improvements document.
 
-Final evaluation writes optional `test_predictions.csv`, `test_confusion_matrix.csv`
-and `test_confusion_matrix.png` under `outputs/reports/` by default. These reports
-are replaced on reruns; dataset manifests and MLflow evaluations retain their
-separate histories. The pipeline notebook displays the chart from this reports folder.
-
-## Saved 2024 accuracy history
-
-With the MLflow service running:
-
-```bash
-source setup/environment.sh
-uv run python -m election.reports.accuracy_history
-```
-
-Alternatively, run `uv run src/election/reports/accuracy_history.py` from the repository root. The command prints completion time (UTC), model, percentage accuracy and run ID, newest first, across completed compact final evaluations. `--experiment NAME` and `--tracking-uri URL` select another experiment or server. It also prints the saved model architecture, training protocol, fixed settings, tuning search space, selected 2024 hyperparameters and any early stopping settings. It reads saved results without training. Each full pipeline run evaluates only the historically selected candidate on 2024; it does not automatically produce 2024 scores for every candidate.
+Final evaluation optionally writes `test_predictions.csv` under `outputs/reports/`.
+The confusion matrix is built in memory and logged with `MlflowClient.log_figure`
+as `test_confusion_matrix.png` on the final evaluation run. No local confusion
+matrix CSV or PNG is exported. Each MLflow run retains its own figure.
 
 ## What the pipeline predicts
 
@@ -434,8 +388,9 @@ substituted for its latest compatible evaluation. The full pipeline requires all
 requested models to have compatible completed records before final testing.
 
 MLflow receives six accuracy metrics and one summary artifact per five-election
-model comparison, plus a separate final run. It receives no per-constituency data,
-fitted models, candidate-fit logs or epoch histories. Prepared datasets remain in retained PostgreSQL schemas; snapshot folders hold
+historical evaluation, plus a separate final run with the fitted MLflow model.
+Execution parents group stage runs, and comparison snapshots retain rankings and
+source run IDs. It receives no per-constituency data, candidate-fit logs or epoch histories. Prepared datasets remain in retained PostgreSQL schemas; snapshot folders hold
 manifests and predictor guides. MLflow contains their references.
 
 See the repository [README](../README.md), [model interface guide](../src/election/models/README.md)

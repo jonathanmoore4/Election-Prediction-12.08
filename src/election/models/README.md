@@ -3,7 +3,8 @@
 Model modules expose an accuracy-returning function, a candidate dictionary and
 `TRAINING_METADATA`. There are no candidate, evaluation-report or training-policy
 classes. Fitted sklearn pipelines, neural networks and two-stage classifiers
-remain implementation details and are never recorded in MLflow.
+remain implementation details during historical CV. Only the fitted final model
+is saved as a loadable MLflow model during 2024 evaluation.
 
 ```python
 import pandas as pd
@@ -63,7 +64,7 @@ outer/final refits. This explicit optional argument preserves the existing
 procedure; a bare neural call is not a substitute for the final-evaluation stage.
 
 All built-in functions optionally accept `return_details=True`, `cache`,
-`fit_records` and `output_dir`. Details and fit records are ordinary transient
+`fit_records`, `output_dir` and `return_model`. Details and fit records are ordinary transient
 dictionaries. Only the selected inner score summary and outer refit durations
 reach MLflow. Cached scores/checkpoint records are local to one nested evaluation;
 conditional stage fits are cached only within the same training partition.

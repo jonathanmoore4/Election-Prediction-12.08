@@ -300,7 +300,7 @@ def training_metadata(model_id, hidden_sizes):
 
 
 def evaluate_neural(factory, metadata, train_data, test_data, hyperparameters, *,
-                    fit_records=None, cache=None, return_details=False, output_dir=None):
+                    fit_records=None, cache=None, return_details=False, output_dir=None, return_model=False):
     """Inner test selects checkpoints; outer/final test never enters training."""
     from election.models.model_function import evaluate_fit
     if fit_records is None:
@@ -310,7 +310,7 @@ def evaluate_neural(factory, metadata, train_data, test_data, hyperparameters, *
             durations=median_refit_durations(fit_records), cache=cache)
     return evaluate_fit(factory, train_data, test_data, hyperparameters,
                         metadata=metadata, context=context,
-                        return_details=return_details, output_dir=output_dir)
+                        return_details=return_details, output_dir=output_dir, return_model=return_model)
 
 
 nn01hyperparameters = {'learning_rate': list(LEARNING_RATES)}
@@ -318,9 +318,9 @@ TRAINING_METADATA = training_metadata('nn01', HIDDEN_SIZES)
 
 
 def NN01(train_data, test_data, hyperparameters, *, fit_records=None,
-          cache=None, return_details=False, output_dir=None):
+          cache=None, return_details=False, output_dir=None, return_model=False):
     """Preserve inner checkpoint selection and full-history median-duration refits."""
     return evaluate_neural(
         NeuralNetworkModel, TRAINING_METADATA, train_data, test_data, hyperparameters,
         fit_records=fit_records, cache=cache,
-        return_details=return_details, output_dir=output_dir)
+        return_details=return_details, output_dir=output_dir, return_model=return_model)
